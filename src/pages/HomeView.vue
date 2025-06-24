@@ -12,8 +12,8 @@
     <router-link
       to="/districts-population"
       class="text-blue-600 hover:underline"
-      >Go to Districts Population</router-link
-    >
+      >Go to Districts Population
+    </router-link>
   </div>
 </template>
 
