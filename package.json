@@ -32,7 +32,7 @@
     "*.{js,ts,vue}": [
       "eslint --fix",
       "prettier --write",
-        "vue-tsc --noEmit"
+       "vue-tsc --noEmit"
     ]
   },
   "devDependencies": {
