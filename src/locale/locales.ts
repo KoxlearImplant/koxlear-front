@@ -16,7 +16,7 @@ export const localeOptions = computed(() => {
   return locales.map((el) => ({
     value: el.code,
     name: el.name,
-    id: el.code
+    id: el.code,
   }))
 })
 

@@ -11,31 +11,32 @@ setLocale({
   // use constant translation keys for messages without values
   mixed: {
     default: 'validation.field_invalid',
-    required: 'validation.field_required'
+    required: 'validation.field_required',
   },
   // use functions to generate an error object that includes the value from the schema
   number: {
     min: ({ min }) => ({ key: 'validation.field_too_short', values: { min } }),
-    max: ({ max }) => ({ key: 'validation.field_too_big', values: { max } })
+    max: ({ max }) => ({ key: 'validation.field_too_big', values: { max } }),
   },
 
   string: {
     min: ({ min }) => ({
       key: 'validation.string_field_too_short',
-      values: { min }
+      values: { min },
     }),
     max: ({ max }) => ({
       key: 'validation.string_field_too_big',
-      values: { max }
-    })
-  }
+      values: { max },
+    }),
+  },
 })
 
 const availableLocales = ['uz', 'uz-cyrl', 'ru', 'en', 'ar']
 
 function getDefaultLocale(): string {
   // Get locale from navigator
-  const locale = localStorage.getItem('locale') ?? navigator.language.split('-')[0]
+  const locale =
+    localStorage.getItem('locale') ?? navigator.language.split('-')[0]
 
   if (availableLocales.includes(locale)) {
     return locale
@@ -55,6 +56,6 @@ export const i18n = createI18n({
     uz,
     ru,
     en,
-    'uz-cyrl': uzCyrl
-  }
-} as any )
+    'uz-cyrl': uzCyrl,
+  },
+})
