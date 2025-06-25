@@ -11,6 +11,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@heroicons/vue": "^2.2.0",
     "@tailwindcss/vite": "^4.1.10",
     "@tanstack/vue-query": "^5.81.2",
     "axios": "^1.10.0",
