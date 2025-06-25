@@ -1,9 +1,7 @@
 import { createI18n } from 'vue-i18n'
 
 import uz from '@/assets/locales/uz.json'
-import uzCyrl from '@/assets/locales/uz-cyrl.json'
 import ru from '@/assets/locales/ru.json'
-import en from '@/assets/locales/en.json'
 
 import { setLocale } from 'yup'
 
@@ -31,7 +29,7 @@ setLocale({
   },
 })
 
-const availableLocales = ['uz', 'uz-cyrl', 'ru', 'en', 'ar']
+const availableLocales = ['uz', 'ru']
 
 function getDefaultLocale(): string {
   // Get locale from navigator
@@ -55,7 +53,5 @@ export const i18n = createI18n({
   messages: {
     uz,
     ru,
-    en,
-    'uz-cyrl': uzCyrl,
   },
 })

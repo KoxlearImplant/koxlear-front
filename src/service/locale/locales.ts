@@ -7,9 +7,7 @@ interface Locale {
 
 export const locales = [
   { name: 'Oʻzbekcha', code: 'uz' },
-  { name: 'Ўзбекча', code: 'uz-cyrl' },
   { name: 'Русский', code: 'ru' },
-  { name: 'English', code: 'en' },
 ] as Locale[]
 
 export const localeOptions = computed(() => {

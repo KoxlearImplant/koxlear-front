@@ -1,7 +1,7 @@
 import type { User } from '@/types'
 
-const AuthToken = 'call24_auth_token'
-const AuthUser = 'call24_auth_user'
+const AuthToken = 'auth_token'
+const AuthUser = 'auth_user'
 
 class Auth {
   saveLogin(token: string) {
