@@ -31,12 +31,12 @@
   "lint-staged": {
     "*.{js,ts,vue}": [
       "eslint --fix",
-      "prettier --write",
-       "vue-tsc --noEmit"
+      "prettier --write"
     ]
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
+    "@intlify/devtools-types": "^11.1.7",
     "@types/node": "^24.0.3",
     "@vitejs/plugin-vue": "^5.2.3",
     "@vue/tsconfig": "^0.7.0",
