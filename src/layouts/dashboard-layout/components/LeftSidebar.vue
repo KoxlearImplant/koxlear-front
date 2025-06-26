@@ -8,12 +8,84 @@ import {
   AcademicCapIcon,
   SparklesIcon,
 } from '@heroicons/vue/24/solid'
+import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import type { Component } from 'vue'
+
+const { t } = useI18n()
+const route = useRoute()
+
+interface NavItem {
+  to: string
+  icon: Component
+  label: string
+  activePattern: string
+  iconColor: string
+  borderColor: string
+}
+
+// Centralized navigation configuration
+const navItems: NavItem[] = [
+  {
+    to: '/dashboard/lessons',
+    icon: AcademicCapIcon,
+    label: t('nav.lessons', 'Learn'),
+    activePattern: '/dashboard/lessons',
+    iconColor: 'text-yellow-200',
+    borderColor: 'border-yellow-300',
+  },
+  {
+    to: '/dashboard/letters',
+    icon: ItalicIcon,
+    label: t('nav.letters', 'Letters'),
+    activePattern: '/letters',
+    iconColor: 'text-pink-200',
+    borderColor: 'border-pink-300',
+  },
+  {
+    to: '/achievements',
+    icon: TrophyIcon,
+    label: t('nav.achievements', 'Achievements'),
+    activePattern: '/achievements',
+    iconColor: 'text-yellow-200',
+    borderColor: 'border-yellow-300',
+  },
+  {
+    to: '/experiments',
+    icon: BeakerIcon,
+    label: t('nav.experiments', 'Experiments'),
+    activePattern: '/experiments',
+    iconColor: 'text-blue-200',
+    borderColor: 'border-blue-300',
+  },
+  {
+    to: '/store',
+    icon: ShoppingBagIcon,
+    label: t('nav.store', 'Store'),
+    activePattern: '/store',
+    iconColor: 'text-green-200',
+    borderColor: 'border-green-300',
+  },
+  {
+    to: '/profile',
+    icon: UserCircleIcon,
+    label: t('nav.profile', 'Profile'),
+    activePattern: '/profile',
+    iconColor: 'text-purple-200',
+    borderColor: 'border-purple-300',
+  },
+]
+
+// Helper function to check if route is active
+const isRouteActive = (pattern: string): boolean => {
+  return route.path.includes(pattern)
+}
 </script>
 
 <template>
   <!-- Fancy, child-friendly sidebar -->
   <nav
-    class="w-64 h-full bg-gradient-to-b from-blue-500 to-purple-600 dark:from-blue-900 dark:via-purple-900 dark:to-yellow-900 p-4 rounded-r-3xl shadow-2xl flex flex-col items-center"
+    class="w-64 h-full bg-gradient-to-b from-blue-500 to-purple-600 dark:from-blue-900 dark:via-purple-900 dark:to-yellow-900 p-4 shadow-2xl flex flex-col items-center"
   >
     <div class="mb-8 flex flex-col items-center">
       <SparklesIcon
@@ -25,60 +97,46 @@ import {
         FunNav!
       </h2>
     </div>
+
     <ul class="space-y-6 w-full">
-      <li>
-        <router-link to="/learn" class="fancy-link">
-          <AcademicCapIcon
-            class="inline-block size-6 mr-2 text-yellow-200 drop-shadow"
+      <li v-for="item in navItems" :key="item.to">
+        <router-link
+          :to="item.to"
+          class="flex items-center p-3 rounded-xl transition-all duration-300 hover:bg-white/10 hover:transform hover:translate-x-1"
+          :class="{
+            'bg-white/20 shadow-inner border-l-4': isRouteActive(
+              item.activePattern
+            ),
+            [item.borderColor]: isRouteActive(item.activePattern),
+          }"
+        >
+          <component
+            :is="item.icon"
+            class="inline-block size-6 mr-2 drop-shadow"
+            :class="item.iconColor"
           />
-          <span class="text-lg text-white font-bold">Learn</span>
-        </router-link>
-      </li>
-      <li>
-        <router-link to="/letters" class="fancy-link">
-          <ItalicIcon
-            class="inline-block size-6 mr-2 text-pink-200 drop-shadow"
-          />
-          <span class="text-lg text-white font-bold">Letters</span>
-        </router-link>
-      </li>
-      <li>
-        <router-link to="/practice" class="fancy-link">
-          <BeakerIcon
-            class="inline-block size-6 mr-2 text-green-200 drop-shadow"
-          />
-          <span class="text-lg text-white font-bold">Practice</span>
-        </router-link>
-      </li>
-      <li>
-        <router-link to="/leaderboard" class="fancy-link">
-          <TrophyIcon
-            class="inline-block size-6 mr-2 text-yellow-300 drop-shadow"
-          />
-          <span class="text-lg text-white font-bold">Leaderboard</span>
-        </router-link>
-      </li>
-      <li>
-        <router-link to="/shop" class="fancy-link">
-          <ShoppingBagIcon
-            class="inline-block size-6 mr-2 text-purple-200 drop-shadow"
-          />
-          <span class="text-lg text-white font-bold">Shop</span>
-        </router-link>
-      </li>
-      <li>
-        <router-link to="/profile" class="fancy-link">
-          <UserCircleIcon
-            class="inline-block size-6 mr-2 text-orange-200 drop-shadow"
-          />
-          <span class="text-lg text-white font-bold">Profile</span>
+          <span class="text-lg text-white font-bold">{{ item.label }}</span>
         </router-link>
       </li>
     </ul>
-    <div class="mt-auto pt-8">
-      <span class="text-base text-white font-bold">Have fun learning! 🎉</span>
-    </div>
   </nav>
 </template>
 
-<style scoped></style>
+<style scoped>
+/* Add a subtle scale animation for the active link icons */
+.router-link-active svg {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+</style>
