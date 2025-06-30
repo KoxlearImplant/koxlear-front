@@ -104,6 +104,48 @@
     "registering": "Создание учетной записи...",
     "registerSuccess": "Учетная запись успешно создана!",
     "registerFailed": "Ошибка регистрации. Пожалуйста, попробуйте снова."
+  },
+  "gender": {
+    "male": "Мужской"
+  },
+  "lessons": {
+    "listenAndRepeat": "Прослушайте и повторите",
+    "listen": "Слушать",
+    "stop": "Стоп",
+    "startRecording": "Начать запись",
+    "stopRecording": "Остановить запись",
+    "playRecording": "Воспроизвести запись",
+    "reset": "Сбросить",
+    "submit": "Отправить",
+    "sending": "Отправка...",
+    "goodJob": "Молодец!",
+    "tryAgain": "Попробуйте еще раз",
+    "errorSubmitting": "Ошибка при отправке записи. Попробуйте еще раз.",
+    "microphoneError": "Доступ к микрофону запрещен или недоступен.",
+    "stepCompleted": "Шаг завершен!",
+    "title": "Уроки",
+    "loading": "Загрузка уроков...",
+    "errorLoading": "Ошибка загрузки уроков",
+    "contains": "Содержит {count} заданий",
+    "lessonDetail": "Детали урока",
+    "lessonNotFound": "Урок не найден",
+    "returnToLessons": "Пожалуйста, вернитесь на страницу уроков",
+    "backToLessons": "Назад к урокам",
+    "lessonComplete": "Урок завершён!",
+    "greatJob": "Отличная работа! Вы завершили этот урок.",
+    "nextLesson": "Следующий урок",
+    "progress": "Прогресс",
+    "items": "заданий",
+    "previous": "Предыдущий",
+    "finish": "Завершить урок",
+    "next": "Далее"
+  },
+  "nav": {
+    "lessons": "Обучение",
+    "letters": "Буквы",
+    "achievements": "Достижения",
+    "experiments": "Эксперименты",
+    "store": "Магазин",
+    "profile": "Профиль"
   }
 }
-

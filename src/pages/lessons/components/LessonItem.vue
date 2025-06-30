@@ -87,8 +87,7 @@ const startRecording = async () => {
     mediaRecorder.value.start()
   } catch (error) {
     console.error('Error accessing microphone:', error)
-    feedback.value =
-      t('lessons.microphoneError') || 'Could not access microphone'
+    feedback.value = t('lessons.microphoneError')
     feedbackStatus.value = 'error'
   }
 }
@@ -117,7 +116,7 @@ const submitRecording = async () => {
 
   try {
     isSending.value = true
-    feedback.value = t('lessons.sending') || 'Sending your recording...'
+    feedback.value = t('lessons.sending')
     feedbackStatus.value = 'none'
 
     // Create a form data object to send the recorded audio
@@ -138,27 +137,17 @@ const submitRecording = async () => {
 
     // Handle the response
     if (response.data.success) {
-      feedback.value =
-        response.data.message ||
-        t('lessons.goodJob') ||
-        'Good job! Your pronunciation is correct.'
+      feedback.value = response.data.message || t('lessons.goodJob')
       feedbackStatus.value = 'success'
       isItemCompleted.value = true
-
-      // Emit that this item is completed
       emit('item-completed', props.item.id)
     } else {
-      feedback.value =
-        response.data.message ||
-        t('lessons.tryAgain') ||
-        'Try again with your pronunciation.'
+      feedback.value = response.data.message || t('lessons.tryAgain')
       feedbackStatus.value = 'error'
     }
   } catch (error) {
     console.error('Error submitting recording:', error)
-    feedback.value =
-      t('lessons.errorSubmitting') ||
-      'Error submitting recording. Please try again.'
+    feedback.value = t('lessons.errorSubmitting')
     feedbackStatus.value = 'error'
   } finally {
     isSending.value = false
@@ -181,8 +170,8 @@ const buttonColor = computed(() => {
 })
 
 const buttonText = computed(() => {
-  if (isRecording.value) return t('lessons.stopRecording') || 'Stop Recording'
-  return t('lessons.startRecording') || 'Record Your Voice'
+  if (isRecording.value) return t('lessons.stopRecording')
+  return t('lessons.startRecording')
 })
 </script>
 
@@ -197,7 +186,7 @@ const buttonText = computed(() => {
         class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm flex items-center"
       >
         <CheckIcon class="h-4 w-4 mr-1" />
-        {{ t('lessons.stepCompleted', 'Step Completed') }}
+        {{ t('lessons.stepCompleted') }}
       </div>
     </div>
 
@@ -209,7 +198,7 @@ const buttonText = computed(() => {
         <div>
           <h3 class="text-lg font-semibold">{{ item.word }}</h3>
           <p class="text-sm text-gray-500">
-            {{ t('lessons.listenAndRepeat') || 'Listen and repeat' }}
+            {{ t('lessons.listenAndRepeat') }}
           </p>
         </div>
       </div>
@@ -220,11 +209,7 @@ const buttonText = computed(() => {
       >
         <PlayCircleIcon v-if="!isPlaying" class="h-5 w-5 mr-2" />
         <PauseCircleIcon v-else class="h-5 w-5 mr-2" />
-        {{
-          isPlaying
-            ? t('lessons.stop') || 'Stop'
-            : t('lessons.listen') || 'Listen'
-        }}
+        {{ isPlaying ? t('lessons.stop') : t('lessons.listen') }}
       </Button>
     </div>
 
@@ -264,19 +249,8 @@ const buttonText = computed(() => {
               @click="playRecordedAudio"
               class="bg-gray-500 hover:bg-gray-600"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5 mr-2"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-              {{ t('lessons.playRecording') || 'Play Recording' }}
+              <PlayCircleIcon class="h-5 w-5 mr-2" />
+              {{ t('lessons.playRecording') }}
             </Button>
 
             <div>
@@ -285,35 +259,36 @@ const buttonText = computed(() => {
                 class="bg-gray-200 text-gray-700 hover:bg-gray-300 mr-2"
                 :disabled="isItemCompleted"
               >
-                {{ t('lessons.reset') || 'Reset' }}
+                {{ t('lessons.reset') }}
               </Button>
               <Button
                 @click="submitRecording"
                 class="bg-green-500 hover:bg-green-600"
                 :disabled="isSending || isItemCompleted"
               >
-                <svg
-                  v-if="isSending"
-                  class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    class="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    stroke-width="4"
-                  ></circle>
-                  <path
-                    class="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                {{ t('lessons.submit') || 'Submit' }}
+                <span v-if="isSending">
+                  <svg
+                    class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      class="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      stroke-width="4"
+                    ></circle>
+                    <path
+                      class="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                </span>
+                {{ t('lessons.submit') }}
               </Button>
             </div>
           </div>

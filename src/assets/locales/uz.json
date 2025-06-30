@@ -104,5 +104,48 @@
     "registering": "Hisobingiz yaratilyapti...",
     "registerSuccess": "Hisob muvaffaqiyatli yaratildi!",
     "registerFailed": "Ro'yxatdan o'tish muvaffaqiyatsiz. Iltimos, qayta urinib ko'ring."
+  },
+  "gender": {
+    "male": "Erkak"
+  },
+  "lessons": {
+    "listenAndRepeat": "Tinglang va takrorlang",
+    "listen": "Tinglang",
+    "stop": "To'xtatish",
+    "startRecording": "Yozishni boshlash",
+    "stopRecording": "Yozishni to'xtatish",
+    "playRecording": "Yozuvni tinglash",
+    "reset": "Qayta tiklash",
+    "submit": "Yuborish",
+    "sending": "Yuborilmoqda...",
+    "goodJob": "Ajoyib!",
+    "tryAgain": "Yana urinib ko'ring",
+    "errorSubmitting": "Yozuvni yuborishda xatolik. Iltimos, qayta urinib ko'ring.",
+    "microphoneError": "Mikrofonga ruxsat berilmagan yoki mavjud emas.",
+    "stepCompleted": "Bosqich yakunlandi!",
+    "title": "Darslar",
+    "loading": "Darslar yuklanmoqda...",
+    "errorLoading": "Darslarni yuklashda xatolik",
+    "contains": "{count} ta topshiriqni o'z ichiga oladi",
+    "lessonDetail": "Dars tafsilotlari",
+    "lessonNotFound": "Dars topilmadi",
+    "returnToLessons": "Iltimos, darslar sahifasiga qayting",
+    "backToLessons": "Darslarga qaytish",
+    "lessonComplete": "Dars yakunlandi!",
+    "greatJob": "Ajoyib ish! Siz ushbu darsni tugalladingiz.",
+    "nextLesson": "Keyingi dars",
+    "progress": "Taraqqiyot",
+    "items": "topshiriqlar",
+    "previous": "Oldingi",
+    "finish": "Darsni yakunlash",
+    "next": "Keyingi"
+  },
+  "nav": {
+    "lessons": "O‘rganish",
+    "letters": "Harflar",
+    "achievements": "Yutuqlar",
+    "experiments": "Tajriba",
+    "store": "Do‘kon",
+    "profile": "Profil"
   }
 }

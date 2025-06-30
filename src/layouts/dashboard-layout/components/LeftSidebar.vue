@@ -11,6 +11,7 @@ import {
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { Component } from 'vue'
+import LangSelect from '@/components/common/LangSelect.vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -117,6 +118,7 @@ const isRouteActive = (pattern: string): boolean => {
         </router-link>
       </li>
     </ul>
+    <LangSelect class="mt-auto z-50 w-full" />
   </nav>
 </template>
 
