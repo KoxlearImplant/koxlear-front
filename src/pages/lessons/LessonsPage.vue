@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const router = useRouter()
-const { data, error, isLoading } = useGetAllLessons()
+const { data: allLessons, error, isLoading } = useGetAllLessons()
 
 const openLesson = (lessonId: number) => {
   router.push(`/dashboard/lessons/${lessonId}`)
@@ -21,26 +21,6 @@ function getGradientColor(id: number) {
     'from-emerald-500 to-cyan-600',
   ]
   return colors[id % colors.length]
-}
-
-function getItemTypes(items) {
-  // Count item types and show summary
-  if (!items || !items.length) return ''
-
-  const types = items.reduce((acc, item) => {
-    acc[item.type] = (acc[item.type] || 0) + 1
-    return acc
-  }, {})
-
-  if (types['tts'] && !types['stt'] && !types['img']) {
-    return 'Audio lessons'
-  } else if (types['stt'] && !types['tts'] && !types['img']) {
-    return 'Speech lessons'
-  } else if (types['img'] && !types['tts'] && !types['stt']) {
-    return 'Visual lessons'
-  }
-
-  return 'Mixed lesson types'
 }
 </script>
 
@@ -108,11 +88,11 @@ function getItemTypes(items) {
 
     <!-- Lessons grid -->
     <div
-      v-else-if="data && data.length"
+      v-else-if="allLessons && allLessons.length"
       class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
     >
       <div
-        v-for="lesson in data"
+        v-for="lesson in allLessons"
         :key="lesson.id"
         class="lesson-card bg-white rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300"
         @click="openLesson(lesson.id)"
@@ -158,16 +138,10 @@ function getItemTypes(items) {
           <div class="flex items-center justify-between mb-4">
             <div class="text-sm text-gray-600">
               {{
-                t('lessons.contains', 'Contains {count} items', {
+                t('lessons.contains', {
                   count: lesson.items.length,
                 })
               }}
-            </div>
-
-            <div
-              class="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full"
-            >
-              {{ getItemTypes(lesson.items) }}
             </div>
           </div>
 
