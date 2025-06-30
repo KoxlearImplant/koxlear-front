@@ -4,6 +4,13 @@ import { Button } from '@/components/ui/button'
 import { useI18n } from 'vue-i18n'
 import type { LessonItemType } from '../types'
 import axios from 'axios'
+import {
+  PlayCircleIcon,
+  PauseCircleIcon,
+  SpeakerWaveIcon,
+  CheckIcon,
+  MicrophoneIcon,
+} from '@heroicons/vue/24/outline'
 
 const { t } = useI18n()
 const props = defineProps<{
@@ -189,20 +196,7 @@ const buttonText = computed(() => {
       <div
         class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm flex items-center"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-4 w-4 mr-1"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M5 13l4 4L19 7"
-          />
-        </svg>
+        <CheckIcon class="h-4 w-4 mr-1" />
         {{ t('lessons.stepCompleted', 'Step Completed') }}
       </div>
     </div>
@@ -210,20 +204,7 @@ const buttonText = computed(() => {
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center">
         <div class="bg-blue-100 p-3 rounded-full mr-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6 text-blue-500"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 001.414 1.414m2.828-9.9a5 5 0 00-7.072 0"
-            />
-          </svg>
+          <SpeakerWaveIcon class="h-6 w-6 text-blue-500" />
         </div>
         <div>
           <h3 class="text-lg font-semibold">{{ item.word }}</h3>
@@ -237,32 +218,8 @@ const buttonText = computed(() => {
         @click="playAudio"
         class="bg-blue-500 hover:bg-blue-600 transition-colors flex items-center"
       >
-        <svg
-          v-if="!isPlaying"
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5 mr-2"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-            clip-rule="evenodd"
-          />
-        </svg>
-        <svg
-          v-else
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5 mr-2"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"
-            clip-rule="evenodd"
-          />
-        </svg>
+        <PlayCircleIcon v-if="!isPlaying" class="h-5 w-5 mr-2" />
+        <PauseCircleIcon v-else class="h-5 w-5 mr-2" />
         {{
           isPlaying
             ? t('lessons.stop') || 'Stop'
@@ -285,21 +242,10 @@ const buttonText = computed(() => {
           class="w-16 h-16 rounded-full flex items-center justify-center mb-4"
           :class="[isRecording ? 'bg-red-100 animate-pulse' : 'bg-gray-100']"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
+          <MicrophoneIcon
             class="h-8 w-8"
             :class="isRecording ? 'text-red-600' : 'text-gray-500'"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-            />
-          </svg>
+          />
         </div>
 
         <Button
