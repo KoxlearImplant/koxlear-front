@@ -1,98 +1,164 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
 import LangSelect from '@/components/common/LangSelect.vue'
-import { useField, useForm } from 'vee-validate'
-import * as yup from 'yup'
+import { useSendOtp, useVerifyOtp, useRegister } from '@/pages/auth/queries'
+import { useAuthStore } from '@/store/auth.store'
+import type { APIError } from './types'
 
 const { t } = useI18n()
 const router = useRouter()
+const auth = useAuthStore()
 
-const isLoading = ref(false)
+// Stepper state
+const step = ref(1)
 const successMessage = ref('')
 const errorMessage = ref('')
 
-// Form validation schema
-const schema = yup.object({
-  name: yup.string().required(t('auth.nameRequired') || 'Name is required'),
-  email: yup
-    .string()
-    .email(t('auth.invalidEmail') || 'Invalid email')
-    .required(t('auth.emailRequired') || 'Email is required'),
-  password: yup
-    .string()
-    .min(8, t('auth.passwordMin') || 'Password must be at least 8 characters')
-    .required(t('auth.passwordRequired') || 'Password is required'),
-  confirmPassword: yup
-    .string()
-    .oneOf(
-      [yup.ref('password')],
-      t('auth.passwordMatch') || 'Passwords must match'
-    )
-    .required(
-      t('auth.confirmPasswordRequired') || 'Please confirm your password'
-    ),
-  agreeTerms: yup
-    .boolean()
-    .oneOf(
-      [true],
-      t('auth.agreeTermsRequired') ||
-        'You must agree to the terms and conditions'
-    )
-    .required(),
-})
+// Step 1: Email
+const email = ref('')
 
-// Form handling with vee-validate
-const { handleSubmit, errors } = useForm({
-  validationSchema: schema,
-})
+// Step 2: OTP
+const otp = ref('')
+const session = ref('')
 
-// Define form fields
-const { value: name } = useField('name')
-const { value: email } = useField('email')
-const { value: password } = useField('password')
-const { value: confirmPassword } = useField('confirmPassword')
-const { value: agreeTerms } = useField('agreeTerms')
+// Step 3: Registration fields
+const firstName = ref('')
+const password = ref('')
+const confirmPassword = ref('')
 
-// Check if form is valid to enable/disable submit button
-const isFormValid = computed(() => {
-  return (
-    name.value &&
-    email.value &&
-    password.value &&
-    confirmPassword.value &&
-    agreeTerms.value &&
-    Object.keys(errors.value).length === 0
-  )
-})
+// Validation errors
+const errors = ref<{ [key: string]: string }>({})
 
-const handleRegister = handleSubmit(async () => {
-  isLoading.value = true
+// --- useSendOtp hook ---
+const { mutate: sendOtp, isPending: isSendingOtp } = useSendOtp()
+
+// --- useVerifyOtp hook ---
+const { mutate: verifyOtpMutation, isPending: isVerifyingOtp } = useVerifyOtp()
+
+// --- useRegister hook ---
+const { mutate: registerMutation, isPending: isRegistering } = useRegister()
+
+// Step 1: Send OTP
+const handleSendOTP = () => {
   errorMessage.value = ''
   successMessage.value = ''
-
-  try {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Mock successful registration
-    successMessage.value =
-      t('auth.registerSuccess') || 'Account created successfully!'
-
-    // Redirect to login after short delay
-    setTimeout(() => {
-      router.push('/auth/login')
-    }, 2000)
-  } catch (error) {
-    console.log(error)
-    errorMessage.value =
-      t('auth.registerFailed') || 'Registration failed. Please try again.'
-  } finally {
-    isLoading.value = false
+  errors.value = {}
+  if (!email.value) {
+    errors.value.email = t('auth.emailRequired') || 'Email is required'
+    return
   }
-})
+  // Basic email format check
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(email.value)) {
+    errors.value.email = t('auth.invalidEmail') || 'Invalid email'
+    return
+  }
+  sendOtp(
+    { email: email.value },
+    {
+      onSuccess: (data) => {
+        session.value = data.session
+        step.value = 2
+        successMessage.value = t('auth.otpSent') || 'OTP sent to your email.'
+      },
+      onError: (err: APIError) => {
+        errorMessage.value =
+          err.response?.data?.error ||
+          t('auth.otpSendFailed') ||
+          'Failed to send OTP.'
+      },
+    }
+  )
+}
+
+// Step 2: Verify OTP
+const handleVerifyOTP = () => {
+  errorMessage.value = ''
+  successMessage.value = ''
+  errors.value = {}
+  if (!otp.value) {
+    errors.value.otp = t('auth.otpRequired') || 'OTP is required'
+    return
+  }
+
+  verifyOtpMutation(
+    { session: session.value, code: otp.value },
+    {
+      onSuccess: () => {
+        step.value = 3
+        successMessage.value =
+          t('auth.otpVerified') || 'OTP verified. Continue registration.'
+      },
+      onError: (err: APIError) => {
+        errorMessage.value =
+          err.response?.data?.error ||
+          t('auth.otpVerifyFailed') ||
+          'OTP verification failed.'
+      },
+    }
+  )
+}
+
+// Step 3: Register
+const handleRegister = () => {
+  errorMessage.value = ''
+  successMessage.value = ''
+  errors.value = {}
+  // Validate fields
+  if (!firstName.value) {
+    errors.value.firstName = t('auth.nameRequired') || 'Name is required'
+  }
+  if (!password.value) {
+    errors.value.password = t('auth.passwordRequired') || 'Password is required'
+  } else if (password.value.length < 8) {
+    errors.value.password =
+      t('auth.passwordMin') || 'Password must be at least 8 characters'
+  }
+  if (!confirmPassword.value) {
+    errors.value.confirmPassword =
+      t('auth.confirmPasswordRequired') || 'Please confirm your password'
+  } else if (password.value !== confirmPassword.value) {
+    errors.value.confirmPassword =
+      t('auth.passwordMatch') || 'Passwords must match'
+  }
+  if (Object.keys(errors.value).length > 0) {
+    return
+  }
+
+  registerMutation(
+    {
+      email: email.value,
+      password: password.value,
+      first_name: firstName.value,
+      session: session.value,
+    },
+    {
+      onSuccess: (data) => {
+        // Set tokens in auth store
+        auth.setTokens(data.access, data.refresh)
+        auth.setUser({
+          email: email.value,
+          first_name: firstName.value,
+        })
+
+        successMessage.value =
+          t('auth.registerSuccess') || 'Account created successfully!'
+        setTimeout(() => {
+          router.push('/dashboard')
+        }, 2000)
+      },
+      onError: (err: APIError) => {
+        errorMessage.value =
+          err.response?.data?.error ||
+          t('auth.registerFailed') ||
+          'Registration failed. Please try again.'
+      },
+    }
+  )
+}
 
 const goToLogin = () => {
   router.push('/auth/login')
@@ -151,88 +217,122 @@ const goToHome = () => {
             {{ errorMessage }}
           </div>
 
-          <form @submit.prevent="handleRegister">
-            <!-- Name field -->
-            <div class="mb-4">
-              <label
-                class="block text-gray-700 text-sm font-medium mb-2"
-                for="name"
-              >
-                {{ t('auth.name') || 'Full Name' }}
-              </label>
-              <input
-                id="name"
-                v-model="name"
-                type="text"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                :placeholder="
-                  t('auth.namePlaceholder') || 'Enter your full name'
-                "
-              />
-              <p v-if="errors.name" class="mt-1 text-xs text-red-500">
-                {{ errors.name }}
-              </p>
-            </div>
-
-            <!-- Email field -->
+          <!-- Step 1: Email -->
+          <form v-if="step === 1" @submit.prevent="handleSendOTP">
             <div class="mb-4">
               <label
                 class="block text-gray-700 text-sm font-medium mb-2"
                 for="email"
               >
-                {{ t('auth.email') || 'Email' }}
+                {{ t('auth.email') }}
               </label>
               <input
                 id="email"
                 v-model="email"
                 type="email"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                :placeholder="t('auth.emailPlaceholder') || 'Enter your email'"
+                :class="{ 'border-red-500': errors.email }"
+                :placeholder="t('auth.emailPlaceholder')"
               />
               <p v-if="errors.email" class="mt-1 text-xs text-red-500">
                 {{ errors.email }}
               </p>
             </div>
+            <Button
+              type="submit"
+              class="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200"
+              :disabled="isSendingOtp"
+            >
+              <span v-if="isSendingOtp">{{ t('auth.sendingOtp') }}</span>
+              <span v-else>{{ t('auth.sendOtp') }}</span>
+            </Button>
+          </form>
 
-            <!-- Password field -->
+          <!-- Step 2: OTP -->
+          <form v-else-if="step === 2" @submit.prevent="handleVerifyOTP">
+            <div class="mb-4">
+              <label
+                class="block text-gray-700 text-sm font-medium mb-2"
+                for="otp"
+              >
+                {{ t('auth.otp') }}
+              </label>
+              <input
+                id="otp"
+                v-model="otp"
+                type="text"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                :class="{ 'border-red-500': errors.otp }"
+                :placeholder="t('auth.otpPlaceholder')"
+              />
+              <p v-if="errors.otp" class="mt-1 text-xs text-red-500">
+                {{ errors.otp }}
+              </p>
+            </div>
+            <Button
+              type="submit"
+              class="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200"
+              :disabled="isVerifyingOtp"
+            >
+              <span v-if="isVerifyingOtp">{{ t('auth.verifyingOtp') }}</span>
+              <span v-else>{{ t('auth.verifyOtp') }}</span>
+            </Button>
+          </form>
+
+          <!-- Step 3: Registration fields -->
+          <form v-else @submit.prevent="handleRegister">
+            <div class="mb-4">
+              <label
+                class="block text-gray-700 text-sm font-medium mb-2"
+                for="firstName"
+              >
+                {{ t('auth.name') }}
+              </label>
+              <input
+                id="firstName"
+                v-model="firstName"
+                type="text"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                :class="{ 'border-red-500': errors.firstName }"
+                :placeholder="t('auth.namePlaceholder')"
+              />
+              <p v-if="errors.firstName" class="mt-1 text-xs text-red-500">
+                {{ errors.firstName }}
+              </p>
+            </div>
             <div class="mb-4">
               <label
                 class="block text-gray-700 text-sm font-medium mb-2"
                 for="password"
               >
-                {{ t('auth.password') || 'Password' }}
+                {{ t('auth.password') }}
               </label>
               <input
                 id="password"
                 v-model="password"
                 type="password"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                :placeholder="
-                  t('auth.passwordPlaceholder') || 'Enter your password'
-                "
+                :class="{ 'border-red-500': errors.password }"
+                :placeholder="t('auth.passwordPlaceholder')"
               />
               <p v-if="errors.password" class="mt-1 text-xs text-red-500">
                 {{ errors.password }}
               </p>
             </div>
-
-            <!-- Confirm Password field -->
             <div class="mb-4">
               <label
                 class="block text-gray-700 text-sm font-medium mb-2"
-                for="confirm-password"
+                for="confirmPassword"
               >
-                {{ t('auth.confirmPassword') || 'Confirm Password' }}
+                {{ t('auth.confirmPassword') }}
               </label>
               <input
-                id="confirm-password"
+                id="confirmPassword"
                 v-model="confirmPassword"
                 type="password"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                :placeholder="
-                  t('auth.confirmPasswordPlaceholder') ||
-                  'Confirm your password'
-                "
+                :class="{ 'border-red-500': errors.confirmPassword }"
+                :placeholder="t('auth.confirmPasswordPlaceholder')"
               />
               <p
                 v-if="errors.confirmPassword"
@@ -241,40 +341,13 @@ const goToHome = () => {
                 {{ errors.confirmPassword }}
               </p>
             </div>
-
-            <!-- Terms checkbox -->
-            <div class="mb-6">
-              <div class="flex items-start">
-                <div class="flex items-center h-5">
-                  <input
-                    id="terms"
-                    v-model="agreeTerms"
-                    type="checkbox"
-                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                </div>
-                <label for="terms" class="ml-2 block text-sm text-gray-700">
-                  {{
-                    t('auth.agreeTerms') ||
-                    'I agree to the Terms and Conditions'
-                  }}
-                </label>
-              </div>
-              <p v-if="errors.agreeTerms" class="mt-1 text-xs text-red-500">
-                {{ errors.agreeTerms }}
-              </p>
-            </div>
-
-            <!-- Register button -->
             <Button
               type="submit"
               class="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200"
-              :disabled="isLoading || !isFormValid"
+              :disabled="isRegistering"
             >
-              <span v-if="isLoading">{{
-                t('auth.registering') || 'Creating your account...'
-              }}</span>
-              <span v-else>{{ t('auth.register') || 'Register' }}</span>
+              <span v-if="isRegistering">{{ t('auth.registering') }}</span>
+              <span v-else>{{ t('auth.register') }}</span>
             </Button>
           </form>
         </div>

@@ -10,4 +10,12 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    cors: true,
+    allowedHosts: ['https://5659-185-78-139-78.ngrok-free.app/'],
+    host: true,
+  },
+  preview: {
+    host: true,
+  },
 })
