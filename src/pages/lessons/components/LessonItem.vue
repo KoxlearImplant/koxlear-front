@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 import { Button } from '@/components/ui/button'
 import { useI18n } from 'vue-i18n'
 import type { LessonItemType } from '../types'
@@ -37,9 +37,24 @@ const feedback = ref<string>('')
 const feedbackStatus = ref<'success' | 'error' | 'none'>('none')
 const isSending = ref(false)
 const isItemCompleted = ref(false)
+const showCelebration = ref(false)
+const isAudioPlaying = ref(false)
+const isLoading = ref(false)
+const celebrationParticles = ref<
+  Array<{
+    id: number
+    x: number
+    y: number
+    vx: number
+    vy: number
+    color: string
+    type: 'firework' | 'confetti' | 'balloon'
+  }>
+>([])
 
 const audioRef = ref<HTMLAudioElement | null>(null)
 const recordedAudioRef = ref<HTMLAudioElement | null>(null)
+const successAudioRef = ref<HTMLAudioElement | null>(null)
 
 // Play the lesson audio
 const playAudio = () => {
@@ -57,12 +72,18 @@ const playAudio = () => {
     audioRef.value.onended = () => {
       isPlaying.value = false
     }
+
+    // Handle audio errors
+    audioRef.value.onerror = () => {
+      isPlaying.value = false
+    }
   }
 }
 
 // Start recording user's voice
 const startRecording = async () => {
   try {
+    isLoading.value = true
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
     audioChunks.value = []
 
@@ -76,6 +97,7 @@ const startRecording = async () => {
 
     mediaRecorder.value = new MediaRecorder(stream, options)
     isRecording.value = true
+    isLoading.value = false
 
     mediaRecorder.value.ondataavailable = (event) => {
       audioChunks.value.push(event.data)
@@ -95,6 +117,7 @@ const startRecording = async () => {
     console.error('Error accessing microphone:', error)
     feedback.value = t('lessons.microphoneError')
     feedbackStatus.value = 'error'
+    isLoading.value = false
   }
 }
 
@@ -112,7 +135,16 @@ const stopRecording = () => {
 // Play recorded audio
 const playRecordedAudio = () => {
   if (recordedAudioRef.value) {
+    isAudioPlaying.value = true
     recordedAudioRef.value.play()
+
+    recordedAudioRef.value.onended = () => {
+      isAudioPlaying.value = false
+    }
+
+    recordedAudioRef.value.onerror = () => {
+      isAudioPlaying.value = false
+    }
   }
 }
 
@@ -177,12 +209,210 @@ function encodeWAV(audioBuffer: AudioBuffer): Blob {
   return new Blob([buffer], { type: 'audio/wav' })
 }
 
+// Create celebration effects
+const createCelebration = () => {
+  showCelebration.value = true
+
+  // Play success sound
+  playSuccessSound()
+
+  // Create fireworks
+  for (let i = 0; i < 8; i++) {
+    setTimeout(() => {
+      const x = Math.random() * window.innerWidth
+      const y = Math.random() * window.innerHeight * 0.6
+      createFirework(x, y)
+    }, i * 200)
+  }
+
+  // Create confetti
+  for (let i = 0; i < 50; i++) {
+    setTimeout(() => {
+      createConfetti()
+    }, i * 50)
+  }
+
+  // Create balloons
+  for (let i = 0; i < 6; i++) {
+    setTimeout(() => {
+      createBalloon()
+    }, i * 300)
+  }
+
+  // Hide celebration after 4 seconds
+  setTimeout(() => {
+    showCelebration.value = false
+    celebrationParticles.value = []
+  }, 4000)
+}
+
+// Play success sound
+const playSuccessSound = () => {
+  try {
+    if (successAudioRef.value) {
+      successAudioRef.value.volume = 0.6
+      successAudioRef.value.play().catch(() => {
+        playGeneratedSuccessSound()
+      })
+    } else {
+      playGeneratedSuccessSound()
+    }
+  } catch (error) {
+    console.log('Audio playback failed:', error)
+    playGeneratedSuccessSound()
+  }
+}
+
+// Generate success sound using Web Audio API
+const playGeneratedSuccessSound = () => {
+  try {
+    const audioContext = new (window.AudioContext ||
+      window.webkitAudioContext)()
+    const oscillator = audioContext.createOscillator()
+    const gainNode = audioContext.createGain()
+
+    oscillator.connect(gainNode)
+    gainNode.connect(audioContext.destination)
+
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime)
+    oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1)
+    oscillator.frequency.setValueAtTime(1200, audioContext.currentTime + 0.2)
+
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.01,
+      audioContext.currentTime + 0.3
+    )
+
+    oscillator.start(audioContext.currentTime)
+    oscillator.stop(audioContext.currentTime + 0.3)
+  } catch (error) {
+    console.log('Generated sound failed:', error)
+  }
+}
+
+const createFirework = (x: number, y: number) => {
+  const colors = [
+    '#FF6B6B',
+    '#4ECDC4',
+    '#45B7D1',
+    '#96CEB4',
+    '#FFEAA7',
+    '#DDA0DD',
+    '#98D8C8',
+  ]
+  const color = colors[Math.floor(Math.random() * colors.length)]
+
+  for (let i = 0; i < 12; i++) {
+    const angle = (i / 12) * Math.PI * 2
+    const velocity = 3 + Math.random() * 2
+    celebrationParticles.value.push({
+      id: Date.now() + Math.random(),
+      x: x,
+      y: y,
+      vx: Math.cos(angle) * velocity,
+      vy: Math.sin(angle) * velocity,
+      color: color,
+      type: 'firework',
+    })
+  }
+}
+
+const createConfetti = () => {
+  const colors = [
+    '#FF6B6B',
+    '#4ECDC4',
+    '#45B7D1',
+    '#96CEB4',
+    '#FFEAA7',
+    '#DDA0DD',
+    '#98D8C8',
+    '#F7DC6F',
+    '#BB8FCE',
+    '#85C1E9',
+  ]
+  const x = Math.random() * window.innerWidth
+  const y = -20
+  celebrationParticles.value.push({
+    id: Date.now() + Math.random(),
+    x: x,
+    y: y,
+    vx: (Math.random() - 0.5) * 2,
+    vy: 2 + Math.random() * 3,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    type: 'confetti',
+  })
+}
+
+const createBalloon = () => {
+  const colors = [
+    '#FF6B6B',
+    '#4ECDC4',
+    '#45B7D1',
+    '#96CEB4',
+    '#FFEAA7',
+    '#DDA0DD',
+  ]
+  const x = Math.random() * window.innerWidth
+  const y = window.innerHeight + 50
+  celebrationParticles.value.push({
+    id: Date.now() + Math.random(),
+    x: x,
+    y: y,
+    vx: (Math.random() - 0.5) * 0.5,
+    vy: -1.5 - Math.random(),
+    color: colors[Math.floor(Math.random() * colors.length)],
+    type: 'balloon',
+  })
+}
+
+// Update particles animation
+const updateParticles = () => {
+  celebrationParticles.value.forEach((particle) => {
+    particle.x += particle.vx
+    particle.y += particle.vy
+
+    // Add gravity to fireworks
+    if (particle.type === 'firework') {
+      particle.vy += 0.1
+    }
+
+    // Remove particles that are off screen
+    if (particle.y > window.innerHeight + 100 || particle.y < -100) {
+      const index = celebrationParticles.value.findIndex(
+        (p) => p.id === particle.id
+      )
+      if (index > -1) {
+        celebrationParticles.value.splice(index, 1)
+      }
+    }
+  })
+}
+
+// Start particle animation loop
+let animationId: number
+const startParticleAnimation = () => {
+  const animate = () => {
+    updateParticles()
+    animationId = requestAnimationFrame(animate)
+  }
+  animate()
+}
+
+// Stop animation when component unmounts
+onUnmounted(() => {
+  if (animationId) {
+    cancelAnimationFrame(animationId)
+  }
+})
+
 // Submit recording to server for checking
 const submitRecording = async () => {
   if (!recordedBlob.value) return
 
   try {
     isSending.value = true
+    isLoading.value = true
     feedback.value = t('lessons.sending')
     feedbackStatus.value = 'none'
 
@@ -205,15 +435,34 @@ const submitRecording = async () => {
       },
     })
 
-    // Handle the response
-    if (response.data.success) {
-      feedback.value = response.data.message || t('lessons.goodJob')
-      feedbackStatus.value = 'success'
-      isItemCompleted.value = true
-      emit('item-completed', props.item.id)
+    // Handle the response with the new format
+    if (response.data.user_text && response.data.is_correct !== undefined) {
+      const recognizedText = response.data.user_text
+      const isCorrect = response.data.is_correct
+
+      if (isCorrect) {
+        feedback.value = `${t('lessons.recognized')}: "${recognizedText}" - ${t('lessons.correct')}`
+        feedbackStatus.value = 'success'
+        isItemCompleted.value = true
+        emit('item-completed', props.item.id)
+        // Start celebration!
+        createCelebration()
+        startParticleAnimation()
+      } else {
+        feedback.value = `${t('lessons.recognized')}: "${recognizedText}" - ${t('lessons.incorrect')}`
+        feedbackStatus.value = 'error'
+      }
     } else {
-      feedback.value = response.data.message || t('lessons.tryAgain')
-      feedbackStatus.value = 'error'
+      // Fallback for old response format
+      if (response.data.success) {
+        feedback.value = response.data.message || t('lessons.goodJob')
+        feedbackStatus.value = 'success'
+        isItemCompleted.value = true
+        emit('item-completed', props.item.id)
+      } else {
+        feedback.value = response.data.message || t('lessons.tryAgain')
+        feedbackStatus.value = 'error'
+      }
     }
   } catch (error) {
     console.error('Error submitting recording:', error)
@@ -221,6 +470,7 @@ const submitRecording = async () => {
     feedbackStatus.value = 'error'
   } finally {
     isSending.value = false
+    isLoading.value = false
   }
 }
 
@@ -247,9 +497,97 @@ const buttonText = computed(() => {
 
 <template>
   <div
-    class="lesson-item bg-white rounded-xl shadow-md overflow-hidden p-6 mb-4"
+    class="lesson-item bg-white rounded-xl shadow-md overflow-hidden p-6 mb-4 relative"
     :class="{ 'border-2 border-green-500': isItemCompleted }"
   >
+    <!-- Celebration overlay -->
+    <div v-if="showCelebration" class="fixed inset-0 z-50 pointer-events-none">
+      <!-- Fireworks -->
+      <div
+        v-for="particle in celebrationParticles.filter(
+          (p) => p.type === 'firework'
+        )"
+        :key="particle.id"
+        class="absolute w-2 h-2 rounded-full celebration-firework"
+        :style="{
+          left: particle.x + 'px',
+          top: particle.y + 'px',
+          backgroundColor: particle.color,
+          boxShadow: `0 0 20px ${particle.color}, 0 0 40px ${particle.color}`,
+          transform: 'translate(-50%, -50%)',
+        }"
+      ></div>
+
+      <!-- Confetti -->
+      <div
+        v-for="particle in celebrationParticles.filter(
+          (p) => p.type === 'confetti'
+        )"
+        :key="particle.id"
+        class="absolute w-3 h-3 celebration-confetti"
+        :style="{
+          left: particle.x + 'px',
+          top: particle.y + 'px',
+          backgroundColor: particle.color,
+          transform: 'translate(-50%, -50%) rotate(45deg)',
+        }"
+      ></div>
+
+      <!-- Balloons -->
+      <div
+        v-for="particle in celebrationParticles.filter(
+          (p) => p.type === 'balloon'
+        )"
+        :key="particle.id"
+        class="absolute w-8 h-10 rounded-full celebration-balloon"
+        :style="{
+          left: particle.x + 'px',
+          top: particle.y + 'px',
+          backgroundColor: particle.color,
+          transform: 'translate(-50%, -50%)',
+        }"
+      >
+        <div
+          class="absolute bottom-0 left-1/2 w-0.5 h-4 bg-gray-400 transform -translate-x-1/2"
+        ></div>
+      </div>
+
+      <!-- Celebration message -->
+      <div
+        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-auto"
+      >
+        <div
+          class="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-2xl animate-bounce celebration-rainbow"
+        >
+          <div class="text-6xl mb-4 celebration-sparkle">🎉</div>
+          <h2 class="text-3xl font-bold text-green-600 mb-2">Excellent!</h2>
+          <p class="text-xl text-gray-700">You did it! 🌟</p>
+          <div class="text-4xl mt-4">
+            <span
+              class="inline-block animate-bounce"
+              style="animation-delay: 0s"
+              >🎊</span
+            >
+            <span
+              class="inline-block animate-bounce"
+              style="animation-delay: 0.2s"
+              >🎈</span
+            >
+            <span
+              class="inline-block animate-bounce"
+              style="animation-delay: 0.4s"
+              >⭐</span
+            >
+            <span
+              class="inline-block animate-bounce"
+              style="animation-delay: 0.6s"
+              >🎊</span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Success indicator for completed items -->
     <div v-if="isItemCompleted" class="flex items-center justify-between mb-3">
       <div
@@ -276,6 +614,7 @@ const buttonText = computed(() => {
       <Button
         @click="playAudio"
         class="bg-blue-500 hover:bg-blue-600 transition-colors flex items-center"
+        :disabled="isPlaying || isAudioPlaying || isLoading || isRecording"
       >
         <PlayCircleIcon v-if="!isPlaying" class="h-5 w-5 mr-2" />
         <PauseCircleIcon v-else class="h-5 w-5 mr-2" />
@@ -289,6 +628,11 @@ const buttonText = computed(() => {
       preload="auto"
       class="hidden"
     ></audio>
+
+    <!-- Success audio element -->
+    <audio ref="successAudioRef" preload="auto" class="hidden">
+      <source src="/src/assets/sounds/success.mp3" type="audio/mpeg" />
+    </audio>
 
     <!-- Recording section -->
     <div class="mt-6 border-t pt-4">
@@ -307,7 +651,7 @@ const buttonText = computed(() => {
           @click="isRecording ? stopRecording() : startRecording()"
           :class="buttonColor"
           class="mb-4 transition-colors"
-          :disabled="isItemCompleted"
+          :disabled="isItemCompleted || isPlaying || isLoading"
         >
           {{ buttonText }}
         </Button>
@@ -318,6 +662,7 @@ const buttonText = computed(() => {
             <Button
               @click="playRecordedAudio"
               class="bg-gray-500 hover:bg-gray-600"
+              :disabled="isPlaying || isLoading || isRecording"
             >
               <PlayCircleIcon class="h-5 w-5 mr-2" />
               {{ t('lessons.playRecording') }}
@@ -327,14 +672,27 @@ const buttonText = computed(() => {
               <Button
                 @click="resetRecording"
                 class="bg-gray-200 text-gray-700 hover:bg-gray-300 mr-2"
-                :disabled="isItemCompleted"
+                :disabled="
+                  isItemCompleted ||
+                  isPlaying ||
+                  isAudioPlaying ||
+                  isLoading ||
+                  isRecording
+                "
               >
                 {{ t('lessons.reset') }}
               </Button>
               <Button
                 @click="submitRecording"
                 class="bg-green-500 hover:bg-green-600"
-                :disabled="isSending || isItemCompleted"
+                :disabled="
+                  isSending ||
+                  isItemCompleted ||
+                  isPlaying ||
+                  isAudioPlaying ||
+                  isLoading ||
+                  isRecording
+                "
               >
                 <span v-if="isSending">
                   <svg
@@ -409,5 +767,87 @@ const buttonText = computed(() => {
   50% {
     opacity: 0.6;
   }
+}
+
+/* Celebration animations */
+@keyframes sparkle {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    opacity: 0.8;
+    transform: scale(1.2) rotate(90deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(0.8) rotate(180deg);
+  }
+  75% {
+    opacity: 0.9;
+    transform: scale(1.1) rotate(270deg);
+  }
+}
+
+@keyframes rainbow {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-10px) rotate(-5deg);
+  }
+}
+
+@keyframes explode {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5) rotate(180deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Apply animations to celebration elements */
+.celebration-firework {
+  animation: explode 2s ease-out forwards;
+}
+
+.celebration-confetti {
+  animation: float 3s ease-in-out infinite;
+}
+
+.celebration-balloon {
+  animation: float 4s ease-in-out infinite;
+}
+
+.celebration-sparkle {
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+
+.celebration-rainbow {
+  animation: rainbow 2s linear infinite;
 }
 </style>
