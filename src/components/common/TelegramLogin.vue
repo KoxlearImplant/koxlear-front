@@ -4,9 +4,26 @@
   </div>
 </template>
 
-//
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+
+// Define the Telegram user interface
+interface TelegramUser {
+  id: number
+  first_name: string
+  last_name?: string
+  username?: string
+  photo_url?: string
+  auth_date: number
+  hash: string
+}
+
+// Extend the Window interface to include our callback
+declare global {
+  interface Window {
+    onTelegramAuth?: (user: TelegramUser) => void
+  }
+}
 
 const emit = defineEmits(['login-success', 'login-error'])
 const telegramButton = ref<HTMLElement | null>(null)
@@ -25,16 +42,16 @@ onMounted(() => {
     script.setAttribute('data-onauth', 'onTelegramAuth(user)')
     script.async = true
 
-    // window.onTelegramAuth = function (user) {
-    //   if (user) {
-    //     error.value = ''
-    //     console.log(user)
-    //     emit('login-success', user)
-    //   } else {
-    //     error.value = 'Authentication failed. Please try again.'
-    //     emit('login-error', 'Authentication failed')
-    //   }
-    // }
+    window.onTelegramAuth = function (user: TelegramUser) {
+      if (user) {
+        error.value = ''
+        console.log(user)
+        emit('login-success', user)
+      } else {
+        error.value = 'Authentication failed. Please try again.'
+        emit('login-error', 'Authentication failed')
+      }
+    }
 
     // Add error handling for script loading
     script.onerror = () => {
