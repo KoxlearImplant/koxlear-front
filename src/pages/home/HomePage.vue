@@ -4,14 +4,17 @@ import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'vue-router'
 import LangSelect from '@/components/common/LangSelect.vue'
+import { useAuthStore } from '@/store/auth.store'
+
+const auth = useAuthStore()
 
 // We'll use t() to localize text in the template
 const { t } = useI18n()
 const router = useRouter()
 
 // Guest mode detection - in a real app, this would come from auth state
-const isLoggedIn = ref(false) // Set to false for guest mode
-
+const isLoggedIn = computed(() => auth.isAuthenticated())
+console.log('Is user logged in:', isLoggedIn.value)
 interface Course {
   id: number
   title: string
@@ -136,12 +139,20 @@ const startLesson = (courseId: number) => {
   }
 }
 
-const goToLogin = () => {
-  router.push('/auth/login')
+const gotoNext = () => {
+  if (isLoggedIn.value) {
+    router.push('/dashboard')
+  } else {
+    router.push('/auth/login')
+  }
 }
 
 const goToRegister = () => {
-  router.push('/auth/register')
+  if (isLoggedIn.value) {
+    router.push('/dashboard')
+  } else {
+    router.push('/auth/register')
+  }
 }
 </script>
 
@@ -165,7 +176,10 @@ const goToRegister = () => {
             </h1>
             <p class="text-xl mb-6">{{ t('home.tagline') }}</p>
             <div class="flex space-x-4 mb-6">
-              <Button class="bg-white text-blue-600 hover:bg-blue-50">
+              <Button
+                class="bg-white text-blue-600 hover:bg-blue-50"
+                @click="gotoNext"
+              >
                 {{ t('actions.continueLearning') }}
               </Button>
               <Button
@@ -195,7 +209,7 @@ const goToRegister = () => {
               </Button>
               <Button
                 class="bg-transparent border-2 border-white hover:bg-white/10"
-                @click="goToLogin"
+                @click="gotoNext"
               >
                 {{ t('actions.login') || 'Login' }}
               </Button>
@@ -229,6 +243,7 @@ const goToRegister = () => {
             </div>
             <Button
               class="w-full bg-yellow-400 text-gray-800 hover:bg-yellow-300"
+              @click="gotoNext"
             >
               {{ t('actions.continueLearning') }}
             </Button>
@@ -435,17 +450,17 @@ const goToRegister = () => {
       </p>
       <div class="flex flex-col md:flex-row gap-4 justify-center">
         <Button
-          v-if="isLoggedIn"
-          class="bg-white text-purple-600 hover:bg-blue-50"
-        >
-          {{ t('actions.startFreeTrial') }}
-        </Button>
-        <Button
-          v-else
+          v-if="!isLoggedIn"
           class="bg-white text-purple-600 hover:bg-blue-50"
           @click="goToRegister"
         >
           {{ t('actions.signUpFree') || 'Sign Up Free' }}
+        </Button>
+        <Button
+          v-if="isLoggedIn"
+          class="bg-white text-purple-600 hover:bg-blue-50"
+        >
+          {{ t('actions.startFreeTrial') }}
         </Button>
         <Button class="bg-transparent border-2 border-white hover:bg-white/10">
           {{

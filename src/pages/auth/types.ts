@@ -83,3 +83,15 @@ export interface TelegramUser {
   auth_date: number
   hash: string
 }
+
+export interface User {
+  id: string
+  email: string
+  firstName: string
+  lastName?: string
+  isActive: boolean
+  isStaff: boolean
+  isSuperuser: boolean
+  dateJoined: Date
+  lastLogin?: Date
+}
