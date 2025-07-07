@@ -15,6 +15,8 @@ export interface TelegramLoginResponse {
 export interface RegisterRequest {
   email: string
   password: string
+  first_name: string
+  session: string
 }
 
 export interface RegisterResponse {
@@ -27,11 +29,11 @@ export interface SendOtpRequest {
 }
 
 export interface SendOtpResponse {
-  message: string
+  session: string
 }
 
 export interface VerifyOtpRequest {
-  email: string
+  session: string
   code: string
 }
 
@@ -85,13 +87,7 @@ export interface TelegramUser {
 }
 
 export interface User {
-  id: string
+  id: number
   email: string
   firstName: string
-  lastName?: string
-  isActive: boolean
-  isStaff: boolean
-  isSuperuser: boolean
-  dateJoined: Date
-  lastLogin?: Date
 }

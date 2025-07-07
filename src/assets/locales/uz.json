@@ -124,7 +124,9 @@
     "loginFailed": "Kirishda xatolik yuz berdi. Ma'lumotlarni tekshiring."
   },
   "gender": {
-    "male": "Erkak"
+    "male": "Erkak",
+    "female": "Ayol",
+    "other": "Boshqa"
   },
   "lessons": {
     "listenAndRepeat": "Tinglang va takrorlang",
@@ -138,6 +140,7 @@
     "sending": "Yuborilmoqda...",
     "goodJob": "Ajoyib!",
     "tryAgain": "Yana urinib ko'ring",
+    "recognized": "Tanildi",
     "errorSubmitting": "Yozuvni yuborishda xatolik. Iltimos, qayta urinib ko'ring.",
     "microphoneError": "Mikrofonga ruxsat berilmagan yoki mavjud emas.",
     "stepCompleted": "Bosqich yakunlandi!",

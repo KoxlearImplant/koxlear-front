@@ -123,6 +123,11 @@
     "registerFailed": "Registration failed. Please try again.",
     "loginFailed": "Login failed. Please check your credentials."
   },
+  "gender": {
+    "male": "Male",
+    "female": "Female",
+    "other": "Other"
+  },
   "lessons": {
     "listenAndRepeat": "Listen and repeat",
     "listen": "Listen",
@@ -135,6 +140,7 @@
     "sending": "Sending...",
     "goodJob": "Good job!",
     "tryAgain": "Try again",
+    "recognized": "Recognized",
     "errorSubmitting": "Error submitting recording. Please try again.",
     "microphoneError": "Microphone access denied or not available.",
     "stepCompleted": "Step completed!",

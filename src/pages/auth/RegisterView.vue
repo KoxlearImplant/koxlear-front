@@ -140,8 +140,9 @@ const handleRegister = () => {
         // Set tokens in auth store
         auth.setTokens(data.access, data.refresh)
         auth.setUser({
+          id: 1,
           email: email.value,
-          first_name: firstName.value,
+          firstName: firstName.value,
         })
 
         successMessage.value =
