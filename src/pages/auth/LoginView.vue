@@ -7,7 +7,8 @@ import LangSelect from '@/components/common/LangSelect.vue'
 import TelegramLogin from '@/components/common/TelegramLogin.vue'
 import { useLogin } from './queries/useLogin'
 import { useAuthStore } from '@/store/auth.store'
-import type { APIError } from './types'
+import { useTelegramLogin } from './queries/useTelegramLogin'
+import type { APIError, TelegramUser } from './types'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -24,6 +25,7 @@ const errors = ref<{ [key: string]: string }>({})
 
 // Login mutation hook
 const { mutate: loginMutation, isPending: isLoggingIn } = useLogin()
+const telegramLoginMutation = useTelegramLogin()
 
 const validateForm = () => {
   errors.value = {}
@@ -78,6 +80,10 @@ const handleLogin = () => {
       },
     }
   )
+}
+
+const handleTelegramLogin = (user: TelegramUser) => {
+  telegramLoginMutation.mutate(user)
 }
 
 const goToRegister = () => {
@@ -217,7 +223,7 @@ const goToHome = () => {
         <p class="text-gray-600 mb-2">
           {{ t('auth.orLoginWith') }}
         </p>
-        <TelegramLogin />
+        <TelegramLogin @login-success="handleTelegramLogin" />
       </div>
 
       <!-- Register link -->

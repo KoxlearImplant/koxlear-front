@@ -12,6 +12,8 @@ import type {
   TokenRefreshResponse,
   TokenVerifyRequest,
   TokenVerifyResponse,
+  TelegramLoginRequest,
+  TelegramLoginResponse,
 } from '@/pages/auth/types.ts'
 
 // --- API functions ---
@@ -52,6 +54,13 @@ export async function verifyToken(
   data: TokenVerifyRequest
 ): Promise<TokenVerifyResponse> {
   const res = await http.post<TokenVerifyResponse>('/token/verify/', data)
+  return res.data
+}
+
+export async function telegramLogin(
+  data: TelegramLoginRequest
+): Promise<TelegramLoginResponse> {
+  const res = await http.post<TelegramLoginResponse>('/telegram_login/', data)
   return res.data
 }
 

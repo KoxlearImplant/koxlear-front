@@ -3,7 +3,6 @@ import { ref, computed } from 'vue'
 import { Button } from '@/components/ui/button'
 import { useI18n } from 'vue-i18n'
 import type { LessonItemType } from '../types'
-import axios from 'axios'
 import {
   PlayCircleIcon,
   PauseCircleIcon,
@@ -11,6 +10,7 @@ import {
   CheckIcon,
   MicrophoneIcon,
 } from '@heroicons/vue/24/outline'
+import http from '@/service/http'
 
 const { t } = useI18n()
 const props = defineProps<{
@@ -125,15 +125,11 @@ const submitRecording = async () => {
     formData.append('lesson_item', props.item.id.toString())
 
     // Call the API endpoint to check the recording
-    const response = await axios.post(
-      'http://192.168.100.52:8000/api/check/',
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    )
+    const response = await http.post('/check/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
 
     // Handle the response
     if (response.data.success) {

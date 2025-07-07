@@ -137,7 +137,7 @@ const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
-const lessonId = computed(() => Number(route.params.lessonId))
+const lessonId = computed(() => Number(route.params.id))
 const activeItemIndex = ref(0)
 const isCompleted = ref(false)
 const completedItems = ref<Set<number>>(new Set())

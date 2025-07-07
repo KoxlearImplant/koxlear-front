@@ -1,46 +1,42 @@
-// --- Types ---
-export interface SendOtpRequest {
-  email: string
-}
-export interface SendOtpResponse {
-  session: string // uuid
+export interface TelegramLoginRequest {
+  id: number
+  first_name: string
+  last_name?: string
+  auth_date: number
+  hash: string
 }
 
-export interface VerifyOtpRequest {
-  session: string
-  code: string
+export interface TelegramLoginResponse {
+  access_token: string
+  refresh: string
+  user_id: string
 }
 
 export interface RegisterRequest {
   email: string
   password: string
-  first_name: string
-  session: string
 }
 
 export interface RegisterResponse {
-  message: string
-  access: string // JWT access token
-  refresh: string // JWT refresh token
+  access: string
+  refresh: string
 }
 
-export interface User {
-  id: number
+export interface SendOtpRequest {
   email: string
-  first_name: string
-  last_name?: string
-  is_active: boolean
-  is_staff: boolean
-  is_superuser: boolean
-  date_joined: string
 }
 
-export interface APIError {
-  response?: {
-    data?: {
-      error?: string
-    }
-  }
+export interface SendOtpResponse {
+  message: string
+}
+
+export interface VerifyOtpRequest {
+  email: string
+  code: string
+}
+
+export interface VerifyOtpResponse {
+  valid: boolean
 }
 
 export interface TokenObtainPairRequest {
@@ -56,10 +52,34 @@ export interface TokenObtainPairResponse {
 export interface TokenRefreshRequest {
   refresh: string
 }
+
 export interface TokenRefreshResponse {
   access: string
 }
 
 export interface TokenVerifyRequest {
   token: string
+}
+
+export interface TokenVerifyResponse {
+  valid: boolean
+}
+
+export interface APIError {
+  response?: {
+    data?: {
+      error?: string
+    }
+  }
+}
+
+export interface TelegramUser {
+  id: number
+  first_name: string
+  last_name?: string
+  username?: string
+  language_code?: string
+  is_bot: boolean
+  auth_date: number
+  hash: string
 }

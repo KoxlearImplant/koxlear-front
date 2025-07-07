@@ -12,7 +12,7 @@ export default defineConfig({
   },
   server: {
     cors: true,
-    allowedHosts: ['https://5659-185-78-139-78.ngrok-free.app/'],
+    allowedHosts: ['3da0-195-158-7-213.ngrok-free.app'],
     host: true,
   },
   preview: {
