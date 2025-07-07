@@ -12,6 +12,12 @@ import {
 } from '@heroicons/vue/24/outline'
 import http from '@/service/http'
 
+declare global {
+  interface Window {
+    webkitAudioContext?: typeof AudioContext
+  }
+}
+
 const { t } = useI18n()
 const props = defineProps<{
   item: LessonItemType
@@ -110,6 +116,67 @@ const playRecordedAudio = () => {
   }
 }
 
+// Utility function to encode AudioBuffer to WAV Blob
+function encodeWAV(audioBuffer: AudioBuffer): Blob {
+  const numChannels = audioBuffer.numberOfChannels
+  const sampleRate = audioBuffer.sampleRate
+  const format = 1 // PCM
+  const bitDepth = 16
+
+  let samples: Float32Array[] = []
+  for (let i = 0; i < numChannels; i++) {
+    samples.push(audioBuffer.getChannelData(i))
+  }
+
+  // Interleave channels
+  let interleaved: Int16Array
+  if (numChannels === 2) {
+    const length = audioBuffer.length * 2
+    interleaved = new Int16Array(length)
+    for (let i = 0, j = 0; i < audioBuffer.length; i++, j += 2) {
+      interleaved[j] = Math.max(-1, Math.min(1, samples[0][i])) * 0x7fff
+      interleaved[j + 1] = Math.max(-1, Math.min(1, samples[1][i])) * 0x7fff
+    }
+  } else {
+    interleaved = new Int16Array(audioBuffer.length)
+    for (let i = 0; i < audioBuffer.length; i++) {
+      interleaved[i] = Math.max(-1, Math.min(1, samples[0][i])) * 0x7fff
+    }
+  }
+
+  // WAV file header
+  const buffer = new ArrayBuffer(44 + interleaved.length * 2)
+  const view = new DataView(buffer)
+
+  function writeString(view: DataView, offset: number, str: string) {
+    for (let i = 0; i < str.length; i++) {
+      view.setUint8(offset + i, str.charCodeAt(i))
+    }
+  }
+
+  writeString(view, 0, 'RIFF')
+  view.setUint32(4, 36 + interleaved.length * 2, true)
+  writeString(view, 8, 'WAVE')
+  writeString(view, 12, 'fmt ')
+  view.setUint32(16, 16, true)
+  view.setUint16(20, format, true)
+  view.setUint16(22, numChannels, true)
+  view.setUint32(24, sampleRate, true)
+  view.setUint32(28, (sampleRate * numChannels * bitDepth) / 8, true)
+  view.setUint16(32, (numChannels * bitDepth) / 8, true)
+  view.setUint16(34, bitDepth, true)
+  writeString(view, 36, 'data')
+  view.setUint32(40, interleaved.length * 2, true)
+
+  // Write PCM samples
+  let offset = 44
+  for (let i = 0; i < interleaved.length; i++, offset += 2) {
+    view.setInt16(offset, interleaved[i], true)
+  }
+
+  return new Blob([buffer], { type: 'audio/wav' })
+}
+
 // Submit recording to server for checking
 const submitRecording = async () => {
   if (!recordedBlob.value) return
@@ -119,9 +186,16 @@ const submitRecording = async () => {
     feedback.value = t('lessons.sending')
     feedbackStatus.value = 'none'
 
-    // Create a form data object to send the recorded audio
+    // Convert the recorded blob to WAV before sending
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext
+    const audioContext = new AudioContextClass()
+    const arrayBuffer = await recordedBlob.value.arrayBuffer()
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+    const wavBlob = encodeWAV(audioBuffer)
+
+    // Create a form data object to send the WAV audio
     const formData = new FormData()
-    formData.append('user_audio', recordedBlob.value, 'recording.ogg') // Note the .mp3 extension
+    formData.append('user_audio', wavBlob, 'recording.wav')
     formData.append('lesson_item', props.item.id.toString())
 
     // Call the API endpoint to check the recording
