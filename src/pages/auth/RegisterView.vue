@@ -4,7 +4,12 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
 import LangSelect from '@/components/common/LangSelect.vue'
-import { useSendOtp, useVerifyOtp, useRegister } from '@/pages/auth/queries'
+import {
+  useSendOtp,
+  useVerifyOtp,
+  useRegister,
+  useCheckEmail,
+} from '@/pages/auth/queries'
 import { useAuthStore } from '@/store/auth.store'
 import type { APIError } from './types'
 
@@ -32,6 +37,10 @@ const confirmPassword = ref('')
 // Validation errors
 const errors = ref<{ [key: string]: string }>({})
 
+// --- useCheckEmail hook ---
+const { mutate: checkEmailMutation, isPending: isCheckingEmail } =
+  useCheckEmail()
+
 // --- useSendOtp hook ---
 const { mutate: sendOtp, isPending: isSendingOtp } = useSendOtp()
 
@@ -41,34 +50,54 @@ const { mutate: verifyOtpMutation, isPending: isVerifyingOtp } = useVerifyOtp()
 // --- useRegister hook ---
 const { mutate: registerMutation, isPending: isRegistering } = useRegister()
 
-// Step 1: Send OTP
+// Step 1: Send OTP (with email availability check)
 const handleSendOTP = () => {
   errorMessage.value = ''
   successMessage.value = ''
   errors.value = {}
+
   if (!email.value) {
     errors.value.email = t('auth.emailRequired') || 'Email is required'
     return
   }
+
   // Basic email format check
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(email.value)) {
     errors.value.email = t('auth.invalidEmail') || 'Invalid email'
     return
   }
-  sendOtp(
+
+  // First check if email is available
+  checkEmailMutation(
     { email: email.value },
     {
       onSuccess: (data) => {
-        session.value = data.session
-        step.value = 2
-        successMessage.value = t('auth.otpSent') || 'OTP sent to your email.'
-      },
-      onError: (err: APIError) => {
-        errorMessage.value =
-          err.response?.data?.error ||
-          t('auth.otpSendFailed') ||
-          'Failed to send OTP.'
+        if (!data.is_available) {
+          // Email is already taken
+          errors.value.email =
+            t('auth.emailTaken') || 'This email is already registered'
+          return
+        }
+
+        // Email is available, proceed to send OTP
+        sendOtp(
+          { email: email.value },
+          {
+            onSuccess: (otpData) => {
+              session.value = otpData.session
+              step.value = 2
+              successMessage.value =
+                t('auth.otpSent') || 'OTP sent to your email.'
+            },
+            onError: (err: APIError) => {
+              errorMessage.value =
+                err.response?.data?.error ||
+                t('auth.otpSendFailed') ||
+                'Failed to send OTP.'
+            },
+          }
+        )
       },
     }
   )
@@ -242,14 +271,19 @@ const goToHome = () => {
             <Button
               type="submit"
               class="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200"
-              :disabled="isSendingOtp"
+              :disabled="isCheckingEmail || isSendingOtp"
             >
-              <span v-if="isSendingOtp">{{ t('auth.sendingOtp') }}</span>
-              <span v-else>{{ t('auth.sendOtp') }}</span>
+              <span v-if="isCheckingEmail">{{
+                t('auth.checkingEmail') || 'Checking email...'
+              }}</span>
+              <span v-else-if="isSendingOtp">{{
+                t('auth.sendingOtp') || 'Sending OTP...'
+              }}</span>
+              <span v-else>{{ t('auth.sendOtp') || 'Send OTP' }}</span>
             </Button>
           </form>
 
-          <!-- Step 2: OTP -->
+          <!-- Step 2: Verify OTP -->
           <form v-else-if="step === 2" @submit.prevent="handleVerifyOTP">
             <div class="mb-4">
               <label
@@ -280,7 +314,7 @@ const goToHome = () => {
             </Button>
           </form>
 
-          <!-- Step 3: Registration fields -->
+          <!-- Step 3: Register -->
           <form v-else @submit.prevent="handleRegister">
             <div class="mb-4">
               <label

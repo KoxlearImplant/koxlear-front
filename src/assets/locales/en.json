@@ -121,7 +121,10 @@
     "registering": "Creating your account...",
     "registerSuccess": "Account created successfully!",
     "registerFailed": "Registration failed. Please try again.",
-    "loginFailed": "Login failed. Please check your credentials."
+    "loginFailed": "Login failed. Please check your credentials.",
+    "checkingEmail": "Checking email...",
+    "emailTaken": "This email is already registered",
+    "emailCheckFailed": "Failed to check email availability"
   },
   "gender": {
     "male": "Male",

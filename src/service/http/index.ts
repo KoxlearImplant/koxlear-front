@@ -6,56 +6,65 @@ import type {
 } from 'axios'
 import axios from 'axios'
 import { useAuthStore } from '@/store/auth.store'
+import router from '@/router'
 
-class HttpService {
-  service: AxiosInstance
+// Create axios instance
+const http: AxiosInstance = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
+  timeout: 10000,
+})
 
-  constructor() {
-    const service = axios.create({
-      baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
-    })
+// Request interceptor
+http.interceptors.request.use(
+  (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+    // Get token directly from localStorage as fallback
+    const token = localStorage.getItem('access_token')
 
-    service.interceptors.request.use(
-      this.handleRequest,
-      this.handleRequestError
-    )
-    service.interceptors.response.use(this.handleSuccess, this.handleError)
-    this.service = service
-  }
-
-  handleRequest = (
-    config: InternalAxiosRequestConfig
-  ): InternalAxiosRequestConfig => {
-    const authStore = useAuthStore()
-    const token = authStore.getToken()
     if (token && config.headers) {
       config.headers['Authorization'] = `Bearer ${token}`
     }
+
     return config
-  }
-
-  handleRequestError = (error: AxiosError) => {
+  },
+  (error: AxiosError) => {
+    console.error('Request error:', error)
     return Promise.reject(error)
   }
+)
 
-  handleSuccess(response: AxiosResponse): AxiosResponse {
+// Response interceptor
+http.interceptors.response.use(
+  (response: AxiosResponse): AxiosResponse => {
     return response
-  }
+  },
+  (error: AxiosError) => {
+    const status = error?.response?.status
 
-  handleError = (error: AxiosError) => {
-    // switch (error?.response?.status) {
-    //   case 401:
-    //     this.redirectTo(document, "/login");
-    //     break;
-    // }
+    switch (status) {
+      case 401:
+        try {
+          const authStore = useAuthStore()
+          authStore.logout()
+          router.push('/auth/login')
+        } catch {
+          window.location.href = '/auth/login'
+        }
+        break
+      case 403:
+        console.error('Forbidden: Insufficient permissions')
+        break
+      case 404:
+        console.error('Not found:', error.config?.url)
+        break
+      case 500:
+        console.error('Server error')
+        break
+      default:
+        console.error('Network error:', error.message)
+    }
+
     return Promise.reject(error)
   }
-
-  redirectTo = (document: Document, path: string): void => {
-    document.location.href = path
-  }
-}
-
-const http = new HttpService().service
+)
 
 export default http

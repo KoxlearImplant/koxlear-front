@@ -14,7 +14,7 @@ export function login() {
   return useMutation({
     mutationKey: ['login'],
     mutationFn: (data: LoginData) => {
-      return http.post<LoginResponse>('/auth/login', data)
+      return http.post<LoginResponse>('/auth/login/', data)
     },
   })
 }

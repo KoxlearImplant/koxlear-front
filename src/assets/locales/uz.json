@@ -121,7 +121,10 @@
     "registering": "Hisob yaratilmoqda...",
     "registerSuccess": "Hisob muvaffaqiyatli yaratildi!",
     "registerFailed": "Ro'yxatdan o'tishda xatolik yuz berdi. Qayta urinib ko'ring.",
-    "loginFailed": "Kirishda xatolik yuz berdi. Ma'lumotlarni tekshiring."
+    "loginFailed": "Kirishda xatolik yuz berdi. Ma'lumotlarni tekshiring.",
+    "checkingEmail": "Elektron pochta tekshirilmoqda...",
+    "emailTaken": "Bu elektron pochta allaqachon ro'yxatdan o'tgan",
+    "emailCheckFailed": "Elektron pochta mavjudligini tekshirishda xatolik"
   },
   "gender": {
     "male": "Erkak",

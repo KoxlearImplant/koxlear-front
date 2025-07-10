@@ -64,6 +64,10 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
+  {
+    path: '/:catchAll(.*)',
+    redirect: '/',
+  },
 ]
 
 const router = createRouter({

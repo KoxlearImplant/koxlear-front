@@ -41,6 +41,15 @@ export interface VerifyOtpResponse {
   valid: boolean
 }
 
+export interface CheckEmailRequest {
+  email: string
+}
+
+export interface CheckEmailResponse {
+  is_available: boolean
+  message?: string
+}
+
 export interface TokenObtainPairRequest {
   email: string
   password: string

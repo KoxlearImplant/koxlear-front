@@ -6,6 +6,8 @@ import type {
   SendOtpResponse,
   VerifyOtpRequest,
   VerifyOtpResponse,
+  CheckEmailRequest,
+  CheckEmailResponse,
   TokenObtainPairRequest,
   TokenObtainPairResponse,
   TokenRefreshRequest,
@@ -17,6 +19,13 @@ import type {
 } from '@/pages/auth/types.ts'
 
 // --- API functions ---
+export async function checkEmail(
+  data: CheckEmailRequest
+): Promise<CheckEmailResponse> {
+  const res = await http.post<CheckEmailResponse>('/check-email/', data)
+  return res.data
+}
+
 export async function sendOtp(data: SendOtpRequest): Promise<SendOtpResponse> {
   const res = await http.post<SendOtpResponse>('/otp-send/', data)
   return res.data
