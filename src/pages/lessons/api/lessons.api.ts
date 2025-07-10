@@ -1,7 +1,7 @@
 import http from '@/service/http'
 import type { LessonGroupType, LessonType } from '@/pages/lessons/types.ts'
 
-export const getAllLessons = async () => {
+export const getAllLessons = async (): Promise<LessonType[]> => {
   return http.get<LessonType[]>('/lessons').then((res) => res.data)
 }
 

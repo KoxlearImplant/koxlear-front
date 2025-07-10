@@ -8,6 +8,7 @@ import {
   ArrowRightIcon,
   InboxIcon,
 } from '@heroicons/vue/24/outline'
+import { computed } from 'vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -16,6 +17,17 @@ const { data: allLessons, error, isLoading } = useGetAllLessons()
 const openLesson = (lessonId: number) => {
   router.push(`/dashboard/lessons/${lessonId}`)
 }
+
+const groupId = computed(() => {
+  return router.currentRoute.value.params.id as string
+})
+
+const filteredLessons = computed(() => {
+  if (!allLessons.value) return []
+  return allLessons.value.filter(
+    (lesson) => lesson.group.id === parseInt(groupId.value)
+  )
+})
 
 function getGradientColor(id: number) {
   // Create different color gradients based on id
@@ -62,11 +74,11 @@ function getGradientColor(id: number) {
 
     <!-- Lessons grid -->
     <div
-      v-else-if="allLessons && allLessons.length"
+      v-else-if="filteredLessons && filteredLessons.length"
       class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
     >
       <div
-        v-for="lesson in allLessons"
+        v-for="lesson in filteredLessons"
         :key="lesson.id"
         class="lesson-card bg-white rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300"
         @click="openLesson(lesson.id)"

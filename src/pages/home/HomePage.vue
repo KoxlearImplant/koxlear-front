@@ -28,7 +28,7 @@ const {
 } = useLessonGroups()
 
 const goToLessonGroup = (groupId: number) => {
-  router.push(`/lesson-groups/${groupId}`)
+  router.push(`dashboard/lesson-groups/${groupId}`)
 }
 
 const userStreak = ref(3)
