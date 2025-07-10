@@ -7,6 +7,7 @@ import DashboardLayout from '@/layouts/dashboard-layout/DashboardLayout.vue'
 import LessonsPage from '@/pages/lessons/LessonsPage.vue'
 import LettersPage from '@/pages/letters/LettersPage.vue'
 import LessonDetailPage from '@/pages/lessons/LessonDetailPage.vue'
+import ProfilePage from '@/pages/profile/ProfilePage.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -48,6 +49,12 @@ const routes: RouteRecordRaw[] = [
         component: LettersPage,
         meta: { requiresAuth: true },
       },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: ProfilePage,
+        meta: { requiresAuth: true },
+      },
     ],
   },
 ]
@@ -59,7 +66,6 @@ const router = createRouter({
 
 router.beforeEach((to, _, next) => {
   const auth = useAuthStore()
-
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (!auth.isAuthenticated()) {
       next({

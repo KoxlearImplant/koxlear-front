@@ -68,7 +68,7 @@ const navItems: NavItem[] = [
     borderColor: 'border-green-300',
   },
   {
-    to: '/profile',
+    to: '/dashboard/profile',
     icon: UserCircleIcon,
     label: t('nav.profile', 'Profile'),
     activePattern: '/profile',

@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { User } from '@/pages/auth/types'
 
 interface AuthState {
@@ -37,6 +37,10 @@ export const useAuthStore = () => {
     state.value.user = null
   }
 
+  const getToken = () => {
+    return state.value.accessToken || localStorage.getItem('access_token')
+  }
+
   const isAuthenticated = () => {
     return !!state.value.accessToken
   }
@@ -47,10 +51,10 @@ export const useAuthStore = () => {
   }
 
   return {
-    // State
-    accessToken: state.value.accessToken,
-    refreshToken: state.value.refreshToken,
-    user: state.value.user,
+    // State - return reactive references
+    accessToken: computed(() => state.value.accessToken),
+    refreshToken: computed(() => state.value.refreshToken),
+    user: computed(() => state.value.user),
 
     // Methods
     setTokens,
@@ -59,5 +63,6 @@ export const useAuthStore = () => {
     clearUser,
     isAuthenticated,
     logout,
+    getToken,
   }
 }

@@ -17,3 +17,12 @@ export interface LessonType {
   items: LessonItemType[]
   group: GroupType
 }
+
+export interface LessonGroupType {
+  id: number
+  name: string
+  slug: string
+  order: number
+  total_items_count: number
+  completed_items_count: number
+}

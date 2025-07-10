@@ -5,139 +5,54 @@ import { Button } from '@/components/ui/button'
 import { useRouter } from 'vue-router'
 import LangSelect from '@/components/common/LangSelect.vue'
 import { useAuthStore } from '@/store/auth.store'
+import { useLessonGroups } from './queries/useLessonGroups'
+import {
+  ExclamationTriangleIcon,
+  ArrowPathIcon,
+  PlayIcon,
+  MicrophoneIcon,
+  ChartBarIcon,
+} from '@heroicons/vue/24/outline'
 
 const auth = useAuthStore()
-
-// We'll use t() to localize text in the template
 const { t } = useI18n()
 const router = useRouter()
-
-// Guest mode detection - in a real app, this would come from auth state
 const isLoggedIn = computed(() => auth.isAuthenticated())
-console.log('Is user logged in:', isLoggedIn.value)
-interface Course {
-  id: number
-  title: string
-  description: string
-  level: string
-  icon: string
-  progress: number
-  color: string
-  lessons: number
-  completedLessons: number
+
+// Fetch lesson groups
+const {
+  data: lessonGroups,
+  isLoading: isLessonGroupsLoading,
+  error: lessonGroupsError,
+  refetch: refetchLessonGroups,
+} = useLessonGroups()
+
+const goToLessonGroup = (groupId: number) => {
+  router.push(`/lesson-groups/${groupId}`)
 }
 
 const userStreak = ref(3)
 const userPoints = ref(120)
 const userName = ref('Alex')
 
-// Sample courses
-const courses = ref<Course[]>([
-  {
-    id: 1,
-    title: 'Hearing Basics',
-    description: 'Learn fundamental sounds and speech patterns',
-    level: 'Beginner',
-    icon: '🔊',
-    progress: 65,
-    color: 'bg-green-500',
-    lessons: 10,
-    completedLessons: 6,
-  },
-  {
-    id: 2,
-    title: 'Word Recognition',
-    description: 'Practice identifying common words',
-    level: 'Intermediate',
-    icon: '🗣️',
-    progress: 30,
-    color: 'bg-blue-500',
-    lessons: 15,
-    completedLessons: 4,
-  },
-  {
-    id: 3,
-    title: 'Conversation Skills',
-    description: 'Learn how to follow everyday conversations',
-    level: 'Advanced',
-    icon: '👥',
-    progress: 10,
-    color: 'bg-purple-500',
-    lessons: 12,
-    completedLessons: 1,
-  },
-  {
-    id: 4,
-    title: 'Music Appreciation',
-    description: 'Experience and enjoy music patterns',
-    level: 'Beginner',
-    icon: '🎵',
-    progress: 0,
-    color: 'bg-pink-500',
-    lessons: 8,
-    completedLessons: 0,
-  },
-])
-
 const features = ref([
   {
     title: 'Interactive Learning',
     description:
       'Fun, game-like exercises designed specifically for cochlear implant users',
-    icon: '🎮',
+    icon: PlayIcon,
   },
   {
     title: 'Speech Recognition',
     description: 'Practice speaking and get instant feedback on pronunciation',
-    icon: '🎤',
+    icon: MicrophoneIcon,
   },
   {
     title: 'Progress Tracking',
     description: 'See your improvement over time with detailed statistics',
-    icon: '📈',
+    icon: ChartBarIcon,
   },
 ])
-
-// Demo courses for guest mode
-const demoCourses = ref<Course[]>([
-  {
-    id: 101,
-    title: 'Hearing Basics',
-    description: 'Learn fundamental sounds and speech patterns',
-    level: 'Beginner',
-    icon: '🔊',
-    progress: 0,
-    color: 'bg-green-500',
-    lessons: 10,
-    completedLessons: 0,
-  },
-  {
-    id: 102,
-    title: 'Word Recognition',
-    description: 'Practice identifying common words',
-    level: 'Beginner',
-    icon: '🗣️',
-    progress: 0,
-    color: 'bg-blue-500',
-    lessons: 8,
-    completedLessons: 0,
-  },
-])
-
-// Choose courses based on login status
-const displayCourses = computed(() => {
-  return isLoggedIn.value ? courses.value : demoCourses.value
-})
-
-const startLesson = (courseId: number) => {
-  if (isLoggedIn.value) {
-    // Navigate to the course lessons page
-    router.push(`/course/${courseId}/lessons`)
-  } else {
-    // Redirect to login if in guest mode
-    router.push('/auth/login')
-  }
-}
 
 const gotoNext = () => {
   if (isLoggedIn.value) {
@@ -200,18 +115,18 @@ const goToRegister = () => {
                 'The fun learning platform designed for children with cochlear implants'
               }}
             </p>
-            <div class="flex flex-wrap gap-4 mb-6">
+            <div class="flex space-x-4 mb-6">
               <Button
                 class="bg-white text-blue-600 hover:bg-blue-50"
                 @click="goToRegister"
               >
-                {{ t('actions.signUp') || 'Sign Up Free' }}
+                {{ t('actions.getStarted') }}
               </Button>
               <Button
                 class="bg-transparent border-2 border-white hover:bg-white/10"
                 @click="gotoNext"
               >
-                {{ t('actions.login') || 'Login' }}
+                {{ t('actions.learnMore') }}
               </Button>
             </div>
           </template>
@@ -273,91 +188,79 @@ const goToRegister = () => {
       </div>
     </div>
 
-    <!-- Courses section -->
-    <div class="mb-12">
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold">
-          {{
-            isLoggedIn
-              ? t('home.yourCourses')
-              : t('home.exploreCourses') || 'Explore Courses'
-          }}
-        </h2>
-        <Button v-if="isLoggedIn" variant="outline" class="border-gray-300">
-          {{ t('actions.viewAll') }}
-        </Button>
-      </div>
-
-      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Lesson Groups Section (for logged-in users) -->
+    <div v-if="isLoggedIn">
+      <h2 class="text-2xl font-bold mb-6 text-gray-800">Lesson Groups</h2>
+      <div v-if="isLessonGroupsLoading" class="flex justify-center py-8">
         <div
-          v-for="course in displayCourses"
-          :key="course.id"
-          class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
-          @click="startLesson(course.id)"
-        >
-          <div :class="`${course.color} p-4 text-white`">
-            <div class="flex justify-between items-center">
-              <div class="text-4xl">{{ course.icon }}</div>
-              <div
-                class="text-sm font-medium px-2 py-1 bg-white/20 rounded-full"
-              >
-                {{ course.level }}
-              </div>
-            </div>
+          class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"
+        ></div>
+      </div>
+      <div
+        v-else-if="lessonGroupsError"
+        class="bg-red-50 border border-red-200 rounded-lg p-6 mb-6"
+      >
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <ExclamationTriangleIcon class="h-6 w-6 text-red-400" />
           </div>
-          <div class="p-4">
-            <h3 class="font-bold mb-1">{{ course.title }}</h3>
-            <p class="text-sm text-gray-600 mb-3">{{ course.description }}</p>
-
-            <div class="relative h-2 bg-gray-100 rounded-full mb-2">
+          <div class="ml-3">
+            <h3 class="text-sm font-medium text-red-800">
+              Error loading lesson groups
+            </h3>
+            <p class="mt-1 text-sm text-red-700">
+              {{ lessonGroupsError.message }}
+            </p>
+          </div>
+        </div>
+        <div class="mt-4">
+          <Button
+            @click="refetchLessonGroups"
+            class="bg-red-100 text-red-800 px-4 py-2 rounded-md text-sm font-medium hover:bg-red-200"
+          >
+            <ArrowPathIcon class="w-4 h-4 mr-2" />
+            Try Again
+          </Button>
+        </div>
+      </div>
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div
+          v-for="group in lessonGroups"
+          :key="group.id"
+          class="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer p-6 flex flex-col"
+          @click="goToLessonGroup(group.id)"
+        >
+          <div class="flex items-center mb-4">
+            <div class="flex-1">
+              <h3 class="text-lg font-bold text-gray-900 truncate">
+                {{ group.name }}
+              </h3>
+              <p class="text-sm text-gray-500">Slug: {{ group.slug }}</p>
+            </div>
+            <span class="ml-2 text-xs text-gray-400">#{{ group.id }}</span>
+          </div>
+          <div class="flex-1 flex flex-col justify-end">
+            <div class="mb-2 flex items-center justify-between">
+              <span class="text-sm text-gray-600">Progress</span>
+              <span class="text-sm text-gray-700 font-semibold">
+                {{ group.completed_items_count }}/{{ group.total_items_count }}
+              </span>
+            </div>
+            <div class="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
               <div
-                class="absolute top-0 left-0 h-2 rounded-full"
-                :class="course.color"
-                :style="`width: ${course.progress}%`"
+                class="h-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500"
+                :style="{
+                  width:
+                    group.total_items_count > 0
+                      ? (group.completed_items_count /
+                          group.total_items_count) *
+                          100 +
+                        '%'
+                      : '0%',
+                }"
               ></div>
             </div>
-
-            <div class="text-xs text-gray-500">
-              {{ course.completedLessons }}/{{ course.lessons }}
-              {{ t('home.lessons') }}
-              <span v-if="course.completedLessons > 0"
-                >· {{ course.progress }}% {{ t('home.complete') }}</span
-              >
-              <span v-if="!isLoggedIn" class="ml-2 text-blue-500">{{
-                t('home.tryFree') || '• Try for free'
-              }}</span>
-            </div>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Daily goal section - Only for logged in users -->
-    <div v-if="isLoggedIn" class="bg-white rounded-xl shadow-md p-6 mb-12">
-      <h2 class="text-2xl font-bold mb-4">{{ t('home.dailyGoal') }}</h2>
-      <div class="flex flex-col md:flex-row items-center gap-6">
-        <div class="w-full md:w-2/3">
-          <div class="relative h-6 bg-gray-100 rounded-full">
-            <div
-              class="absolute top-0 left-0 h-6 bg-green-500 rounded-full flex items-center px-3 text-xs font-medium text-white"
-              style="width: 40%"
-            >
-              10 {{ t('home.minutesToday') }}
-            </div>
-          </div>
-
-          <div class="flex justify-between mt-2">
-            <div class="text-xs text-gray-500">0 {{ t('home.min') }}</div>
-            <div class="text-xs font-medium">
-              {{ t('home.goal') }}: 25 {{ t('home.min') }}
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <Button class="bg-green-500 hover:bg-green-600">
-            {{ t('actions.practiceNow') }} 🎯
-          </Button>
         </div>
       </div>
     </div>
@@ -369,9 +272,12 @@ const goToRegister = () => {
         <div
           v-for="feature in features"
           :key="feature.title"
-          class="bg-white rounded-xl shadow-md p-6"
+          class="bg-white rounded-xl shadow-md p-6 text-center"
         >
-          <div class="text-4xl mb-4">{{ feature.icon }}</div>
+          <component
+            :is="feature.icon"
+            class="w-12 h-12 mx-auto mb-4 text-blue-600"
+          />
           <h3 class="text-xl font-bold mb-2">{{ feature.title }}</h3>
           <p class="text-gray-600">{{ feature.description }}</p>
         </div>
