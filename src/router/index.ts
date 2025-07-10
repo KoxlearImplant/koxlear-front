@@ -8,6 +8,7 @@ import LessonsPage from '@/pages/lessons/LessonsPage.vue'
 import LettersPage from '@/pages/letters/LettersPage.vue'
 import LessonDetailPage from '@/pages/lessons/LessonDetailPage.vue'
 import ProfilePage from '@/pages/profile/ProfilePage.vue'
+import LessonGroupsPage from '@/pages/lessons/LessonGroupsPage.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -32,7 +33,13 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true },
     children: [
       {
-        path: 'lessons',
+        path: 'lesson-groups',
+        name: 'LessonGroups',
+        component: LessonGroupsPage,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'lesson-groups/:id',
         name: 'Lessons',
         component: LessonsPage,
         meta: { requiresAuth: true },

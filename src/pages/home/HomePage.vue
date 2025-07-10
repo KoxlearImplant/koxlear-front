@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button'
 import { useRouter } from 'vue-router'
 import LangSelect from '@/components/common/LangSelect.vue'
 import { useAuthStore } from '@/store/auth.store'
-import { useLessonGroups } from './queries/useLessonGroups'
 import {
   ExclamationTriangleIcon,
   ArrowPathIcon,
@@ -13,6 +12,7 @@ import {
   MicrophoneIcon,
   ChartBarIcon,
 } from '@heroicons/vue/24/outline'
+import { useLessonGroups } from '@/pages/home/queries/useLessonGroups.ts'
 
 const auth = useAuthStore()
 const { t } = useI18n()

@@ -28,7 +28,7 @@ interface NavItem {
 // Centralized navigation configuration
 const navItems: NavItem[] = [
   {
-    to: '/dashboard/lessons',
+    to: '/dashboard/lesson-groups',
     icon: AcademicCapIcon,
     label: t('nav.lessons', 'Learn'),
     activePattern: '/dashboard/lessons',

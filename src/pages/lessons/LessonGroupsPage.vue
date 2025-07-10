@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useGetAllLessons } from '@/pages/lessons/queries'
+import { useGetLessonGroups } from '@/pages/lessons/queries'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import {
@@ -11,10 +11,10 @@ import {
 
 const { t } = useI18n()
 const router = useRouter()
-const { data: allLessons, error, isLoading } = useGetAllLessons()
+const { data: lessonGroups, error, isLoading } = useGetLessonGroups()
 
-const openLesson = (lessonId: number) => {
-  router.push(`/dashboard/lessons/${lessonId}`)
+const openLessonGroup = (groupId: number) => {
+  router.push(`/dashboard/lesson-groups/${groupId}`)
 }
 
 function getGradientColor(id: number) {
@@ -33,7 +33,7 @@ function getGradientColor(id: number) {
 <template>
   <div class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold mb-6 text-gray-800">
-      {{ t('lessons.title', 'Lessons') }}
+      {{ t('lessonGroups.title', 'Lesson Groups') }}
     </h1>
 
     <!-- Loading state -->
@@ -41,7 +41,7 @@ function getGradientColor(id: number) {
       <div class="flex flex-col items-center">
         <BookOpenIcon class="animate-spin h-12 w-12 text-blue-500 mb-4" />
         <p class="text-gray-500">
-          {{ t('lessons.loading', 'Loading lessons...') }}
+          {{ t('lessonGroups.loading', 'Loading lesson groups...') }}
         </p>
       </div>
     </div>
@@ -53,28 +53,28 @@ function getGradientColor(id: number) {
     >
       <ExclamationTriangleIcon class="h-12 w-12 text-red-500 mx-auto mb-4" />
       <h2 class="text-lg font-semibold text-gray-800 mb-2">
-        {{ t('lessons.errorLoading', 'Error loading lessons') }}
+        {{ t('lessonGroups.errorLoading', 'Error loading lesson groups') }}
       </h2>
       <p class="text-gray-600">
-        {{ t('lessons.tryAgain', 'Please try again later') }}
+        {{ t('lessonGroups.tryAgain', 'Please try again later') }}
       </p>
     </div>
 
-    <!-- Lessons grid -->
+    <!-- Lesson Groups grid -->
     <div
-      v-else-if="allLessons && allLessons.length"
+      v-else-if="lessonGroups && lessonGroups.length"
       class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
     >
       <div
-        v-for="lesson in allLessons"
-        :key="lesson.id"
-        class="lesson-card bg-white rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300"
-        @click="openLesson(lesson.id)"
+        v-for="group in lessonGroups"
+        :key="group.id"
+        class="lesson-group-card bg-white rounded-xl shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300"
+        @click="openLessonGroup(group.id)"
       >
-        <!-- Card header with colored background based on lesson id (for variation) -->
+        <!-- Card header with colored background based on group id -->
         <div
           class="p-6"
-          :class="`bg-gradient-to-r ${getGradientColor(lesson.id)}`"
+          :class="`bg-gradient-to-r ${getGradientColor(group.id)}`"
         >
           <div class="flex justify-between items-start">
             <div class="flex items-center">
@@ -82,14 +82,14 @@ function getGradientColor(id: number) {
                 <BookOpenIcon class="h-6 w-6 text-white" />
               </div>
               <h2 class="text-xl font-bold text-white ml-4">
-                {{ lesson.title }}
+                {{ group.name }}
               </h2>
             </div>
 
             <div
               class="flex items-center bg-white/20 px-3 py-1 rounded-full text-xs text-white"
             >
-              <span>{{ lesson.group.name }}</span>
+              <span>#{{ group.order }}</span>
             </div>
           </div>
         </div>
@@ -98,37 +98,45 @@ function getGradientColor(id: number) {
         <div class="p-6">
           <div class="flex items-center justify-between mb-4">
             <div class="text-sm text-gray-600">
-              {{
-                t('lessons.contains', {
-                  count: lesson.items.length,
-                })
-              }}
+              {{ group.total_items_count }}
+              {{ t('lessonGroups.items', 'items') }}
+            </div>
+            <div class="text-sm text-gray-600">Slug: {{ group.slug }}</div>
+          </div>
+
+          <!-- Progress bar -->
+          <div class="mb-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm text-gray-600">Progress</span>
+              <span class="text-sm text-gray-700 font-semibold">
+                {{ group.completed_items_count }}/{{ group.total_items_count }}
+              </span>
+            </div>
+            <div class="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                class="h-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500"
+                :style="{
+                  width:
+                    group.total_items_count > 0
+                      ? (group.completed_items_count /
+                          group.total_items_count) *
+                          100 +
+                        '%'
+                      : '0%',
+                }"
+              ></div>
             </div>
           </div>
 
           <div class="flex justify-between items-center">
-            <!-- Word tags preview -->
-            <div class="flex flex-wrap gap-2">
-              <span
-                v-for="item in lesson.items.slice(0, 2)"
-                :key="item.id"
-                class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded"
-              >
-                {{ item.word }}
-              </span>
-              <span
-                v-if="lesson.items.length > 2"
-                class="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded"
-              >
-                +{{ lesson.items.length - 2 }}
-              </span>
-            </div>
+            <!-- Group info -->
+            <div class="text-xs text-gray-500">Group ID: {{ group.id }}</div>
 
             <!-- Start button -->
             <button
               class="flex items-center text-blue-500 hover:text-blue-700 transition-colors text-sm font-medium"
             >
-              {{ t('lessons.startLesson', 'Start Lesson') }}
+              {{ t('lessonGroups.startGroup', 'Start Group') }}
               <ArrowRightIcon class="h-4 w-4 ml-1" />
             </button>
           </div>
@@ -143,10 +151,12 @@ function getGradientColor(id: number) {
     >
       <InboxIcon class="h-16 w-16 text-gray-400 mx-auto mb-4" />
       <h2 class="text-lg font-semibold text-gray-800 mb-2">
-        {{ t('lessons.noLessons', 'No lessons available') }}
+        {{ t('lessonGroups.noGroups', 'No lesson groups available') }}
       </h2>
       <p class="text-gray-600">
-        {{ t('lessons.checkBack', 'Check back later for new lessons!') }}
+        {{
+          t('lessonGroups.checkBack', 'Check back later for new lesson groups!')
+        }}
       </p>
     </div>
   </div>
@@ -154,14 +164,14 @@ function getGradientColor(id: number) {
 
 <style scoped>
 /* Card hover effect */
-.lesson-card {
+.lesson-group-card {
   transform: translateY(0);
   transition:
     transform 0.3s ease,
     box-shadow 0.3s ease;
 }
 
-.lesson-card:hover {
+.lesson-group-card:hover {
   transform: translateY(-5px);
 }
 
