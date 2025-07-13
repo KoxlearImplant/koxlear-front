@@ -15,6 +15,8 @@ const router = useRouter()
 const { data: allLessons, error, isLoading } = useGetAllLessons()
 
 const openLesson = (lessonId: number) => {
+  // Navigate to the lesson without specifying an item index
+  // Let the LessonDetailPage handle finding the first uncompleted item
   router.push(`/dashboard/lessons/${lessonId}`)
 }
 
@@ -43,7 +45,7 @@ function getGradientColor(id: number) {
 </script>
 
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div id="lessons" class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold mb-6 text-gray-800">
       {{ t('lessons.title', 'Lessons') }}
     </h1>

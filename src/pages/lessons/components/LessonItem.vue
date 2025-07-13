@@ -39,6 +39,7 @@ const feedback = ref<string>('')
 const feedbackStatus = ref<'success' | 'error' | 'none'>('none')
 const isSending = ref(false)
 const showCelebration = ref(false)
+const showSuccessModal = ref(false)
 const isAudioPlaying = ref(false)
 const isLoading = ref(false)
 
@@ -244,10 +245,11 @@ const createCelebration = () => {
     }, i * 300)
   }
 
-  // Hide celebration after 4 seconds
+  // Hide celebration after 4 seconds and show modal
   setTimeout(() => {
     showCelebration.value = false
     celebrationParticles.value = []
+    showSuccessModal.value = true
   }, 4000)
 }
 
@@ -498,9 +500,22 @@ const retryItem = () => {
   feedback.value = ''
   feedbackStatus.value = 'none'
   showCelebration.value = false
+  showSuccessModal.value = false
   resetRecording()
   // Reset the item state for retry
   emit('item-state-changed', props.item.id, null)
+}
+
+// Handle retry button click
+const handleRetry = () => {
+  showSuccessModal.value = false
+  retryItem()
+}
+
+// Handle next button click
+const handleNext = () => {
+  showSuccessModal.value = false
+  emit('next-item')
 }
 
 const buttonColor = computed(() => {
@@ -756,33 +771,43 @@ const buttonText = computed(() => {
           {{ feedback }}
         </div>
 
-        <!-- Success Celebration Card -->
-        <div
-          v-if="feedbackStatus === 'success' && !showCelebration"
-          class="w-full mt-4 p-6 bg-green-50 border-2 border-green-200 rounded-xl text-center"
-        >
-          <div class="text-4xl mb-3">🎉</div>
-          <h3 class="text-lg font-bold text-green-800 mb-2">
-            {{ t('lessons.excellent', 'Excellent!') }}
-          </h3>
-          <p class="text-green-700 mb-4">
-            {{ t('lessons.correctAnswer', 'Great job! You got it right!') }}
-          </p>
-          <div class="flex justify-center space-x-3">
-            <Button
-              @click="retryItem"
-              class="bg-gray-500 hover:bg-gray-600 text-white"
+        <!-- Success Celebration Card as Dialog -->
+        <teleport to="body">
+          <div
+            v-if="showSuccessModal"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-opacity-70 backdrop-blur-sm"
+            @click.self="retryItem"
+            tabindex="-1"
+            @keydown.esc="retryItem"
+          >
+            <div
+              class="w-full max-w-sm mx-auto p-6 bg-green-50 border-2 border-green-200 rounded-xl text-center shadow-2xl relative"
+              @click.stop
             >
-              {{ t('lessons.retry', 'Retry') }}
-            </Button>
-            <Button
-              @click="$emit('next-item')"
-              class="bg-green-500 hover:bg-green-600 text-white"
-            >
-              {{ t('lessons.next', 'Next') }}
-            </Button>
+              <div class="text-4xl mb-3">🎉</div>
+              <h3 class="text-lg font-bold text-green-800 mb-2">
+                {{ t('lessons.excellent', 'Excellent!') }}
+              </h3>
+              <p class="text-green-700 mb-4">
+                {{ t('lessons.correctAnswer', 'Great job! You got it right!') }}
+              </p>
+              <div class="flex justify-center space-x-3">
+                <Button
+                  @click="handleRetry"
+                  class="bg-gray-500 hover:bg-gray-600 text-white"
+                >
+                  {{ t('lessons.retry', 'Retry') }}
+                </Button>
+                <Button
+                  @click="handleNext"
+                  class="bg-green-500 hover:bg-green-600 text-white"
+                >
+                  {{ t('lessons.next', 'Next') }}
+                </Button>
+              </div>
+            </div>
           </div>
-        </div>
+        </teleport>
       </div>
     </div>
   </div>

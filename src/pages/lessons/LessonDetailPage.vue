@@ -122,7 +122,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
@@ -131,34 +131,17 @@ import type { ILessonItem } from './types'
 import { useGetLessonById } from '@/pages/lessons/queries'
 import {
   ArrowLeftIcon,
-  MicrophoneIcon,
   ArrowPathIcon,
-  ExclamationTriangleIcon,
   CheckCircleIcon,
   ChevronLeftIcon,
+  ExclamationTriangleIcon,
+  MicrophoneIcon,
 } from '@heroicons/vue/24/solid'
+
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
-
 const lessonId = computed(() => Number(route.params.id))
-const activeItemIndex = ref(0)
-const isCompleted = ref(false)
-
-// Get current item index from URL query parameter, fallback to 0
-const currentItemIndex = computed(() => {
-  const itemIndex = route.query.item ? Number(route.query.item) : 0
-  return Math.max(0, itemIndex) // Ensure it's not negative
-})
-
-// Update activeItemIndex when route changes
-watch(
-  currentItemIndex,
-  (newIndex) => {
-    activeItemIndex.value = newIndex
-  },
-  { immediate: true }
-)
 
 const {
   data: currentLesson,
@@ -166,6 +149,72 @@ const {
   error,
 } = useGetLessonById(lessonId.value)
 
+const activeItemIndex = ref(0)
+const isCompleted = ref(false)
+
+// Find first uncompleted item index
+const findFirstUncompletedIndex = () => {
+  if (!currentLesson.value || !currentLesson.value.items.length) {
+    return 0
+  }
+
+  const firstUncompletedIndex = currentLesson.value.items.findIndex((item) => {
+    const isCompleted = item.state && item.state.state === 'correct'
+    return !isCompleted
+  })
+
+  return firstUncompletedIndex === -1 ? 0 : firstUncompletedIndex
+}
+
+// Initialize activeItemIndex based on lesson data and URL
+const initializeActiveItemIndex = () => {
+  if (!currentLesson.value || !currentLesson.value.items.length) {
+    activeItemIndex.value = 0
+    return
+  }
+
+  // If there's a specific item in URL, use it
+  if (route.query.item !== undefined) {
+    const urlIndex = Number(route.query.item)
+    activeItemIndex.value = Math.max(
+      0,
+      Math.min(urlIndex, currentLesson.value.items.length - 1)
+    )
+  } else {
+    // Find first uncompleted item
+    activeItemIndex.value = findFirstUncompletedIndex()
+  }
+}
+
+// Watch for lesson data changes
+watch(
+  currentLesson,
+  (lesson) => {
+    if (lesson && lesson.items.length > 0) {
+      initializeActiveItemIndex()
+    }
+  },
+  { immediate: true }
+)
+
+// Watch for route changes (but only if lesson is already loaded)
+watch(
+  () => route.query.item,
+  (newItemQuery) => {
+    if (currentLesson.value && currentLesson.value.items.length > 0) {
+      if (newItemQuery !== undefined) {
+        const urlIndex = Number(newItemQuery)
+        activeItemIndex.value = Math.max(
+          0,
+          Math.min(urlIndex, currentLesson.value.items.length - 1)
+        )
+      } else {
+        // If no query, find first uncompleted
+        activeItemIndex.value = findFirstUncompletedIndex()
+      }
+    }
+  }
+)
 // Navigation functions
 const goBack = () => {
   router.back()
@@ -250,7 +299,6 @@ const activeItem = computed<ILessonItem | null>(() => {
   if (!currentLesson.value || !currentLesson.value.items.length) return null
   return currentLesson.value.items[activeItemIndex.value]
 })
-
 // Calculate progress based on completed items (items with state 'correct')
 const progress = computed(() => {
   if (!currentLesson.value || !currentLesson.value.items.length) return 0
@@ -288,7 +336,7 @@ const startFromBeginning = () => {
   // Reset the state of all items in the lesson
   if (currentLesson.value && currentLesson.value.items.length) {
     currentLesson.value.items.forEach((item) => {
-      item.state = undefined
+      item.state = null
     })
   }
   // Navigate to the first item
