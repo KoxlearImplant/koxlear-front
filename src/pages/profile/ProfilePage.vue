@@ -3,6 +3,8 @@ import { ref, computed, watch } from 'vue'
 import { useGetProfile } from '@/pages/profile/queries/useGetProfile'
 import { useUpdateProfile } from '@/pages/profile/queries/useUpdateProfile'
 import { useAuthStore } from '@/store/auth.store'
+import TelegramLogin from '@/components/common/TelegramLogin.vue'
+import type { TelegramUser } from '@/pages/auth/types.ts'
 
 const { data: profile, isLoading, error, refetch } = useGetProfile()
 const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile()
@@ -25,6 +27,12 @@ const initializeEditForm = () => {
       gender: profile.value.gender || null,
     }
   }
+}
+
+const handleTelegramLogin = (user: TelegramUser) => {
+  updateProfile({
+    first_name: user.first_name,
+  })
 }
 
 // Watch for profile data changes
@@ -507,10 +515,13 @@ const logout = () => {
                     </svg>
                   </div>
                   <div>
-                    <p class="font-medium text-gray-900">Telegram</p>
-                    <p class="text-sm text-gray-500">
-                      {{ profile.telegram_id || 'Not connected' }}
-                    </p>
+                    <div>
+                      <p class="font-medium text-gray-900">Telegram</p>
+                      <p class="text-sm text-gray-500">
+                        {{ profile.telegram_id || 'Not connected' }}
+                      </p>
+                    </div>
+                    <TelegramLogin @login-success="handleTelegramLogin" />
                   </div>
                 </div>
                 <div

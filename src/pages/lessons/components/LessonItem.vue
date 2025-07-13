@@ -2,7 +2,7 @@
 import { ref, computed, onUnmounted } from 'vue'
 import { Button } from '@/components/ui/button'
 import { useI18n } from 'vue-i18n'
-import type { LessonItemType } from '../types'
+import type { ILessonItem } from '../types'
 import {
   PlayCircleIcon,
   PauseCircleIcon,
@@ -20,11 +20,13 @@ declare global {
 
 const { t } = useI18n()
 const props = defineProps<{
-  item: LessonItemType
+  item: ILessonItem
 }>()
 
 const emit = defineEmits<{
-  (e: 'item-completed', id: number): void
+  (e: 'item-completed', id: number, state: 'correct' | 'wrong'): void
+  (e: 'item-state-changed', id: number, state: 'correct' | 'wrong' | null): void
+  (e: 'next-item'): void
 }>()
 
 const isRecording = ref(false)
@@ -36,10 +38,13 @@ const audioChunks = ref<Blob[]>([])
 const feedback = ref<string>('')
 const feedbackStatus = ref<'success' | 'error' | 'none'>('none')
 const isSending = ref(false)
-const isItemCompleted = ref(false)
 const showCelebration = ref(false)
 const isAudioPlaying = ref(false)
 const isLoading = ref(false)
+
+// Use the item's state instead of local isItemCompleted
+const isItemCompleted = computed(() => props.item.state?.state === 'correct')
+
 const celebrationParticles = ref<
   Array<{
     id: number
@@ -443,25 +448,31 @@ const submitRecording = async () => {
       if (isCorrect) {
         feedback.value = `${t('lessons.recognized')}: "${recognizedText}" - ${t('lessons.correct')}`
         feedbackStatus.value = 'success'
-        isItemCompleted.value = true
-        emit('item-completed', props.item.id)
+        // Emit item-completed event with correct state
+        emit('item-completed', props.item.id, 'correct')
         // Start celebration!
         createCelebration()
         startParticleAnimation()
       } else {
         feedback.value = `${t('lessons.recognized')}: "${recognizedText}" - ${t('lessons.incorrect')}`
         feedbackStatus.value = 'error'
+        // Emit item-completed event with wrong state
+        emit('item-completed', props.item.id, 'wrong')
       }
     } else {
       // Fallback for old response format
       if (response.data.success) {
         feedback.value = response.data.message || t('lessons.goodJob')
         feedbackStatus.value = 'success'
-        isItemCompleted.value = true
-        emit('item-completed', props.item.id)
+        // Emit item-completed event with correct state
+        emit('item-completed', props.item.id, 'correct')
+        createCelebration()
+        startParticleAnimation()
       } else {
         feedback.value = response.data.message || t('lessons.tryAgain')
         feedbackStatus.value = 'error'
+        // Emit item-completed event with wrong state
+        emit('item-completed', props.item.id, 'wrong')
       }
     }
   } catch (error) {
@@ -480,6 +491,16 @@ const resetRecording = () => {
   recordedBlob.value = null
   feedback.value = ''
   feedbackStatus.value = 'none'
+}
+
+// Retry the current item (reset its state)
+const retryItem = () => {
+  feedback.value = ''
+  feedbackStatus.value = 'none'
+  showCelebration.value = false
+  resetRecording()
+  // Reset the item state for retry
+  emit('item-state-changed', props.item.id, null)
 }
 
 const buttonColor = computed(() => {
@@ -651,7 +672,7 @@ const buttonText = computed(() => {
           @click="isRecording ? stopRecording() : startRecording()"
           :class="buttonColor"
           class="mb-4 transition-colors"
-          :disabled="isItemCompleted || isPlaying || isLoading"
+          :disabled="isPlaying || isLoading"
         >
           {{ buttonText }}
         </Button>
@@ -673,11 +694,7 @@ const buttonText = computed(() => {
                 @click="resetRecording"
                 class="bg-gray-200 text-gray-700 hover:bg-gray-300 mr-2"
                 :disabled="
-                  isItemCompleted ||
-                  isPlaying ||
-                  isAudioPlaying ||
-                  isLoading ||
-                  isRecording
+                  isPlaying || isAudioPlaying || isLoading || isRecording
                 "
               >
                 {{ t('lessons.reset') }}
@@ -687,7 +704,6 @@ const buttonText = computed(() => {
                 class="bg-green-500 hover:bg-green-600"
                 :disabled="
                   isSending ||
-                  isItemCompleted ||
                   isPlaying ||
                   isAudioPlaying ||
                   isLoading ||
@@ -698,7 +714,6 @@ const buttonText = computed(() => {
                   <svg
                     class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
                     xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
                     viewBox="0 0 24 24"
                   >
                     <circle
@@ -739,6 +754,34 @@ const buttonText = computed(() => {
           }"
         >
           {{ feedback }}
+        </div>
+
+        <!-- Success Celebration Card -->
+        <div
+          v-if="feedbackStatus === 'success' && !showCelebration"
+          class="w-full mt-4 p-6 bg-green-50 border-2 border-green-200 rounded-xl text-center"
+        >
+          <div class="text-4xl mb-3">🎉</div>
+          <h3 class="text-lg font-bold text-green-800 mb-2">
+            {{ t('lessons.excellent', 'Excellent!') }}
+          </h3>
+          <p class="text-green-700 mb-4">
+            {{ t('lessons.correctAnswer', 'Great job! You got it right!') }}
+          </p>
+          <div class="flex justify-center space-x-3">
+            <Button
+              @click="retryItem"
+              class="bg-gray-500 hover:bg-gray-600 text-white"
+            >
+              {{ t('lessons.retry', 'Retry') }}
+            </Button>
+            <Button
+              @click="$emit('next-item')"
+              class="bg-green-500 hover:bg-green-600 text-white"
+            >
+              {{ t('lessons.next', 'Next') }}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

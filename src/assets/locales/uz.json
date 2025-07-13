@@ -71,6 +71,11 @@
     "intermediate": "O'rta",
     "advanced": "Ilg'or"
   },
+  "lessonGroups": {
+    "title": "Dars guruhlari",
+    "items": "topshiriqlar",
+    "startGroup": "Guruhni boshlash"
+  },
   "features": {
     "interactiveLearning": "Interaktiv o'rganish",
     "interactiveLearningDesc": "Koxlear implant foydalanuvchilari uchun maxsus ishlab chiqilgan qiziqarli, o'yinga o'xshash mashqlar",
@@ -92,6 +97,9 @@
     "confirmPasswordPlaceholder": "Parolni tasdiqlang",
     "name": "To'liq ism",
     "namePlaceholder": "To'liq ismingizni kiriting",
+    "lastName": "Familiya",
+    "lastNamePlaceholder": "Familiyangizni kiriting",
+    "lastNameRequired": "Familiya kiritilishi shart",
     "rememberMe": "Meni eslab qolish",
     "forgotPassword": "Parolni unutdingizmi?",
     "noAccount": "Hisobingiz yo'qmi?",
@@ -144,6 +152,9 @@
     "goodJob": "Ajoyib!",
     "tryAgain": "Yana urinib ko'ring",
     "recognized": "Tanildi",
+    "correct": "To'g'ri!",
+    "incorrect": "Noto'g'ri",
+    "startLesson": "Darsni boshlash",
     "errorSubmitting": "Yozuvni yuborishda xatolik. Iltimos, qayta urinib ko'ring.",
     "microphoneError": "Mikrofonga ruxsat berilmagan yoki mavjud emas.",
     "stepCompleted": "Bosqich yakunlandi!",
@@ -162,7 +173,8 @@
     "items": "topshiriqlar",
     "previous": "Oldingi",
     "finish": "Darsni yakunlash",
-    "next": "Keyingi"
+    "next": "Keyingi",
+    "startFromBeginning": "Boshidan boshlash"
   },
   "nav": {
     "lessons": "O‘rganish",

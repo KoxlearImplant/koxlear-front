@@ -31,6 +31,7 @@ const session = ref('')
 
 // Step 3: Registration fields
 const firstName = ref('')
+const lastName = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 
@@ -140,6 +141,10 @@ const handleRegister = () => {
   if (!firstName.value) {
     errors.value.firstName = t('auth.nameRequired') || 'Name is required'
   }
+  if (!lastName.value) {
+    errors.value.lastName =
+      t('auth.lastNameRequired') || 'Last name is required'
+  }
   if (!password.value) {
     errors.value.password = t('auth.passwordRequired') || 'Password is required'
   } else if (password.value.length < 8) {
@@ -162,6 +167,7 @@ const handleRegister = () => {
       email: email.value,
       password: password.value,
       first_name: firstName.value,
+      last_name: lastName.value,
       session: session.value,
     },
     {
@@ -333,6 +339,25 @@ const goToHome = () => {
               />
               <p v-if="errors.firstName" class="mt-1 text-xs text-red-500">
                 {{ errors.firstName }}
+              </p>
+            </div>
+            <div class="mb-4">
+              <label
+                class="block text-gray-700 text-sm font-medium mb-2"
+                for="lastName"
+              >
+                {{ t('auth.lastName') }}
+              </label>
+              <input
+                id="lastName"
+                v-model="lastName"
+                type="text"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                :class="{ 'border-red-500': errors.lastName }"
+                :placeholder="t('auth.lastNamePlaceholder')"
+              />
+              <p v-if="errors.lastName" class="mt-1 text-xs text-red-500">
+                {{ errors.lastName }}
               </p>
             </div>
             <div class="mb-4">

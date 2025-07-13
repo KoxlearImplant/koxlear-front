@@ -58,8 +58,11 @@
         <Button @click="goBack" class="bg-gray-500 hover:bg-gray-600">
           {{ t('lessons.backToLessons', 'Back to Lessons') }}
         </Button>
-        <Button class="bg-blue-500 hover:bg-blue-600">
-          {{ t('lessons.nextLesson', 'Next Lesson') }}
+        <Button
+          @click="startFromBeginning"
+          class="bg-blue-500 hover:bg-blue-600"
+        >
+          {{ t('lessons.startFromBeginning', 'Start from Beginning') }}
         </Button>
       </div>
     </div>
@@ -89,7 +92,8 @@
       <div v-if="activeItem" class="mb-8">
         <LessonItem
           :item="activeItem"
-          @item-completed="markItemComplete(activeItem.id)"
+          @item-completed="handleItemCompleted"
+          @next-item="goToNextItem"
         />
       </div>
 
@@ -118,12 +122,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { Button } from '@/components/ui/button'
 import LessonItem from './components/LessonItem.vue'
-import type { LessonItemType } from './types'
+import type { ILessonItem } from './types'
 import { useGetLessonById } from '@/pages/lessons/queries'
 import {
   ArrowLeftIcon,
@@ -140,7 +144,21 @@ const router = useRouter()
 const lessonId = computed(() => Number(route.params.id))
 const activeItemIndex = ref(0)
 const isCompleted = ref(false)
-const completedItems = ref<Set<number>>(new Set())
+
+// Get current item index from URL query parameter, fallback to 0
+const currentItemIndex = computed(() => {
+  const itemIndex = route.query.item ? Number(route.query.item) : 0
+  return Math.max(0, itemIndex) // Ensure it's not negative
+})
+
+// Update activeItemIndex when route changes
+watch(
+  currentItemIndex,
+  (newIndex) => {
+    activeItemIndex.value = newIndex
+  },
+  { immediate: true }
+)
 
 const {
   data: currentLesson,
@@ -150,7 +168,7 @@ const {
 
 // Navigation functions
 const goBack = () => {
-  router.push('/dashboard/lessons')
+  router.back()
 }
 
 const goToNextItem = () => {
@@ -158,17 +176,34 @@ const goToNextItem = () => {
     !currentLesson.value ||
     activeItemIndex.value >= currentLesson.value.items.length - 1
   ) {
-    completeLesson()
+    // Only complete lesson if all items are correctly completed
+    if (isLessonCompleted.value) {
+      completeLesson()
+    } else {
+      // If not all items completed, don't advance beyond the last item
+      // User must complete all items first
+      return
+    }
     return
   }
 
-  activeItemIndex.value++
+  const nextIndex = activeItemIndex.value + 1
+  // Update URL to include item index as query parameter
+  router.push({
+    path: `/dashboard/lessons/${lessonId.value}`,
+    query: { item: nextIndex.toString() },
+  })
   scrollToTop()
 }
 
 const goToPreviousItem = () => {
   if (activeItemIndex.value > 0) {
-    activeItemIndex.value--
+    const prevIndex = activeItemIndex.value - 1
+    // Update URL to include item index as query parameter
+    router.push({
+      path: `/dashboard/lessons/${lessonId.value}`,
+      query: { item: prevIndex.toString() },
+    })
     scrollToTop()
   }
 }
@@ -182,26 +217,87 @@ const completeLesson = () => {
   // Here you would typically send a request to update the user's progress
 }
 
-const markItemComplete = (itemId: number) => {
-  completedItems.value.add(itemId)
+// Handle item completion from child component
+const handleItemCompleted = (itemId: number, state: 'correct' | 'wrong') => {
+  if (!currentLesson.value) return
+
+  // Update the item's state in the current lesson data
+  const item = currentLesson.value.items.find((item) => item.id === itemId)
+  if (item) {
+    // Update the LessonItemState object
+    if (item.state) {
+      item.state.state = state
+      item.state.last_submit_at = new Date().toISOString()
+      if (state === 'wrong') {
+        item.state.wrong_count += 1
+      }
+    } else {
+      // Create new state object if it doesn't exist
+      item.state = {
+        id: itemId,
+        state: state,
+        wrong_count: state === 'wrong' ? 1 : 0,
+        created_at: new Date().toISOString(),
+        last_submit_at: new Date().toISOString(),
+      }
+    }
+  }
+
+  // Don't auto-advance anymore - let user decide when to move on
 }
 
-const activeItem = computed<LessonItemType | null>(() => {
+const activeItem = computed<ILessonItem | null>(() => {
   if (!currentLesson.value || !currentLesson.value.items.length) return null
   return currentLesson.value.items[activeItemIndex.value]
 })
 
+// Calculate progress based on completed items (items with state 'correct')
 const progress = computed(() => {
   if (!currentLesson.value || !currentLesson.value.items.length) return 0
-  return Math.round(
-    ((activeItemIndex.value + 1) / currentLesson.value.items.length) * 100
+
+  const completedItems = currentLesson.value.items.filter(
+    (item) => item.state?.state === 'correct'
+  ).length
+  return Math.round((completedItems / currentLesson.value.items.length) * 100)
+})
+
+// Check if lesson is fully completed
+const isLessonCompleted = computed(() => {
+  if (!currentLesson.value || !currentLesson.value.items.length) return false
+  return currentLesson.value.items.every(
+    (item) => item.state?.state === 'correct'
   )
+})
+
+// Update the completed state when all items are correct
+watch(isLessonCompleted, (newValue) => {
+  if (newValue) {
+    isCompleted.value = true
+  }
 })
 
 const isLastItem = computed(() => {
   if (!currentLesson.value) return true
   return activeItemIndex.value === currentLesson.value.items.length - 1
 })
+
+// Start the lesson from the beginning
+const startFromBeginning = () => {
+  isCompleted.value = false
+  activeItemIndex.value = 0
+  // Reset the state of all items in the lesson
+  if (currentLesson.value && currentLesson.value.items.length) {
+    currentLesson.value.items.forEach((item) => {
+      item.state = undefined
+    })
+  }
+  // Navigate to the first item
+  router.push({
+    path: `/dashboard/lessons/${lessonId.value}`,
+    query: { item: '0' },
+  })
+  scrollToTop()
+}
 </script>
 
 <style scoped>

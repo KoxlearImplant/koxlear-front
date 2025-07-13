@@ -138,6 +138,7 @@ function getGradientColor(id: number) {
 
             <!-- Start button -->
             <button
+              @click="openLesson(lesson.id)"
               class="flex items-center text-blue-500 hover:text-blue-700 transition-colors text-sm font-medium"
             >
               {{ t('lessons.startLesson', 'Start Lesson') }}

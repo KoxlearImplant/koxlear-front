@@ -92,6 +92,9 @@
     "confirmPasswordPlaceholder": "Confirm your password",
     "name": "Full Name",
     "namePlaceholder": "Enter your full name",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Enter your last name",
+    "lastNameRequired": "Last name is required",
     "rememberMe": "Remember me",
     "forgotPassword": "Forgot password?",
     "noAccount": "Don't have an account?",
@@ -162,7 +165,8 @@
     "items": "items",
     "previous": "Previous",
     "finish": "Finish Lesson",
-    "next": "Next"
+    "next": "Next",
+    "startFromBeginning": "Start from Beginning"
   },
   "nav": {
     "lessons": "Learn",

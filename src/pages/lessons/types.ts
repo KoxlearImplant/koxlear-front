@@ -1,21 +1,32 @@
-export interface GroupType {
+export interface LessonGroup {
   id: number
   name: string
 }
 
-export interface LessonItemType {
+export interface LessonItemState {
   id: number
-  type: 'tts' | 'stt' | 'img' // Text-to-speech, Speech-to-text, Image-based
+  state: 'wrong' | 'correct' | null
+  wrong_count: number
+  created_at: string
+  last_submit_at: string
+}
+
+export interface ILessonItem {
+  id: number
+  type: 'tts' | 'tutorial'
   word: string
   audio: string
   image: string | null
+  state: LessonItemState | null
 }
 
 export interface LessonType {
   id: number
   title: string
-  items: LessonItemType[]
-  group: GroupType
+  items: ILessonItem[]
+  group: LessonGroup
+  completed_items_count: number
+  items_count: number
 }
 
 export interface LessonGroupType {
