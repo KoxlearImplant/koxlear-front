@@ -663,7 +663,7 @@ const uploadPhoto = async () => {
                       />
                     </svg>
                   </div>
-                  <div>
+                  <div class="flex justify-between w-full">
                     <div>
                       <p class="font-medium text-gray-900">
                         {{ t('profile.telegram') }}

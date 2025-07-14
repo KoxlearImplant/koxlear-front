@@ -852,7 +852,7 @@ watch(
         <img
           :src="item.image"
           :alt="item.word"
-          class="w-full h-auto rounded-lg shadow-md object-cover"
+          class="w-full h-auto rounded-lg shadow-md object-cover max-h-64 max-w-64"
           loading="lazy"
         />
       </div>
