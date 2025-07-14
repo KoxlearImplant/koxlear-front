@@ -66,6 +66,11 @@ const successAudioRef = ref<HTMLAudioElement | null>(null)
 
 // Play the lesson audio
 const playAudio = () => {
+  if (!props.item.audio) {
+    console.warn('No audio available for this lesson item')
+    return
+  }
+
   if (isPlaying.value) {
     audioRef.value?.pause()
     isPlaying.value = false
@@ -826,6 +831,7 @@ watch(
       </div>
 
       <Button
+        v-if="item.audio"
         @click="playAudio"
         class="bg-blue-500 hover:bg-blue-600 transition-colors flex items-center"
         :disabled="isPlaying || isAudioPlaying || isLoading || isRecording"
@@ -836,7 +842,21 @@ watch(
       </Button>
     </div>
 
+    <!-- Image section - display if item has an image -->
+    <div v-if="item.image" class="mb-6 flex justify-center">
+      <div class="max-w-sm w-full">
+        <img
+          :src="item.image"
+          :alt="item.word"
+          class="w-full h-auto rounded-lg shadow-md object-cover"
+          loading="lazy"
+        />
+      </div>
+    </div>
+
+    <!-- Audio element for lesson audio -->
     <audio
+      v-if="item.audio"
       ref="audioRef"
       :src="item.audio"
       preload="auto"
