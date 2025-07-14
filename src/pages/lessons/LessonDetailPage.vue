@@ -41,31 +41,6 @@
     </div>
 
     <!-- Completed lesson state -->
-    <div
-      v-else-if="isCompleted"
-      class="bg-green-50 border border-green-200 rounded-lg p-10 text-center"
-    >
-      <div class="mb-4">
-        <CheckCircleIcon class="h-20 w-20 text-green-500 mx-auto" />
-      </div>
-      <h2 class="text-2xl font-bold text-gray-800 mb-3">
-        {{ t('lessons.lessonComplete', 'Lesson Completed!') }}
-      </h2>
-      <p class="text-lg text-gray-600 mb-6">
-        {{ t('lessons.greatJob', "Great job! You've completed this lesson.") }}
-      </p>
-      <div class="flex justify-center space-x-4">
-        <Button @click="goBack" class="bg-gray-500 hover:bg-gray-600">
-          {{ t('lessons.backToLessons', 'Back to Lessons') }}
-        </Button>
-        <Button
-          @click="startFromBeginning"
-          class="bg-blue-500 hover:bg-blue-600"
-        >
-          {{ t('lessons.startFromBeginning', 'Start from Beginning') }}
-        </Button>
-      </div>
-    </div>
 
     <!-- Lesson content -->
     <div v-else class="mb-12">
@@ -92,8 +67,11 @@
       <div v-if="activeItem" class="mb-8">
         <LessonItem
           :item="activeItem"
+          :isLast="isLastItem"
           @item-completed="handleItemCompleted"
           @next-item="goToNextItem"
+          @back-to-lessons="goBack"
+          @start-from-beginning="startFromBeginning"
         />
       </div>
 
@@ -132,7 +110,6 @@ import { useGetLessonById } from '@/pages/lessons/queries'
 import {
   ArrowLeftIcon,
   ArrowPathIcon,
-  CheckCircleIcon,
   ChevronLeftIcon,
   ExclamationTriangleIcon,
   MicrophoneIcon,

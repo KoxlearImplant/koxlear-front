@@ -7,6 +7,8 @@ import {
   ExclamationTriangleIcon,
   ArrowRightIcon,
   InboxIcon,
+  CheckCircleIcon,
+  InformationCircleIcon,
 } from '@heroicons/vue/24/outline'
 import { computed } from 'vue'
 
@@ -110,7 +112,51 @@ function getGradientColor(id: number) {
 
         <!-- Card content -->
         <div class="p-6">
-          <div class="flex items-center justify-between mb-4">
+          <!-- Progress badge and bar -->
+          <div class="flex items-center mb-2">
+            <template
+              v-if="lesson.completed_items_count === lesson.items_count"
+            >
+              <span
+                class="flex items-center bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold"
+              >
+                <CheckCircleIcon class="h-4 w-4 mr-1 text-green-500" />
+                {{ t('lessons.completed', 'Completed') }}
+              </span>
+            </template>
+            <template v-else>
+              <span
+                class="flex items-center bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs font-semibold"
+              >
+                <CheckCircleIcon
+                  v-if="lesson.completed_items_count > 0"
+                  class="h-4 w-4 mr-1 text-blue-400"
+                />
+                {{ lesson.completed_items_count }}/{{ lesson.items_count }}
+                {{ t('lessons.completed', 'completed') }}
+              </span>
+              <div class="w-20 h-2 bg-gray-200 rounded-full ml-2">
+                <div
+                  class="h-2 bg-blue-500 rounded-full transition-all duration-300"
+                  :style="`width: ${(lesson.completed_items_count / lesson.items_count) * 100}%`"
+                ></div>
+              </div>
+            </template>
+          </div>
+          <!-- Show item count and done items -->
+          <div class="text-xs text-gray-500 mb-2 flex gap-2">
+            <span class="inline-flex items-center">
+              <InformationCircleIcon class="h-4 w-4 mr-1 text-gray-400" />
+              {{ t('lessons.items', 'Items') }}: <b>{{ lesson.items_count }}</b>
+            </span>
+            <span class="inline-flex items-center">
+              <CheckCircleIcon class="h-4 w-4 mr-1 text-green-400" />
+              {{ t('lessons.done', 'Done') }}:
+              <b>{{ lesson.completed_items_count }}</b>
+            </span>
+          </div>
+
+          <div class="flex justify-between items-center mb-4">
             <div class="text-sm text-gray-600">
               {{
                 t('lessons.contains', {
@@ -140,7 +186,7 @@ function getGradientColor(id: number) {
 
             <!-- Start button -->
             <button
-              @click="openLesson(lesson.id)"
+              @click.stop="openLesson(lesson.id)"
               class="flex items-center text-blue-500 hover:text-blue-700 transition-colors text-sm font-medium"
             >
               {{ t('lessons.startLesson', 'Start Lesson') }}

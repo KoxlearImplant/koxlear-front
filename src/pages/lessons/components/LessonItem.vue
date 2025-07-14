@@ -21,12 +21,15 @@ declare global {
 const { t } = useI18n()
 const props = defineProps<{
   item: ILessonItem
+  isLast?: boolean // Add isLast prop, optional for backward compatibility
 }>()
 
 const emit = defineEmits<{
   (e: 'item-completed', id: number, state: 'correct' | 'wrong'): void
   (e: 'item-state-changed', id: number, state: 'correct' | 'wrong' | null): void
   (e: 'next-item'): void
+  (e: 'back-to-lessons'): void
+  (e: 'start-from-beginning'): void
 }>()
 
 const isRecording = ref(false)
@@ -504,8 +507,22 @@ const handleRetry = () => {
 
 // Handle next button click
 const handleNext = () => {
+  if (props.isLast) {
+    showCelebration.value = true
+    // Optionally, you can trigger a special celebration or callback here
+  } else {
+    showCelebration.value = false
+    emit('next-item')
+  }
+}
+
+const handleBackToLessons = () => {
   showCelebration.value = false
-  emit('next-item')
+  emit('back-to-lessons')
+}
+const handleStartFromBeginning = () => {
+  showCelebration.value = false
+  emit('start-from-beginning')
 }
 
 const buttonColor = computed(() => {
@@ -597,23 +614,58 @@ watch(
           class="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-2xl animate-bounce celebration-rainbow"
         >
           <div class="text-6xl mb-4 celebration-sparkle">🎉</div>
-          <h2 class="text-3xl font-bold text-green-600 mb-2">Excellent!</h2>
-          <p class="text-xl text-gray-700">You did it! 🌟</p>
-          <div class="flex justify-center space-x-3">
+          <h2 class="text-3xl font-bold text-green-600 mb-2">
+            {{
+              props.isLast
+                ? t('lessons.lessonComplete', 'Lesson Completed!')
+                : 'Excellent!'
+            }}
+          </h2>
+          <p class="text-xl text-gray-700 mb-4">
+            {{
+              props.isLast
+                ? t(
+                    'lessons.greatJob',
+                    "Great job! You've completed this lesson."
+                  )
+                : 'You did it! 🌟'
+            }}
+          </p>
+          <div
+            v-if="props.isLast"
+            class="flex flex-col sm:flex-row justify-center gap-4 mb-2"
+          >
+            <Button
+              @click="handleBackToLessons"
+              class="bg-gray-500 hover:bg-gray-600 min-w-[180px]"
+            >
+              {{ t('lessons.backToLessons', 'Back to Lessons') }}
+            </Button>
+            <Button
+              @click="handleStartFromBeginning"
+              class="bg-blue-500 hover:bg-blue-600 min-w-[180px]"
+            >
+              {{ t('lessons.startFromBeginning', 'Start from Beginning') }}
+            </Button>
+          </div>
+          <div
+            v-else
+            class="flex flex-col sm:flex-row justify-center gap-4 mb-2"
+          >
             <Button
               @click="handleRetry"
-              class="bg-gray-500 hover:bg-gray-600 text-white"
+              class="bg-gray-500 hover:bg-gray-600 text-white min-w-[120px]"
             >
               {{ t('lessons.retry', 'Retry') }}
             </Button>
             <Button
               @click="handleNext"
-              class="bg-green-500 hover:bg-green-600 text-white"
+              class="bg-green-500 hover:bg-green-600 text-white min-w-[120px]"
             >
               {{ t('lessons.next', 'Next') }}
             </Button>
           </div>
-          <div class="text-4xl mt-4">
+          <div class="text-4xl mt-4 flex justify-center gap-2">
             <span
               class="inline-block animate-bounce"
               style="animation-delay: 0s"
