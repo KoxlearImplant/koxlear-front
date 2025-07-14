@@ -419,7 +419,7 @@ function drawWaveform() {
   for (let i = 0; i < dataArray.length; i++) {
     const angle = (i / dataArray.length) * Math.PI * 2
     const v = dataArray[i] / 128.0
-    const r = radius + (v - 1) * 24
+    const r = radius + (v - 1) * 40
     const x = Math.cos(angle) * r
     const y = Math.sin(angle) * r
     if (i === 0) ctx.moveTo(x, y)
@@ -441,8 +441,12 @@ function startWaveform(stream: MediaStream) {
   dataArray = new Uint8Array(analyser.fftSize)
   source = audioContext.createMediaStreamSource(stream)
   source.connect(analyser)
+  let frame = 0
   function animate() {
-    drawWaveform()
+    frame++
+    if (frame % 4 === 0) {
+      drawWaveform()
+    }
     animationFrameId = requestAnimationFrame(animate)
   }
   animate()
