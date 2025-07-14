@@ -15,7 +15,7 @@ export interface ILessonItem {
   id: number
   type: 'tts' | 'tutorial'
   word: string
-  audio: string
+  audio: string | null
   image: string | null
   state: LessonItemState | null
 }
