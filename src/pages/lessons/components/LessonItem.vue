@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onUnmounted, watch } from 'vue'
 import { Button } from '@/components/ui/button'
 import { useI18n } from 'vue-i18n'
 import type { ILessonItem } from '../types'
@@ -39,7 +39,6 @@ const feedback = ref<string>('')
 const feedbackStatus = ref<'success' | 'error' | 'none'>('none')
 const isSending = ref(false)
 const showCelebration = ref(false)
-const showSuccessModal = ref(false)
 const isAudioPlaying = ref(false)
 const isLoading = ref(false)
 
@@ -244,13 +243,6 @@ const createCelebration = () => {
       createBalloon()
     }, i * 300)
   }
-
-  // Hide celebration after 4 seconds and show modal
-  setTimeout(() => {
-    showCelebration.value = false
-    celebrationParticles.value = []
-    showSuccessModal.value = true
-  }, 4000)
 }
 
 // Play success sound
@@ -500,7 +492,6 @@ const retryItem = () => {
   feedback.value = ''
   feedbackStatus.value = 'none'
   showCelebration.value = false
-  showSuccessModal.value = false
   resetRecording()
   // Reset the item state for retry
   emit('item-state-changed', props.item.id, null)
@@ -508,13 +499,12 @@ const retryItem = () => {
 
 // Handle retry button click
 const handleRetry = () => {
-  showSuccessModal.value = false
   retryItem()
 }
 
 // Handle next button click
 const handleNext = () => {
-  showSuccessModal.value = false
+  showCelebration.value = false
   emit('next-item')
 }
 
@@ -529,6 +519,17 @@ const buttonText = computed(() => {
   if (isRecording.value) return t('lessons.stopRecording')
   return t('lessons.startRecording')
 })
+
+// Reset feedback and audio state when item changes
+watch(
+  () => props.item.id,
+  () => {
+    feedback.value = ''
+    feedbackStatus.value = 'none'
+    recordedAudio.value = null
+    recordedBlob.value = null
+  }
+)
 </script>
 
 <template>
@@ -598,6 +599,20 @@ const buttonText = computed(() => {
           <div class="text-6xl mb-4 celebration-sparkle">🎉</div>
           <h2 class="text-3xl font-bold text-green-600 mb-2">Excellent!</h2>
           <p class="text-xl text-gray-700">You did it! 🌟</p>
+          <div class="flex justify-center space-x-3">
+            <Button
+              @click="handleRetry"
+              class="bg-gray-500 hover:bg-gray-600 text-white"
+            >
+              {{ t('lessons.retry', 'Retry') }}
+            </Button>
+            <Button
+              @click="handleNext"
+              class="bg-green-500 hover:bg-green-600 text-white"
+            >
+              {{ t('lessons.next', 'Next') }}
+            </Button>
+          </div>
           <div class="text-4xl mt-4">
             <span
               class="inline-block animate-bounce"
@@ -772,42 +787,6 @@ const buttonText = computed(() => {
         </div>
 
         <!-- Success Celebration Card as Dialog -->
-        <teleport to="body">
-          <div
-            v-if="showSuccessModal"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-opacity-70 backdrop-blur-sm"
-            @click.self="retryItem"
-            tabindex="-1"
-            @keydown.esc="retryItem"
-          >
-            <div
-              class="w-full max-w-sm mx-auto p-6 bg-green-50 border-2 border-green-200 rounded-xl text-center shadow-2xl relative"
-              @click.stop
-            >
-              <div class="text-4xl mb-3">🎉</div>
-              <h3 class="text-lg font-bold text-green-800 mb-2">
-                {{ t('lessons.excellent', 'Excellent!') }}
-              </h3>
-              <p class="text-green-700 mb-4">
-                {{ t('lessons.correctAnswer', 'Great job! You got it right!') }}
-              </p>
-              <div class="flex justify-center space-x-3">
-                <Button
-                  @click="handleRetry"
-                  class="bg-gray-500 hover:bg-gray-600 text-white"
-                >
-                  {{ t('lessons.retry', 'Retry') }}
-                </Button>
-                <Button
-                  @click="handleNext"
-                  class="bg-green-500 hover:bg-green-600 text-white"
-                >
-                  {{ t('lessons.next', 'Next') }}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </teleport>
       </div>
     </div>
   </div>
