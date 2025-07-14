@@ -88,58 +88,6 @@ const playAudio = () => {
   }
 }
 
-// Start recording user's voice
-const startRecording = async () => {
-  try {
-    isLoading.value = true
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-    audioChunks.value = []
-
-    // Try to use ogg format if supported by the browser
-    let options = {}
-    if (MediaRecorder.isTypeSupported('audio/ogg')) {
-      options = { mimeType: 'audio/ogg' }
-    } else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-      options = { mimeType: 'audio/webm;codecs=opus' }
-    }
-
-    mediaRecorder.value = new MediaRecorder(stream, options)
-    isRecording.value = true
-    isLoading.value = false
-
-    mediaRecorder.value.ondataavailable = (event) => {
-      audioChunks.value.push(event.data)
-    }
-
-    mediaRecorder.value.onstop = () => {
-      // Create blob of the recording for preview
-      const audioBlob = new Blob(audioChunks.value, {
-        type: mediaRecorder.value?.mimeType || 'audio/ogg',
-      })
-      recordedBlob.value = audioBlob
-      recordedAudio.value = URL.createObjectURL(audioBlob)
-    }
-
-    mediaRecorder.value.start()
-  } catch (error) {
-    console.error('Error accessing microphone:', error)
-    feedback.value = t('lessons.microphoneError')
-    feedbackStatus.value = 'error'
-    isLoading.value = false
-  }
-}
-
-// Stop recording
-const stopRecording = () => {
-  if (mediaRecorder.value && isRecording.value) {
-    mediaRecorder.value.stop()
-    isRecording.value = false
-
-    // Stop all audio tracks to release the microphone
-    mediaRecorder.value.stream.getTracks().forEach((track) => track.stop())
-  }
-}
-
 // Play recorded audio
 const playRecordedAudio = () => {
   if (recordedAudioRef.value) {
@@ -408,6 +356,181 @@ onUnmounted(() => {
   }
 })
 
+// Add refs for waveform and timer
+const waveformCanvas = ref<HTMLCanvasElement | null>(null)
+const recordingTimer = ref(0)
+let timerInterval: number | null = null
+let audioContext: AudioContext | null = null
+let analyser: AnalyserNode | null = null
+let dataArray: Uint8Array | null = null
+let source: MediaStreamAudioSourceNode | null = null
+let animationFrameId: number | null = null
+let recordStartTime: number | null = null
+
+// Draw circular waveform
+function drawWaveform() {
+  if (!waveformCanvas.value) return
+  const ctx = waveformCanvas.value.getContext('2d')!
+  const width = waveformCanvas.value.width
+  const height = waveformCanvas.value.height
+  const centerX = width / 2
+  const centerY = height / 2
+  const radius = Math.min(width, height) / 2 - 10
+
+  // Clear the canvas to transparent (no fill, no square)
+  ctx.clearRect(0, 0, width, height)
+
+  if (!isRecording.value) {
+    // Draw a static gray ring only
+    ctx.save()
+    ctx.beginPath()
+    ctx.arc(centerX, centerY, radius, 0, Math.PI * 2)
+    ctx.strokeStyle = '#d1d5db'
+    ctx.lineWidth = 4
+    ctx.shadowBlur = 0
+    ctx.stroke()
+    ctx.restore()
+    return
+  }
+
+  // Animated waveform when recording
+  if (!analyser || !dataArray) return
+  analyser.getByteTimeDomainData(dataArray)
+  // Calculate average amplitude for dynamic effects
+  let sum = 0
+  for (let i = 0; i < dataArray.length; i++) {
+    sum += Math.abs(dataArray[i] - 128)
+  }
+  const avg = sum / dataArray.length
+  // Gradient stroke
+  const grad = ctx.createConicGradient(0, centerX, centerY)
+  grad.addColorStop(0, '#a21caf') // purple
+  grad.addColorStop(0.33, '#f59e42') // orange
+  grad.addColorStop(0.66, '#ff6b6b') // red
+  grad.addColorStop(1, '#a21caf') // purple
+  ctx.save()
+  ctx.translate(centerX, centerY)
+  ctx.beginPath()
+  for (let i = 0; i < dataArray.length; i++) {
+    const angle = (i / dataArray.length) * Math.PI * 2
+    const v = dataArray[i] / 128.0
+    const r = radius + (v - 1) * 24
+    const x = Math.cos(angle) * r
+    const y = Math.sin(angle) * r
+    if (i === 0) ctx.moveTo(x, y)
+    else ctx.lineTo(x, y)
+  }
+  ctx.closePath()
+  ctx.strokeStyle = grad
+  ctx.lineWidth = 4 + avg / 10
+  ctx.shadowBlur = 0
+  ctx.shadowColor = 'rgba(0,0,0,0)'
+  ctx.stroke()
+  ctx.restore()
+}
+
+function startWaveform(stream: MediaStream) {
+  audioContext = new (window.AudioContext || window.webkitAudioContext)()
+  analyser = audioContext.createAnalyser()
+  analyser.fftSize = 512 // smoother, denser
+  dataArray = new Uint8Array(analyser.fftSize)
+  source = audioContext.createMediaStreamSource(stream)
+  source.connect(analyser)
+  function animate() {
+    drawWaveform()
+    animationFrameId = requestAnimationFrame(animate)
+  }
+  animate()
+}
+
+function stopWaveform() {
+  if (animationFrameId) cancelAnimationFrame(animationFrameId)
+  if (audioContext) audioContext.close()
+  audioContext = null
+  analyser = null
+  dataArray = null
+  source = null
+}
+
+// Hold-to-record logic
+const handleRecordPress = async (e: Event) => {
+  e.preventDefault()
+  if (isRecording.value || isLoading.value) return
+  try {
+    isLoading.value = true
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    audioChunks.value = []
+    let options = {}
+    if (MediaRecorder.isTypeSupported('audio/ogg')) {
+      options = { mimeType: 'audio/ogg' }
+    } else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+      options = { mimeType: 'audio/webm;codecs=opus' }
+    }
+    mediaRecorder.value = new MediaRecorder(stream, options)
+    isRecording.value = true
+    isLoading.value = false
+    recordStartTime = Date.now()
+    mediaRecorder.value.ondataavailable = (event) => {
+      audioChunks.value.push(event.data)
+    }
+    mediaRecorder.value.onstop = () => {
+      const audioBlob = new Blob(audioChunks.value, {
+        type: mediaRecorder.value?.mimeType || 'audio/ogg',
+      })
+      recordedBlob.value = audioBlob
+      recordedAudio.value = URL.createObjectURL(audioBlob)
+      stopWaveform()
+    }
+    mediaRecorder.value.start()
+    // Start waveform
+    startWaveform(stream)
+    // Start timer
+    recordingTimer.value = 0
+    timerInterval = window.setInterval(() => {
+      recordingTimer.value++
+    }, 1000)
+  } catch (error) {
+    feedback.value = t('lessons.microphoneError')
+    feedbackStatus.value = 'error'
+    console.error('Error accessing microphone:', error)
+    isLoading.value = false
+  }
+}
+
+const handleRecordRelease = () => {
+  if (!isRecording.value || !mediaRecorder.value) return
+  // Prevent accidental tap: require at least 200ms
+  if (recordStartTime && Date.now() - recordStartTime < 200) {
+    // Cancel recording
+    isRecording.value = false
+    if (mediaRecorder.value.state === 'recording') mediaRecorder.value.stop()
+    if (mediaRecorder.value.stream) {
+      mediaRecorder.value.stream.getTracks().forEach((track) => track.stop())
+    }
+    if (timerInterval) {
+      clearInterval(timerInterval)
+      timerInterval = null
+    }
+    stopWaveform()
+    return
+  }
+  mediaRecorder.value.stop()
+  isRecording.value = false // ensure this is set immediately
+  if (mediaRecorder.value.stream) {
+    mediaRecorder.value.stream.getTracks().forEach((track) => track.stop())
+  }
+  if (timerInterval) {
+    clearInterval(timerInterval)
+    timerInterval = null
+  }
+  stopWaveform()
+}
+
+onUnmounted(() => {
+  stopWaveform()
+  if (timerInterval) clearInterval(timerInterval)
+})
+
 // Submit recording to server for checking
 const submitRecording = async () => {
   if (!recordedBlob.value) return
@@ -524,18 +647,6 @@ const handleStartFromBeginning = () => {
   showCelebration.value = false
   emit('start-from-beginning')
 }
-
-const buttonColor = computed(() => {
-  if (feedbackStatus.value === 'success') return 'bg-green-500'
-  if (feedbackStatus.value === 'error') return 'bg-red-500'
-  if (isRecording.value) return 'bg-red-600'
-  return 'bg-blue-500'
-})
-
-const buttonText = computed(() => {
-  if (isRecording.value) return t('lessons.stopRecording')
-  return t('lessons.startRecording')
-})
 
 // Reset feedback and audio state when item changes
 watch(
@@ -741,23 +852,41 @@ watch(
     <div class="mt-6 border-t pt-4">
       <div class="flex flex-col items-center">
         <div
-          class="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-          :class="[isRecording ? 'bg-red-100 animate-pulse' : 'bg-gray-100']"
+          class="relative flex items-center justify-center mb-4 p-4"
+          style="width: 120px; height: 120px"
         >
-          <MicrophoneIcon
-            class="h-8 w-8"
-            :class="isRecording ? 'text-red-600' : 'text-gray-500'"
-          />
+          <canvas
+            v-if="isRecording"
+            ref="waveformCanvas"
+            width="120"
+            height="120"
+            class="absolute top-0 left-0"
+            style="z-index: 1; pointer-events: none"
+          ></canvas>
+          <button
+            class="w-24 h-24 rounded-full flex items-center justify-center bg-white shadow-lg focus:outline-none transition-all duration-200"
+            :class="[isRecording && 'animate-pulse']"
+            @mousedown="handleRecordPress"
+            @touchstart="handleRecordPress"
+            @mouseup="handleRecordRelease"
+            @mouseleave="handleRecordRelease"
+            @touchend="handleRecordRelease"
+            :disabled="isLoading || isPlaying"
+            aria-label="Hold to record"
+            style="z-index: 2; position: relative"
+          >
+            <MicrophoneIcon
+              :class="isRecording ? 'text-blue-500' : 'text-gray-400'"
+              class="h-12 w-12 transition-colors duration-200"
+            />
+          </button>
+          <span
+            v-if="isRecording"
+            class="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs bg-white/80 px-2 py-1 rounded shadow"
+            style="z-index: 3"
+            >{{ recordingTimer }}s</span
+          >
         </div>
-
-        <Button
-          @click="isRecording ? stopRecording() : startRecording()"
-          :class="buttonColor"
-          class="mb-4 transition-colors"
-          :disabled="isPlaying || isLoading"
-        >
-          {{ buttonText }}
-        </Button>
 
         <!-- Recorded audio controls -->
         <div v-if="recordedAudio" class="w-full my-4">
