@@ -7,6 +7,7 @@ import {
   UserCircleIcon,
   AcademicCapIcon,
   SparklesIcon,
+  MicrophoneIcon,
 } from '@heroicons/vue/24/solid'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -42,6 +43,14 @@ const navItems: NavItem[] = [
     activePattern: '/letters',
     iconColor: 'text-pink-200',
     borderColor: 'border-pink-300',
+  },
+  {
+    to: '/dashboard/practice',
+    icon: MicrophoneIcon,
+    label: t('nav.practice', 'Practice'),
+    activePattern: '/practice',
+    iconColor: 'text-green-200',
+    borderColor: 'border-green-300',
   },
   {
     to: '/achievements',
