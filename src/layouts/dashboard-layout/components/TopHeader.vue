@@ -34,42 +34,18 @@
           >{{ fullName }}</span
         >
       </button>
-      <button
-        @click="showLogoutModal = true"
-        class="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-gray-800 dark:hover:bg-red-900 text-red-600 text-sm font-semibold shadow transition"
-      >
-        <ArrowLeftOnRectangleIcon class="w-5 h-5" />
-        <span class="hidden sm:block">Logout</span>
-      </button>
     </div>
-    <ConfirmModal
-      :open="showLogoutModal"
-      title="Logout Confirmation"
-      message="Are you sure you want to logout?"
-      confirmText="Logout"
-      cancelText="Cancel"
-      @confirm="logout"
-      @cancel="showLogoutModal = false"
-    />
   </header>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import {
-  SparklesIcon,
-  BellIcon,
-  ArrowLeftOnRectangleIcon,
-} from '@heroicons/vue/24/outline'
-import { useAuthStore } from '@/store/auth.store'
+import { SparklesIcon, BellIcon } from '@heroicons/vue/24/outline'
 import { useGetProfile } from '@/pages/profile/queries/useGetProfile'
-import ConfirmModal from '@/components/common/ConfirmModal.vue'
 
 const hasNotifications = ref(false) // Replace with real notification logic if needed
 const router = useRouter()
-const auth = useAuthStore()
-const showLogoutModal = ref(false)
 
 const { data: profile } = useGetProfile()
 
@@ -78,12 +54,6 @@ const fullName = computed(() => {
   return `${profile.value.first_name || ''} ${profile.value.last_name || ''}`.trim()
 })
 const avatarUrl = computed(() => profile.value?.image || '/default-avatar.png')
-
-function logout() {
-  auth.logout()
-  router.push('/auth/login')
-  showLogoutModal.value = false
-}
 
 function notify() {
   // Placeholder for notification logic
@@ -95,13 +65,4 @@ function goProfile() {
 }
 </script>
 
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>
+<style scoped></style>

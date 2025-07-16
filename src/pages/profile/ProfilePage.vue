@@ -6,9 +6,21 @@ import { useUpdateProfile } from '@/pages/profile/queries/useUpdateProfile'
 import { useUpdateProfilePhoto } from '@/pages/profile/queries/useUpdateProfilePhoto'
 import { useAuthStore } from '@/store/auth.store'
 import TelegramLogin from '@/components/common/TelegramLogin.vue'
+import TelegramIcon from '@/components/ui/icons/TelegramIcon.vue'
 import type { TelegramUser } from '@/pages/auth/types.ts'
 import { format } from 'date-fns'
 import { useAttachTelegram } from '@/pages/profile/queries/useAttachTelegram.ts'
+import {
+  ExclamationTriangleIcon,
+  ArrowPathIcon,
+  CalendarDaysIcon,
+  UserIcon,
+  CameraIcon,
+  PencilIcon,
+  CheckIcon,
+  ArrowRightOnRectangleIcon,
+} from '@heroicons/vue/24/outline'
+import { ArrowPathIcon as ArrowPathIconSolid } from '@heroicons/vue/24/solid'
 
 const { data: profile, isLoading, error, refetch } = useGetProfile()
 const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile()
@@ -230,19 +242,7 @@ const uploadPhoto = async () => {
         >
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <svg
-                class="h-8 w-8 text-red-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                />
-              </svg>
+              <ExclamationTriangleIcon class="h-8 w-8 text-red-400" />
             </div>
             <div class="ml-4">
               <h3 class="text-lg font-medium text-red-800">
@@ -256,19 +256,7 @@ const uploadPhoto = async () => {
               @click="() => refetch()"
               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
             >
-              <svg
-                class="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                />
-              </svg>
+              <ArrowPathIcon class="w-4 h-4 mr-2" />
               {{ t('profile.tryAgain') }}
             </button>
           </div>
@@ -293,33 +281,13 @@ const uploadPhoto = async () => {
                 <p class="text-blue-100 text-lg">{{ profile.email }}</p>
                 <div class="flex items-center mt-3 space-x-6 text-blue-100">
                   <div class="flex items-center">
-                    <svg
-                      class="w-5 h-5 mr-2"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
+                    <CalendarDaysIcon class="w-5 h-5 mr-2" />
                     <span>{{
                       t('profile.memberSince', { date: joinDate })
                     }}</span>
                   </div>
                   <div v-if="profile.gender" class="flex items-center">
-                    <svg
-                      class="w-5 h-5 mr-2"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
+                    <UserIcon class="w-5 h-5 mr-2" />
                     <span>{{ genderDisplay }}</span>
                   </div>
                 </div>
@@ -339,47 +307,15 @@ const uploadPhoto = async () => {
                   <div
                     class="absolute inset-0 bg-transparent rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                   >
-                    <svg
+                    <CameraIcon
                       v-if="!isUpdatingPhoto"
                       class="w-6 h-6 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                      />
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
+                    />
                     <!-- Loading spinner during upload -->
-                    <svg
+                    <ArrowPathIconSolid
                       v-else
                       class="w-6 h-6 text-white animate-spin"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        class="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        stroke-width="4"
-                      ></circle>
-                      <path
-                        class="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
+                    />
                   </div>
                 </div>
                 <!-- Hidden file input -->
@@ -399,19 +335,7 @@ const uploadPhoto = async () => {
                   @click="toggleEdit"
                   class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-blue-600 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
-                  <svg
-                    class="w-5 h-5 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
+                  <PencilIcon class="w-5 h-5 mr-2" />
                   {{ t('profile.editProfile') }}
                 </button>
               </div>
@@ -485,41 +409,11 @@ const uploadPhoto = async () => {
                     :disabled="isUpdating"
                     class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
                   >
-                    <svg
+                    <ArrowPathIconSolid
                       v-if="isUpdating"
                       class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        class="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        stroke-width="4"
-                      ></circle>
-                      <path
-                        class="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    <svg
-                      v-else
-                      class="w-5 h-5 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
+                    />
+                    <CheckIcon v-else class="w-5 h-5 mr-2" />
                     {{
                       isUpdating
                         ? t('profile.saving')
@@ -540,19 +434,7 @@ const uploadPhoto = async () => {
               <div
                 class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-4"
               >
-                <svg
-                  class="w-6 h-6 text-blue-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
+                <UserIcon class="w-6 h-6 text-blue-600" />
               </div>
               <h3 class="text-xl font-bold text-gray-900">
                 {{ t('profile.accountDetails') }}
@@ -605,20 +487,9 @@ const uploadPhoto = async () => {
           <div class="bg-white rounded-2xl shadow-xl p-8">
             <div class="flex items-center mb-6">
               <div
-                class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center mr-4"
+                class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-4"
               >
-                <svg
-                  class="w-6 h-6 text-purple-600"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"
-                  />
-                  <path
-                    d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"
-                  />
-                </svg>
+                <TelegramIcon class="w-6 h-6 text-blue-500" />
               </div>
               <h3 class="text-xl font-bold text-gray-900">
                 {{ t('profile.connectedServices') }}
@@ -626,41 +497,40 @@ const uploadPhoto = async () => {
             </div>
             <div class="space-y-4">
               <div
-                class="flex items-center justify-between p-4 bg-gray-50 rounded-xl"
+                class="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-sky-50 rounded-xl border border-blue-100 hover:shadow-md transition-all duration-200"
               >
                 <div class="flex items-center">
                   <div
-                    class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3"
+                    class="w-12 h-12 bg-gradient-to-br from-blue-500 to-sky-600 rounded-xl flex items-center justify-center mr-3 text-white shadow-lg"
                   >
-                    <svg
-                      class="w-5 h-5 text-white"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"
-                      />
-                      <path
-                        d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"
-                      />
-                    </svg>
+                    <TelegramIcon class="w-6 h-6" />
                   </div>
-                  <div class="flex justify-between w-full">
-                    <div>
-                      <p class="font-medium text-gray-900">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-2">
+                      <p class="font-semibold text-gray-900">
                         {{ t('profile.telegram') }}
                       </p>
-                      <p class="text-sm text-gray-500">
-                        {{ profile.telegram_id || t('profile.notConnected') }}
-                      </p>
+                      <div
+                        v-if="profile.telegram_id"
+                        class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full flex items-center gap-1"
+                      >
+                        <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                        Connected
+                      </div>
                     </div>
-                    <TelegramLogin @login-success="handleTelegramLogin" />
+                    <p
+                      v-if="!profile.telegram_id"
+                      class="text-sm text-gray-500 mt-1"
+                    >
+                      {{ t('profile.notConnected') }}
+                    </p>
                   </div>
+                  <TelegramLogin
+                    v-if="!profile.telegram_id"
+                    @login-success="handleTelegramLogin"
+                    class="ml-4"
+                  />
                 </div>
-                <div
-                  v-if="profile.telegram_id"
-                  class="w-3 h-3 bg-green-400 rounded-full"
-                ></div>
               </div>
             </div>
           </div>
@@ -672,19 +542,7 @@ const uploadPhoto = async () => {
             <div
               class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center mr-4"
             >
-              <svg
-                class="w-6 h-6 text-red-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                />
-              </svg>
+              <ArrowRightOnRectangleIcon class="w-6 h-6 text-red-600" />
             </div>
             <h3 class="text-xl font-bold text-gray-900">
               {{ t('profile.accountActions') }}
@@ -703,19 +561,7 @@ const uploadPhoto = async () => {
               @click="logout"
               class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
-              <svg
-                class="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                />
-              </svg>
+              <ArrowRightOnRectangleIcon class="w-5 h-5 mr-2" />
               {{ t('profile.signOut') }}
             </button>
           </div>
