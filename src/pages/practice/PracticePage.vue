@@ -125,13 +125,7 @@ watch(easyMode, () => {
 const handleItemCompleted = (itemId: number, state: 'correct' | 'wrong') => {
   // Item completion is handled locally in the PracticeItem component
   // No need to update any session state here
-}
-
-// Load next practice item
-const loadNextItem = async () => {
-  if (currentItem.value) {
-    currentItemId.value = currentItem.value.id
-  }
-  await refetch()
+  console.log('itemId', itemId)
+  console.log('state', state)
 }
 </script>

@@ -3,8 +3,6 @@ import { updatePracticeItemState } from '../api/practice.api'
 import type { UpdatePracticeItemStateResponse } from '../types'
 
 export const useUpdatePracticeState = () => {
-  const queryClient = useQueryClient()
-
   return useMutation<
     UpdatePracticeItemStateResponse,
     Error,
