@@ -56,7 +56,7 @@ const features = ref([
 
 const gotoNext = () => {
   if (isLoggedIn.value) {
-    router.push('/dashboard')
+    router.push('/dashboard/lesson-groups')
   } else {
     router.push('/auth/login')
   }

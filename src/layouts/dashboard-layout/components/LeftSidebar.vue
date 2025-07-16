@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import {
-  BeakerIcon,
   ItalicIcon,
-  TrophyIcon,
-  ShoppingBagIcon,
   UserCircleIcon,
   AcademicCapIcon,
   SparklesIcon,
@@ -52,30 +49,30 @@ const navItems: NavItem[] = [
     iconColor: 'text-green-200',
     borderColor: 'border-green-300',
   },
-  {
-    to: '/achievements',
-    icon: TrophyIcon,
-    label: t('nav.achievements', 'Achievements'),
-    activePattern: '/achievements',
-    iconColor: 'text-yellow-200',
-    borderColor: 'border-yellow-300',
-  },
-  {
-    to: '/experiments',
-    icon: BeakerIcon,
-    label: t('nav.experiments', 'Experiments'),
-    activePattern: '/experiments',
-    iconColor: 'text-blue-200',
-    borderColor: 'border-blue-300',
-  },
-  {
-    to: '/store',
-    icon: ShoppingBagIcon,
-    label: t('nav.store', 'Store'),
-    activePattern: '/store',
-    iconColor: 'text-green-200',
-    borderColor: 'border-green-300',
-  },
+  // {
+  //   to: '/achievements',
+  //   icon: TrophyIcon,
+  //   label: t('nav.achievements', 'Achievements'),
+  //   activePattern: '/achievements',
+  //   iconColor: 'text-yellow-200',
+  //   borderColor: 'border-yellow-300',
+  // },
+  // {
+  //   to: '/experiments',
+  //   icon: BeakerIcon,
+  //   label: t('nav.experiments', 'Experiments'),
+  //   activePattern: '/experiments',
+  //   iconColor: 'text-blue-200',
+  //   borderColor: 'border-blue-300',
+  // },
+  // {
+  //   to: '/store',
+  //   icon: ShoppingBagIcon,
+  //   label: t('nav.store', 'Store'),
+  //   activePattern: '/store',
+  //   iconColor: 'text-green-200',
+  //   borderColor: 'border-green-300',
+  // },
   {
     to: '/dashboard/random-cartoon',
     icon: SparklesIcon,
@@ -105,11 +102,8 @@ const isRouteActive = (pattern: string): boolean => {
   <nav
     class="w-72 h-full bg-gradient-to-b from-blue-500 to-purple-600 dark:from-blue-900 dark:via-purple-900 dark:to-yellow-900 p-4 shadow-2xl flex flex-col items-center"
   >
-    <div class="flex gap-2 text-2xl py-4">
-      <SparklesIcon class="w-6 h-6 text-yellow-500" />
-      <span class="font-extrabold text-white tracking-wide"
-        >Hear<span class="text-yellow-400">O</span></span
-      >
+    <div>
+      <img src="@/assets/logo.png" alt="Logo" class="w-32" />
     </div>
     <ul class="space-y-6 w-full">
       <li v-for="item in navItems" :key="item.to">

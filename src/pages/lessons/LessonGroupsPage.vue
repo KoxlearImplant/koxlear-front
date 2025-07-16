@@ -85,12 +85,6 @@ function getGradientColor(id: number) {
                 {{ group.name }}
               </h2>
             </div>
-
-            <div
-              class="flex items-center bg-white/20 px-3 py-1 rounded-full text-xs text-white"
-            >
-              <span>#{{ group.order }}</span>
-            </div>
           </div>
         </div>
 
@@ -101,7 +95,6 @@ function getGradientColor(id: number) {
               {{ group.total_items_count }}
               {{ t('lessonGroups.items', 'items') }}
             </div>
-            <div class="text-sm text-gray-600">Slug: {{ group.slug }}</div>
           </div>
 
           <!-- Progress bar -->
