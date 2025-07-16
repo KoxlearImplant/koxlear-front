@@ -174,7 +174,9 @@
     "previous": "Oldingi",
     "finish": "Darsni yakunlash",
     "next": "Keyingi",
-    "startFromBeginning": "Boshidan boshlash"
+    "startFromBeginning": "Boshidan boshlash",
+    "done": "Tugallangan",
+    "completed": "tugallangan"
   },
   "nav": {
     "lessons": "O‘rganish",

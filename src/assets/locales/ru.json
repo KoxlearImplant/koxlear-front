@@ -166,7 +166,9 @@
     "previous": "Предыдущий",
     "finish": "Завершить урок",
     "next": "Далее",
-    "startFromBeginning": "Начать сначала"
+    "startFromBeginning": "Начать сначала",
+    "done": "Завершено",
+    "completed": "завершено"
   },
   "nav": {
     "lessons": "Обучение",

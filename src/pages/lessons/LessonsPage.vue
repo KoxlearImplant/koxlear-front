@@ -121,7 +121,7 @@ function getGradientColor(id: number) {
                 class="flex items-center bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-semibold"
               >
                 <CheckCircleIcon class="h-4 w-4 mr-1 text-green-500" />
-                {{ t('lessons.completed', 'Completed') }}
+                {{ t('lessons.lessonComplete', 'Completed') }}
               </span>
             </template>
             <template v-else>
