@@ -73,4 +73,12 @@ export async function telegramLogin(
   return res.data
 }
 
+export const attachTelegram = async (data: TelegramLoginRequest) => {
+  const res = await http.post<TelegramLoginResponse>(
+    '/attach-telegram-id/',
+    data
+  )
+  return res.data
+}
+
 // --- Vue Query mutation hook for sending OTP ---

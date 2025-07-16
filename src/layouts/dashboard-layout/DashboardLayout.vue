@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import LeftSidebar from '@/layouts/dashboard-layout/components/LeftSidebar.vue'
+import Header from '@/layouts/dashboard-layout/components/TopHeader.vue'
 </script>
 
 <template>
   <div class="flex flex-col h-screen">
+    <Header />
     <div class="flex flex-row h-full">
       <div>
         <LeftSidebar />

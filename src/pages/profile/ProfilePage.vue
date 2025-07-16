@@ -1,22 +1,36 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useGetProfile } from '@/pages/profile/queries/useGetProfile'
 import { useUpdateProfile } from '@/pages/profile/queries/useUpdateProfile'
+import { useUpdateProfilePhoto } from '@/pages/profile/queries/useUpdateProfilePhoto'
 import { useAuthStore } from '@/store/auth.store'
 import TelegramLogin from '@/components/common/TelegramLogin.vue'
 import type { TelegramUser } from '@/pages/auth/types.ts'
+import { format } from 'date-fns'
+import { useAttachTelegram } from '@/pages/profile/queries/useAttachTelegram.ts'
 
 const { data: profile, isLoading, error, refetch } = useGetProfile()
 const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile()
+const { mutate: updateProfilePhoto, isPending: isUpdatingPhoto } =
+  useUpdateProfilePhoto()
+const { mutate: attachTelegramMutation } = useAttachTelegram()
 const authStore = useAuthStore()
+const { t } = useI18n()
 
 // Edit mode state
 const isEditing = ref(false)
+const isEditFormExpanded = ref(false)
 const editForm = ref({
   first_name: '',
   last_name: '',
   gender: null as 'male' | 'female' | null,
 })
+
+// Photo upload state
+const fileInputRef = ref<HTMLInputElement>()
+const selectedPhoto = ref<File | null>(null)
+const previewUrl = ref<string>('')
 
 // Initialize edit form when profile data loads
 const initializeEditForm = () => {
@@ -30,8 +44,14 @@ const initializeEditForm = () => {
 }
 
 const handleTelegramLogin = (user: TelegramUser) => {
-  updateProfile({
-    first_name: user.first_name,
+  attachTelegramMutation(user, {
+    onSuccess: () => {
+      // Optionally refetch profile to update UI
+      refetch()
+    },
+    onError: (error) => {
+      console.error('Error attaching Telegram account:', error)
+    },
   })
 }
 
@@ -53,28 +73,33 @@ const fullName = computed(() => {
 })
 
 const avatarUrl = computed(() => {
-  return profile.value?.avatarUrl || '/default-avatar.png'
+  return profile.value?.image || '/default-avatar.png'
 })
 
 const joinDate = computed(() => {
-  if (!profile.value?.createdAt) return ''
-  return new Date(profile.value.createdAt).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+  if (!profile.value?.date_joined) return ''
+  return format(new Date(profile.value.date_joined), 'dd.MM.yyyy')
 })
 
 const genderDisplay = computed(() => {
-  if (!profile.value?.gender) return 'Not specified'
-  return profile.value.gender === 'male' ? 'Male' : 'Female'
+  if (!profile.value?.gender) return t('profile.notSpecified')
+  return profile.value.gender === 'male'
+    ? t('profile.male')
+    : t('profile.female')
 })
 
 // Methods
 const toggleEdit = () => {
-  isEditing.value = !isEditing.value
-  if (isEditing.value) {
+  if (!isEditing.value) {
+    isEditing.value = true
+    isEditFormExpanded.value = true
     initializeEditForm()
+  } else {
+    isEditFormExpanded.value = false
+    // Delay hiding isEditing to allow animation to complete
+    setTimeout(() => {
+      isEditing.value = false
+    }, 300)
   }
 }
 
@@ -88,7 +113,11 @@ const saveProfile = async () => {
       },
       {
         onSuccess: () => {
-          isEditing.value = false
+          isEditFormExpanded.value = false
+          // Delay hiding isEditing to allow animation to complete
+          setTimeout(() => {
+            isEditing.value = false
+          }, 300)
         },
         onError: (error) => {
           console.error('Error saving profile:', error)
@@ -101,14 +130,60 @@ const saveProfile = async () => {
 }
 
 const cancelEdit = () => {
-  isEditing.value = false
-  initializeEditForm()
+  isEditFormExpanded.value = false
+  // Delay hiding isEditing to allow animation to complete
+  setTimeout(() => {
+    isEditing.value = false
+    initializeEditForm()
+  }, 300)
 }
 
 const logout = () => {
   authStore.logout()
   // Redirect to login page
   window.location.href = '/login'
+}
+
+// Photo upload methods
+const handleFileChange = (event: Event) => {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (file) {
+    selectedPhoto.value = file
+    previewUrl.value = URL.createObjectURL(file)
+    // Auto-upload immediately
+    uploadPhoto()
+  }
+}
+
+const removePhoto = () => {
+  selectedPhoto.value = null
+  previewUrl.value = ''
+  // Clear the file input
+  if (fileInputRef.value) {
+    fileInputRef.value.value = ''
+  }
+}
+
+const uploadPhoto = async () => {
+  if (!selectedPhoto.value) return
+
+  try {
+    updateProfilePhoto(selectedPhoto.value, {
+      onSuccess: () => {
+        // Reset photo upload state
+        removePhoto()
+      },
+      onError: (error) => {
+        console.error('Error uploading photo:', error)
+        // Reset on error too
+        removePhoto()
+      },
+    })
+  } catch (error) {
+    console.error('Error uploading photo:', error)
+    // Reset on error
+    removePhoto()
+  }
 }
 </script>
 
@@ -122,10 +197,10 @@ const logout = () => {
         <h1
           class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
         >
-          Profile Settings
+          {{ t('profile.title') }}
         </h1>
         <p class="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">
-          Manage your personal information and account preferences
+          {{ t('profile.subtitle') }}
         </p>
       </div>
 
@@ -143,7 +218,9 @@ const logout = () => {
             style="animation-delay: -0.5s"
           ></div>
         </div>
-        <p class="mt-4 text-gray-600 font-medium">Loading your profile...</p>
+        <p class="mt-4 text-gray-600 font-medium">
+          {{ t('profile.loadingProfile') }}
+        </p>
       </div>
 
       <!-- Error State -->
@@ -169,7 +246,7 @@ const logout = () => {
             </div>
             <div class="ml-4">
               <h3 class="text-lg font-medium text-red-800">
-                Unable to load profile
+                {{ t('profile.errorTitle') }}
               </h3>
               <p class="mt-1 text-red-700">{{ error.message }}</p>
             </div>
@@ -192,7 +269,7 @@ const logout = () => {
                   d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                 />
               </svg>
-              Try Again
+              {{ t('profile.tryAgain') }}
             </button>
           </div>
         </div>
@@ -206,40 +283,12 @@ const logout = () => {
           <div
             class="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-12 relative"
           >
-            <div class="absolute inset-0 bg-black opacity-10"></div>
+            <div class="absolute inset-0 bg-black opacity-30"></div>
             <div class="relative flex items-center space-x-8">
-              <!-- Avatar -->
-              <div class="relative">
-                <div
-                  class="w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden"
-                >
-                  <img
-                    :src="avatarUrl"
-                    :alt="fullName"
-                    class="w-full h-full object-cover"
-                  />
-                </div>
-                <div
-                  class="absolute -bottom-1 -right-1 w-8 h-8 bg-green-400 rounded-full border-3 border-white flex items-center justify-center"
-                >
-                  <svg
-                    class="w-4 h-4 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </div>
-              </div>
-
-              <!-- Profile Info -->
+              <!-- Profile Info (Name first) -->
               <div class="flex-1 text-white">
                 <h2 class="text-3xl font-bold mb-2">
-                  {{ fullName || 'Complete your profile' }}
+                  {{ fullName || t('profile.completeProfile') }}
                 </h2>
                 <p class="text-blue-100 text-lg">{{ profile.email }}</p>
                 <div class="flex items-center mt-3 space-x-6 text-blue-100">
@@ -255,7 +304,9 @@ const logout = () => {
                         clip-rule="evenodd"
                       />
                     </svg>
-                    <span>Member since {{ joinDate }}</span>
+                    <span>{{
+                      t('profile.memberSince', { date: joinDate })
+                    }}</span>
                   </div>
                   <div v-if="profile.gender" class="flex items-center">
                     <svg
@@ -272,6 +323,73 @@ const logout = () => {
                     <span>{{ genderDisplay }}</span>
                   </div>
                 </div>
+              </div>
+              <!-- Avatar -->
+              <div class="relative group">
+                <div
+                  class="w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden cursor-pointer transition-all duration-200 group-hover:border-blue-200"
+                  @click="fileInputRef?.click()"
+                >
+                  <img
+                    :src="previewUrl || avatarUrl"
+                    :alt="fullName"
+                    class="w-full h-full object-cover transition-all duration-200 group-hover:brightness-75"
+                  />
+                  <!-- Camera overlay -->
+                  <div
+                    class="absolute inset-0 bg-transparent rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  >
+                    <svg
+                      v-if="!isUpdatingPhoto"
+                      class="w-6 h-6 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                      />
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                    <!-- Loading spinner during upload -->
+                    <svg
+                      v-else
+                      class="w-6 h-6 text-white animate-spin"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      ></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                  </div>
+                </div>
+                <!-- Hidden file input -->
+                <input
+                  ref="fileInputRef"
+                  type="file"
+                  accept="image/*"
+                  @change="handleFileChange"
+                  class="hidden"
+                />
               </div>
 
               <!-- Edit Button -->
@@ -294,108 +412,124 @@ const logout = () => {
                       d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                     />
                   </svg>
-                  Edit Profile
+                  {{ t('profile.editProfile') }}
                 </button>
               </div>
             </div>
           </div>
 
           <!-- Profile Form -->
-          <div class="p-8">
-            <div v-if="isEditing" class="space-y-6">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-2">
-                  <label class="block text-sm font-semibold text-gray-700"
-                    >First Name</label
-                  >
-                  <input
-                    v-model="editForm.first_name"
-                    type="text"
-                    placeholder="Enter your first name"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                  />
-                </div>
-                <div class="space-y-2">
-                  <label class="block text-sm font-semibold text-gray-700"
-                    >Last Name</label
-                  >
-                  <input
-                    v-model="editForm.last_name"
-                    type="text"
-                    placeholder="Enter your last name"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                  />
-                </div>
-              </div>
-              <div class="space-y-2">
-                <label class="block text-sm font-semibold text-gray-700"
-                  >Gender</label
-                >
-                <select
-                  v-model="editForm.gender"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                >
-                  <option :value="null">Prefer not to say</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                </select>
-              </div>
-
-              <!-- Action Buttons -->
-              <div
-                class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200"
-              >
-                <button
-                  @click="cancelEdit"
-                  class="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200"
-                >
-                  Cancel
-                </button>
-                <button
-                  @click="saveProfile"
-                  :disabled="isUpdating"
-                  class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
-                >
-                  <svg
-                    v-if="isUpdating"
-                    class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      class="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      stroke-width="4"
-                    ></circle>
-                    <path
-                      class="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  <svg
-                    v-else
-                    class="w-5 h-5 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 13l4 4L19 7"
+          <Transition
+            name="expand"
+            enter-active-class="transition-all duration-500 ease-out"
+            leave-active-class="transition-all duration-300 ease-in"
+            enter-from-class="opacity-0 max-h-0 overflow-hidden transform scale-y-95"
+            enter-to-class="opacity-100 max-h-[800px] overflow-hidden transform scale-y-100"
+            leave-from-class="opacity-100 max-h-[800px] overflow-hidden transform scale-y-100"
+            leave-to-class="opacity-0 max-h-0 overflow-hidden transform scale-y-95"
+          >
+            <div v-if="isEditFormExpanded" class="border-t border-gray-200">
+              <div class="p-8 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="space-y-2 transform transition-all duration-300">
+                    <label class="block text-sm font-semibold text-gray-700">
+                      {{ t('profile.firstName') }}
+                    </label>
+                    <input
+                      v-model="editForm.first_name"
+                      type="text"
+                      :placeholder="t('profile.firstNamePlaceholder')"
+                      class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 transform hover:scale-[1.02] focus:scale-[1.02]"
                     />
-                  </svg>
-                  {{ isUpdating ? 'Saving...' : 'Save Changes' }}
-                </button>
+                  </div>
+                  <div class="space-y-2 transform transition-all duration-300">
+                    <label class="block text-sm font-semibold text-gray-700">
+                      {{ t('profile.lastName') }}
+                    </label>
+                    <input
+                      v-model="editForm.last_name"
+                      type="text"
+                      :placeholder="t('profile.lastNamePlaceholder')"
+                      class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 transform hover:scale-[1.02] focus:scale-[1.02]"
+                    />
+                  </div>
+                </div>
+                <div class="space-y-2 transform transition-all duration-300">
+                  <label class="block text-sm font-semibold text-gray-700">
+                    {{ t('profile.gender') }}
+                  </label>
+                  <select
+                    v-model="editForm.gender"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 transform hover:scale-[1.02] focus:scale-[1.02]"
+                  >
+                    <option :value="null">
+                      {{ t('profile.preferNotToSay') }}
+                    </option>
+                    <option value="male">{{ t('profile.male') }}</option>
+                    <option value="female">{{ t('profile.female') }}</option>
+                  </select>
+                </div>
+
+                <!-- Action Buttons -->
+                <div
+                  class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200 transform transition-all duration-300"
+                >
+                  <button
+                    @click="cancelEdit"
+                    class="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200 transform hover:scale-105 active:scale-95"
+                  >
+                    {{ t('profile.cancel') }}
+                  </button>
+                  <button
+                    @click="saveProfile"
+                    :disabled="isUpdating"
+                    class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+                  >
+                    <svg
+                      v-if="isUpdating"
+                      class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      ></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    <svg
+                      v-else
+                      class="w-5 h-5 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    {{
+                      isUpdating
+                        ? t('profile.saving')
+                        : t('profile.saveChanges')
+                    }}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          </Transition>
         </div>
 
         <!-- Account Information Grid -->
@@ -420,21 +554,18 @@ const logout = () => {
                   />
                 </svg>
               </div>
-              <h3 class="text-xl font-bold text-gray-900">Account Details</h3>
+              <h3 class="text-xl font-bold text-gray-900">
+                {{ t('profile.accountDetails') }}
+              </h3>
             </div>
+
             <div class="space-y-4">
               <div
                 class="flex justify-between items-center py-3 border-b border-gray-100"
               >
-                <span class="text-gray-600 font-medium">Username</span>
-                <span class="text-gray-900 font-semibold">{{
-                  profile.username
+                <span class="text-gray-600 font-medium">{{
+                  t('profile.userId')
                 }}</span>
-              </div>
-              <div
-                class="flex justify-between items-center py-3 border-b border-gray-100"
-              >
-                <span class="text-gray-600 font-medium">User ID</span>
                 <span class="text-gray-900 font-semibold"
                   >#{{ profile.id }}</span
                 >
@@ -442,7 +573,9 @@ const logout = () => {
               <div
                 class="flex justify-between items-center py-3 border-b border-gray-100"
               >
-                <span class="text-gray-600 font-medium">Email</span>
+                <span class="text-gray-600 font-medium">{{
+                  t('profile.email')
+                }}</span>
                 <span class="text-gray-900 font-semibold">{{
                   profile.email
                 }}</span>
@@ -450,7 +583,9 @@ const logout = () => {
               <div
                 class="flex justify-between items-center py-3 border-b border-gray-100"
               >
-                <span class="text-gray-600 font-medium">Gender</span>
+                <span class="text-gray-600 font-medium">{{
+                  t('profile.gender')
+                }}</span>
                 <span class="text-gray-900 font-semibold">{{
                   genderDisplay
                 }}</span>
@@ -458,14 +593,10 @@ const logout = () => {
               <div
                 class="flex justify-between items-center py-3 border-b border-gray-100"
               >
-                <span class="text-gray-600 font-medium">Created</span>
-                <span class="text-gray-900 font-semibold">{{ joinDate }}</span>
-              </div>
-              <div class="flex justify-between items-center py-3">
-                <span class="text-gray-600 font-medium">Last Updated</span>
-                <span class="text-gray-900 font-semibold">{{
-                  new Date(profile.updatedAt).toLocaleDateString()
+                <span class="text-gray-600 font-medium">{{
+                  t('profile.created')
                 }}</span>
+                <span class="text-gray-900 font-semibold">{{ joinDate }}</span>
               </div>
             </div>
           </div>
@@ -490,7 +621,7 @@ const logout = () => {
                 </svg>
               </div>
               <h3 class="text-xl font-bold text-gray-900">
-                Connected Services
+                {{ t('profile.connectedServices') }}
               </h3>
             </div>
             <div class="space-y-4">
@@ -507,18 +638,20 @@ const logout = () => {
                       viewBox="0 0 20 20"
                     >
                       <path
-                        d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"
+                        d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"
                       />
                       <path
                         d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"
                       />
                     </svg>
                   </div>
-                  <div>
+                  <div class="flex justify-between w-full">
                     <div>
-                      <p class="font-medium text-gray-900">Telegram</p>
+                      <p class="font-medium text-gray-900">
+                        {{ t('profile.telegram') }}
+                      </p>
                       <p class="text-sm text-gray-500">
-                        {{ profile.telegram_id || 'Not connected' }}
+                        {{ profile.telegram_id || t('profile.notConnected') }}
                       </p>
                     </div>
                     <TelegramLogin @login-success="handleTelegramLogin" />
@@ -553,13 +686,17 @@ const logout = () => {
                 />
               </svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900">Account Actions</h3>
+            <h3 class="text-xl font-bold text-gray-900">
+              {{ t('profile.accountActions') }}
+            </h3>
           </div>
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-gray-900 font-medium">Sign out of your account</p>
+              <p class="text-gray-900 font-medium">
+                {{ t('profile.signOutTitle') }}
+              </p>
               <p class="text-gray-500 text-sm">
-                This will end your current session
+                {{ t('profile.signOutDescription') }}
               </p>
             </div>
             <button
@@ -579,7 +716,7 @@ const logout = () => {
                   d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                 />
               </svg>
-              Sign Out
+              {{ t('profile.signOut') }}
             </button>
           </div>
         </div>

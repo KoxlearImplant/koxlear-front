@@ -10,6 +10,8 @@ import LessonDetailPage from '@/pages/lessons/LessonDetailPage.vue'
 import ProfilePage from '@/pages/profile/ProfilePage.vue'
 import LessonGroupsPage from '@/pages/lessons/LessonGroupsPage.vue'
 import PracticePage from '@/pages/practice/PracticePage.vue'
+import RandomCartoonPage from '@/pages/random-cartoon/RandomCartoonPage.vue'
+import NotFound from '@/pages/NotFound.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -69,11 +71,18 @@ const routes: RouteRecordRaw[] = [
         component: PracticePage,
         meta: { requiresAuth: true },
       },
+      {
+        path: 'random-cartoon',
+        name: 'RandomCartoon',
+        component: RandomCartoonPage,
+        meta: { requiresAuth: true },
+      },
     ],
   },
   {
     path: '/:catchAll(.*)',
-    redirect: '/',
+    name: 'NotFound',
+    component: NotFound,
   },
 ]
 
