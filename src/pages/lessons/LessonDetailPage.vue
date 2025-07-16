@@ -85,15 +85,6 @@
           <ChevronLeftIcon class="h-5 w-5 mr-2" />
           {{ t('lessons.previous', 'Previous') }}
         </Button>
-
-        <Button @click="goToNextItem" class="bg-blue-500 hover:bg-blue-600">
-          {{
-            isLastItem
-              ? t('lessons.finish', 'Finish Lesson')
-              : t('lessons.next', 'Next')
-          }}
-          <MicrophoneIcon class="h-5 w-5 ml-2" />
-        </Button>
       </div>
     </div>
   </div>
@@ -112,7 +103,6 @@ import {
   ArrowPathIcon,
   ChevronLeftIcon,
   ExclamationTriangleIcon,
-  MicrophoneIcon,
 } from '@heroicons/vue/24/solid'
 
 const { t } = useI18n()
