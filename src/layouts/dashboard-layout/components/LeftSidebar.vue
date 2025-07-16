@@ -94,8 +94,14 @@ const isRouteActive = (pattern: string): boolean => {
 <template>
   <!-- Fancy, child-friendly sidebar -->
   <nav
-    class="w-64 h-full bg-gradient-to-b from-blue-500 to-purple-600 dark:from-blue-900 dark:via-purple-900 dark:to-yellow-900 p-4 shadow-2xl flex flex-col items-center"
+    class="w-72 h-full bg-gradient-to-b from-blue-500 to-purple-600 dark:from-blue-900 dark:via-purple-900 dark:to-yellow-900 p-4 shadow-2xl flex flex-col items-center"
   >
+    <div class="flex gap-2 text-2xl py-4">
+      <SparklesIcon class="w-6 h-6 text-yellow-500" />
+      <span class="font-extrabold text-white tracking-wide"
+        >Hear<span class="text-yellow-400">O</span></span
+      >
+    </div>
     <ul class="space-y-6 w-full">
       <li v-for="item in navItems" :key="item.to">
         <router-link
@@ -113,7 +119,7 @@ const isRouteActive = (pattern: string): boolean => {
             class="inline-block size-6 mr-2 drop-shadow"
             :class="item.iconColor"
           />
-          <span class="text-lg text-white font-bold">{{ item.label }}</span>
+          <span class="text-2xl text-white font-bold">{{ item.label }}</span>
         </router-link>
       </li>
     </ul>
