@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useMutation } from '@tanstack/vue-query'
 import { updatePracticeItemState } from '../api/practice.api'
 import type { UpdatePracticeItemStateResponse } from '../types'
 
