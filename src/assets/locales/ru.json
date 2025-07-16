@@ -174,7 +174,8 @@
     "achievements": "Достижения",
     "experiments": "Эксперименты",
     "store": "Магазин",
-    "profile": "Профиль"
+    "profile": "Профиль",
+    "randomCartoon": "Случайный мультфильм"
   },
   "profile": {
     "title": "Настройки профиля",

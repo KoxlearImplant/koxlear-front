@@ -68,6 +68,14 @@ const navItems: NavItem[] = [
     borderColor: 'border-green-300',
   },
   {
+    to: '/dashboard/random-cartoon',
+    icon: SparklesIcon,
+    label: t('nav.randomCartoon', 'Random Cartoon'),
+    activePattern: '/dashboard/random-cartoon',
+    iconColor: 'text-orange-200',
+    borderColor: 'border-orange-300',
+  },
+  {
     to: '/dashboard/profile',
     icon: UserCircleIcon,
     label: t('nav.profile', 'Profile'),

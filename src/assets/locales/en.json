@@ -174,7 +174,8 @@
     "achievements": "Achievements",
     "experiments": "Experiments",
     "store": "Store",
-    "profile": "Profile"
+    "profile": "Profile",
+    "randomCartoon": "Random Cartoon"
   },
   "profile": {
     "title": "Profile Settings",

@@ -9,6 +9,7 @@ import LettersPage from '@/pages/letters/LettersPage.vue'
 import LessonDetailPage from '@/pages/lessons/LessonDetailPage.vue'
 import ProfilePage from '@/pages/profile/ProfilePage.vue'
 import LessonGroupsPage from '@/pages/lessons/LessonGroupsPage.vue'
+import RandomCartoonPage from '@/pages/random-cartoon/RandomCartoonPage.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -60,6 +61,12 @@ const routes: RouteRecordRaw[] = [
         path: 'profile',
         name: 'Profile',
         component: ProfilePage,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'random-cartoon',
+        name: 'RandomCartoon',
+        component: RandomCartoonPage,
         meta: { requiresAuth: true },
       },
     ],
