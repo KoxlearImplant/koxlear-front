@@ -10,6 +10,7 @@ import LessonDetailPage from '@/pages/lessons/LessonDetailPage.vue'
 import ProfilePage from '@/pages/profile/ProfilePage.vue'
 import LessonGroupsPage from '@/pages/lessons/LessonGroupsPage.vue'
 import RandomCartoonPage from '@/pages/random-cartoon/RandomCartoonPage.vue'
+import NotFound from '@/pages/NotFound.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -73,7 +74,8 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/:catchAll(.*)',
-    redirect: '/',
+    name: 'NotFound',
+    component: NotFound,
   },
 ]
 

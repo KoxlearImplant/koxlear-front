@@ -96,15 +96,6 @@ const isRouteActive = (pattern: string): boolean => {
   <nav
     class="w-64 h-full bg-gradient-to-b from-blue-500 to-purple-600 dark:from-blue-900 dark:via-purple-900 dark:to-yellow-900 p-4 shadow-2xl flex flex-col items-center"
   >
-    <div class="mb-8 flex flex-row items-center">
-      <SparklesIcon class="size-12 text-white mb-2 drop-shadow-lg" />
-      <h2
-        class="text-2xl font-extrabold text-white dark:text-yellow-200 drop-shadow-lg tracking-wide"
-      >
-        Hear<span class="text-yellow-200">O</span>
-      </h2>
-    </div>
-
     <ul class="space-y-6 w-full">
       <li v-for="item in navItems" :key="item.to">
         <router-link

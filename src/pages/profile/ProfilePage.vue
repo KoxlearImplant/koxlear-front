@@ -285,6 +285,45 @@ const uploadPhoto = async () => {
           >
             <div class="absolute inset-0 bg-black opacity-30"></div>
             <div class="relative flex items-center space-x-8">
+              <!-- Profile Info (Name first) -->
+              <div class="flex-1 text-white">
+                <h2 class="text-3xl font-bold mb-2">
+                  {{ fullName || t('profile.completeProfile') }}
+                </h2>
+                <p class="text-blue-100 text-lg">{{ profile.email }}</p>
+                <div class="flex items-center mt-3 space-x-6 text-blue-100">
+                  <div class="flex items-center">
+                    <svg
+                      class="w-5 h-5 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    <span>{{
+                      t('profile.memberSince', { date: joinDate })
+                    }}</span>
+                  </div>
+                  <div v-if="profile.gender" class="flex items-center">
+                    <svg
+                      class="w-5 h-5 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z"
+                        clip-rule="evenodd"
+                      />
+                    </svg>
+                    <span>{{ genderDisplay }}</span>
+                  </div>
+                </div>
+              </div>
               <!-- Avatar -->
               <div class="relative group">
                 <div
@@ -343,7 +382,6 @@ const uploadPhoto = async () => {
                     </svg>
                   </div>
                 </div>
-
                 <!-- Hidden file input -->
                 <input
                   ref="fileInputRef"
@@ -352,62 +390,6 @@ const uploadPhoto = async () => {
                   @change="handleFileChange"
                   class="hidden"
                 />
-
-                <!--                <div-->
-                <!--                  class="absolute -bottom-1 -right-1 w-8 h-8 bg-green-400 rounded-full border-3 border-white flex items-center justify-center"-->
-                <!--                >-->
-                <!--                  <svg-->
-                <!--                    class="w-4 h-4 text-white"-->
-                <!--                    fill="currentColor"-->
-                <!--                    viewBox="0 0 20 20"-->
-                <!--                  >-->
-                <!--                    <path-->
-                <!--                      fill-rule="evenodd"-->
-                <!--                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"-->
-                <!--                      clip-rule="evenodd"-->
-                <!--                    />-->
-                <!--                  </svg>-->
-                <!--                </div>-->
-              </div>
-
-              <!-- Profile Info -->
-              <div class="flex-1 text-white">
-                <h2 class="text-3xl font-bold mb-2">
-                  {{ fullName || t('profile.completeProfile') }}
-                </h2>
-                <p class="text-blue-100 text-lg">{{ profile.email }}</p>
-                <div class="flex items-center mt-3 space-x-6 text-blue-100">
-                  <div class="flex items-center">
-                    <svg
-                      class="w-5 h-5 mr-2"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                    <span>{{
-                      t('profile.memberSince', { date: joinDate })
-                    }}</span>
-                  </div>
-                  <div v-if="profile.gender" class="flex items-center">
-                    <svg
-                      class="w-5 h-5 mr-2"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z"
-                        clip-rule="evenodd"
-                      />
-                    </svg>
-                    <span>{{ genderDisplay }}</span>
-                  </div>
-                </div>
               </div>
 
               <!-- Edit Button -->
