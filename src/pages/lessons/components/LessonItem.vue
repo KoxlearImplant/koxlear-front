@@ -63,6 +63,7 @@ const celebrationParticles = ref<
 const audioRef = ref<HTMLAudioElement | null>(null)
 const recordedAudioRef = ref<HTMLAudioElement | null>(null)
 const successAudioRef = ref<HTMLAudioElement | null>(null)
+const lessonItemRef = ref<HTMLElement | null>(null)
 
 // Play the lesson audio
 const playAudio = () => {
@@ -177,11 +178,20 @@ const createCelebration = () => {
   // Play success sound
   playSuccessSound()
 
-  // Create fireworks
+  // Get component position for centering celebration
+  const componentRect = lessonItemRef.value?.getBoundingClientRect()
+  const centerX = componentRect
+    ? componentRect.left + componentRect.width / 2
+    : window.innerWidth / 2
+  const centerY = componentRect
+    ? componentRect.top + componentRect.height / 2
+    : window.innerHeight / 2
+
+  // Create fireworks around the component center
   for (let i = 0; i < 8; i++) {
     setTimeout(() => {
-      const x = Math.random() * window.innerWidth
-      const y = Math.random() * window.innerHeight * 0.6
+      const x = centerX + (Math.random() - 0.5) * 400 // Spread around component
+      const y = centerY + (Math.random() - 0.5) * 300
       createFirework(x, y)
     }, i * 200)
   }
@@ -321,9 +331,47 @@ const createBalloon = () => {
   })
 }
 
-// Update particles animation
+// Start particle animation loop
+let animationId: number | null = null
+const isAnimating = ref(false)
+
+const startParticleAnimation = () => {
+  // Prevent multiple animation loops
+  if (isAnimating.value || animationId) {
+    return
+  }
+
+  isAnimating.value = true
+
+  const animate = () => {
+    if (!showCelebration.value || celebrationParticles.value.length === 0) {
+      // Stop animation when celebration ends or no particles left
+      isAnimating.value = false
+      animationId = null
+      return
+    }
+
+    updateParticles()
+    animationId = requestAnimationFrame(animate)
+  }
+  animate()
+}
+
+// Stop animation and cleanup
+const stopParticleAnimation = () => {
+  if (animationId) {
+    cancelAnimationFrame(animationId)
+    animationId = null
+  }
+  isAnimating.value = false
+  celebrationParticles.value = []
+}
+
+// Update particles animation with better cleanup
 const updateParticles = () => {
-  celebrationParticles.value.forEach((particle) => {
+  for (let i = celebrationParticles.value.length - 1; i >= 0; i--) {
+    const particle = celebrationParticles.value[i]
+
     particle.x += particle.vx
     particle.y += particle.vy
 
@@ -333,33 +381,24 @@ const updateParticles = () => {
     }
 
     // Remove particles that are off screen
-    if (particle.y > window.innerHeight + 100 || particle.y < -100) {
-      const index = celebrationParticles.value.findIndex(
-        (p) => p.id === particle.id
-      )
-      if (index > -1) {
-        celebrationParticles.value.splice(index, 1)
-      }
+    if (
+      particle.y > window.innerHeight + 100 ||
+      particle.y < -100 ||
+      particle.x < -100 ||
+      particle.x > window.innerWidth + 100
+    ) {
+      celebrationParticles.value.splice(i, 1)
     }
-  })
-}
-
-// Start particle animation loop
-let animationId: number
-const startParticleAnimation = () => {
-  const animate = () => {
-    updateParticles()
-    animationId = requestAnimationFrame(animate)
   }
-  animate()
-}
 
-// Stop animation when component unmounts
-onUnmounted(() => {
-  if (animationId) {
-    cancelAnimationFrame(animationId)
+  // Stop animation if no particles left
+  if (celebrationParticles.value.length === 0) {
+    setTimeout(() => {
+      showCelebration.value = false
+      stopParticleAnimation()
+    }, 2000) // Keep celebration message for 2 more seconds
   }
-})
+}
 
 // Add refs for waveform and timer
 const waveformCanvas = ref<HTMLCanvasElement | null>(null)
@@ -536,6 +575,10 @@ const handleRecordRelease = () => {
 }
 
 onUnmounted(() => {
+  if (animationId) {
+    cancelAnimationFrame(animationId)
+  }
+  stopParticleAnimation()
   stopWaveform()
   if (timerInterval) clearInterval(timerInterval)
 })
@@ -627,6 +670,7 @@ const retryItem = () => {
   feedback.value = ''
   feedbackStatus.value = 'none'
   showCelebration.value = false
+  stopParticleAnimation()
   resetRecording()
   // Reset the item state for retry
   emit('item-state-changed', props.item.id, null)
@@ -634,6 +678,7 @@ const retryItem = () => {
 
 // Handle retry button click
 const handleRetry = () => {
+  stopParticleAnimation()
   retryItem()
 }
 
@@ -644,16 +689,20 @@ const handleNext = () => {
     // Optionally, you can trigger a special celebration or callback here
   } else {
     showCelebration.value = false
+    stopParticleAnimation()
     emit('next-item')
   }
 }
 
 const handleBackToLessons = () => {
   showCelebration.value = false
+  stopParticleAnimation()
   emit('back-to-lessons')
 }
+
 const handleStartFromBeginning = () => {
   showCelebration.value = false
+  stopParticleAnimation()
   emit('start-from-beginning')
 }
 
@@ -673,143 +722,161 @@ watch(
   <div
     class="lesson-item bg-white rounded-xl shadow-md overflow-hidden p-6 mb-4 relative"
     :class="{ 'border-2 border-green-500': isItemCompleted }"
+    ref="lessonItemRef"
   >
-    <!-- Celebration overlay -->
-    <div v-if="showCelebration" class="fixed inset-0 z-50 pointer-events-none">
-      <!-- Fireworks -->
+    <!-- Celebration overlay using Teleport to render outside component -->
+    <Teleport to="body">
       <div
-        v-for="particle in celebrationParticles.filter(
-          (p) => p.type === 'firework'
-        )"
-        :key="particle.id"
-        class="absolute w-2 h-2 rounded-full celebration-firework"
-        :style="{
-          left: particle.x + 'px',
-          top: particle.y + 'px',
-          backgroundColor: particle.color,
-          boxShadow: `0 0 20px ${particle.color}, 0 0 40px ${particle.color}`,
-          transform: 'translate(-50%, -50%)',
-        }"
-      ></div>
-
-      <!-- Confetti -->
-      <div
-        v-for="particle in celebrationParticles.filter(
-          (p) => p.type === 'confetti'
-        )"
-        :key="particle.id"
-        class="absolute w-3 h-3 celebration-confetti"
-        :style="{
-          left: particle.x + 'px',
-          top: particle.y + 'px',
-          backgroundColor: particle.color,
-          transform: 'translate(-50%, -50%) rotate(45deg)',
-        }"
-      ></div>
-
-      <!-- Balloons -->
-      <div
-        v-for="particle in celebrationParticles.filter(
-          (p) => p.type === 'balloon'
-        )"
-        :key="particle.id"
-        class="absolute w-8 h-10 rounded-full celebration-balloon"
-        :style="{
-          left: particle.x + 'px',
-          top: particle.y + 'px',
-          backgroundColor: particle.color,
-          transform: 'translate(-50%, -50%)',
-        }"
+        v-if="showCelebration"
+        class="fixed inset-0 z-50 pointer-events-none"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh"
       >
+        <!-- Fireworks -->
         <div
-          class="absolute bottom-0 left-1/2 w-0.5 h-4 bg-gray-400 transform -translate-x-1/2"
+          v-for="particle in celebrationParticles.filter(
+            (p) => p.type === 'firework'
+          )"
+          :key="particle.id"
+          class="absolute w-2 h-2 rounded-full celebration-firework"
+          :style="{
+            left: particle.x + 'px',
+            top: particle.y + 'px',
+            backgroundColor: particle.color,
+            boxShadow: `0 0 20px ${particle.color}, 0 0 40px ${particle.color}`,
+            transform: 'translate(-50%, -50%)',
+          }"
         ></div>
-      </div>
 
-      <!-- Celebration message -->
-      <div
-        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-auto"
-      >
+        <!-- Confetti -->
         <div
-          class="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-2xl animate-bounce celebration-rainbow"
+          v-for="particle in celebrationParticles.filter(
+            (p) => p.type === 'confetti'
+          )"
+          :key="particle.id"
+          class="absolute w-3 h-3 celebration-confetti"
+          :style="{
+            left: particle.x + 'px',
+            top: particle.y + 'px',
+            backgroundColor: particle.color,
+            transform: 'translate(-50%, -50%) rotate(45deg)',
+          }"
+        ></div>
+
+        <!-- Balloons -->
+        <div
+          v-for="particle in celebrationParticles.filter(
+            (p) => p.type === 'balloon'
+          )"
+          :key="particle.id"
+          class="absolute w-8 h-10 rounded-full celebration-balloon"
+          :style="{
+            left: particle.x + 'px',
+            top: particle.y + 'px',
+            backgroundColor: particle.color,
+            transform: 'translate(-50%, -50%)',
+          }"
         >
-          <div class="text-6xl mb-4 celebration-sparkle">🎉</div>
-          <h2 class="text-3xl font-bold text-green-600 mb-2">
-            {{
-              props.isLast
-                ? t('lessons.lessonComplete', 'Lesson Completed!')
-                : 'Excellent!'
-            }}
-          </h2>
-          <p class="text-xl text-gray-700 mb-4">
-            {{
-              props.isLast
-                ? t(
-                    'lessons.greatJob',
-                    "Great job! You've completed this lesson."
-                  )
-                : 'You did it! 🌟'
-            }}
-          </p>
           <div
-            v-if="props.isLast"
-            class="flex flex-col sm:flex-row justify-center gap-4 mb-2"
-          >
-            <Button
-              @click="handleBackToLessons"
-              class="bg-gray-500 hover:bg-gray-600 min-w-[180px]"
-            >
-              {{ t('lessons.backToLessons', 'Back to Lessons') }}
-            </Button>
-            <Button
-              @click="handleStartFromBeginning"
-              class="bg-blue-500 hover:bg-blue-600 min-w-[180px]"
-            >
-              {{ t('lessons.startFromBeginning', 'Start from Beginning') }}
-            </Button>
-          </div>
+            class="absolute bottom-0 left-1/2 w-0.5 h-4 bg-gray-400 transform -translate-x-1/2"
+          ></div>
+        </div>
+
+        <!-- Celebration message -->
+        <div
+          class="fixed text-center pointer-events-auto z-60"
+          :style="{
+            left:
+              (lessonItemRef?.getBoundingClientRect()?.left || 0) +
+              (lessonItemRef?.getBoundingClientRect()?.width || 0) / 2 +
+              'px',
+            top:
+              (lessonItemRef?.getBoundingClientRect()?.top || 0) +
+              (lessonItemRef?.getBoundingClientRect()?.height || 0) / 2 +
+              'px',
+            transform: 'translate(-50%, -50%)',
+          }"
+        >
           <div
-            v-else
-            class="flex flex-col sm:flex-row justify-center gap-4 mb-2"
+            class="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-2xl animate-bounce celebration-rainbow"
           >
-            <Button
-              @click="handleRetry"
-              class="bg-gray-500 hover:bg-gray-600 text-white min-w-[120px]"
+            <div class="text-6xl mb-4 celebration-sparkle">🎉</div>
+            <h2 class="text-3xl font-bold text-green-600 mb-2">
+              {{
+                props.isLast
+                  ? t('lessons.lessonComplete', 'Lesson Completed!')
+                  : 'Excellent!'
+              }}
+            </h2>
+            <p class="text-xl text-gray-700 mb-4">
+              {{
+                props.isLast
+                  ? t(
+                      'lessons.greatJob',
+                      "Great job! You've completed this lesson."
+                    )
+                  : 'You did it! 🌟'
+              }}
+            </p>
+            <div
+              v-if="props.isLast"
+              class="flex flex-col sm:flex-row justify-center gap-4 mb-2"
             >
-              {{ t('lessons.retry', 'Retry') }}
-            </Button>
-            <Button
-              @click="handleNext"
-              class="bg-green-500 hover:bg-green-600 text-white min-w-[120px]"
+              <Button
+                @click="handleBackToLessons"
+                class="bg-gray-500 hover:bg-gray-600 min-w-[180px]"
+              >
+                {{ t('lessons.backToLessons', 'Back to Lessons') }}
+              </Button>
+              <Button
+                @click="handleStartFromBeginning"
+                class="bg-blue-500 hover:bg-blue-600 min-w-[180px]"
+              >
+                {{ t('lessons.startFromBeginning', 'Start from Beginning') }}
+              </Button>
+            </div>
+            <div
+              v-else
+              class="flex flex-col sm:flex-row justify-center gap-4 mb-2"
             >
-              {{ t('lessons.next', 'Next') }}
-            </Button>
-          </div>
-          <div class="text-4xl mt-4 flex justify-center gap-2">
-            <span
-              class="inline-block animate-bounce"
-              style="animation-delay: 0s"
-              >🎊</span
-            >
-            <span
-              class="inline-block animate-bounce"
-              style="animation-delay: 0.2s"
-              >🎈</span
-            >
-            <span
-              class="inline-block animate-bounce"
-              style="animation-delay: 0.4s"
-              >⭐</span
-            >
-            <span
-              class="inline-block animate-bounce"
-              style="animation-delay: 0.6s"
-              >🎊</span
-            >
+              <Button
+                @click="handleRetry"
+                class="bg-gray-500 hover:bg-gray-600 text-white min-w-[120px]"
+              >
+                {{ t('lessons.retry', 'Retry') }}
+              </Button>
+              <Button
+                @click="handleNext"
+                class="bg-green-500 hover:bg-green-600 text-white min-w-[120px]"
+              >
+                {{ t('lessons.next', 'Next') }}
+              </Button>
+            </div>
+            <div class="text-4xl mt-4 flex justify-center gap-2">
+              <span
+                class="inline-block animate-bounce"
+                style="animation-delay: 0s"
+                >🎊</span
+              >
+              <span
+                class="inline-block animate-bounce"
+                style="animation-delay: 0.2s"
+                >🎈</span
+              >
+              <span
+                class="inline-block animate-bounce"
+                style="animation-delay: 0.4s"
+                >⭐</span
+              >
+              <span
+                class="inline-block animate-bounce"
+                style="animation-delay: 0.6s"
+                >🎊</span
+              >
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </Teleport>
 
     <!-- Success indicator for completed items -->
     <div v-if="isItemCompleted" class="flex items-center justify-between mb-3">

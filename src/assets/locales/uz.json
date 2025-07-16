@@ -42,7 +42,7 @@
     "minutesToday": "min bugun",
     "min": "min",
     "goal": "Maqsad",
-    "whyKoxlear": "Nima uchun Koxlear?",
+    "whyKoxlear": "Nima uchun HearO?",
     "readyToStart": "O'rganish sayohatingizni boshlashga tayyormisiz?",
     "joinToday": "Bugun Koxlearga qo'shiling!",
     "joinCommunity": "O'rganuvchilar jamoasiga qo'shiling va qiziqarli yo'l bilan eshitish va gapirish ko'nikmalaringizni yaxshilang!",
@@ -51,7 +51,7 @@
     "testimonialText": "Koxleardan foydalanganimdan beri, men ko'proq tovushlarni farqlay olaman! Menga o'yinlar va yutuqlarim uchun yulduzlar yig'ish yoqadi.",
     "testimonialDetail": "Koxlear implantni 2 yildan beri ishlatmoqdaman",
     "forParents": "Ota-onalar va g'amxo'rlar uchun",
-    "parentInfo": "Koxlear maxsus ravishda koxlear implantli bolalarga ko'ngilochar, qiziqarli faoliyatlar orqali eshitish va gapirish ko'nikmalarini rivojlantirishga yordam berish uchun ishlab chiqilgan. Bizning ilovamiz audiologlar va nutq terapevtlari bilan ishlab chiqilgan dalillarga asoslangan usullardan foydalanadi.",
+    "parentInfo": "HearO maxsus ravishda koxlear implantli bolalarga ko'ngilochar, qiziqarli faoliyatlar orqali eshitish va gapirish ko'nikmalarini rivojlantirishga yordam berish uchun ishlab chiqilgan. Bizning ilovamiz audiologlar va nutq terapevtlari bilan ishlab chiqilgan dalillarga asoslangan usullardan foydalanadi.",
     "parentBenefit1": "Koxlear implant foydalanuvchilari uchun moslashtirilgan tovushlar va so'zlar bilan muntazam mashq qilish",
     "parentBenefit2": "Vaqt o'tishi bilan takomillashishni kuzatish uchun progressni kuzatib borish",
     "parentBenefit3": "O'rganishni qiziqarli va maroqli qilish uchun mo'ljallangan o'yinlar",
@@ -174,11 +174,14 @@
     "previous": "Oldingi",
     "finish": "Darsni yakunlash",
     "next": "Keyingi",
-    "startFromBeginning": "Boshidan boshlash"
+    "startFromBeginning": "Boshidan boshlash",
+    "done": "Tugallangan",
+    "completed": "tugallangan"
   },
   "nav": {
     "lessons": "O‘rganish",
     "letters": "Harflar",
+    "practice": "Amaliyot",
     "achievements": "Yutuqlar",
     "experiments": "Tajriba",
     "store": "Do‘kon",
