@@ -70,7 +70,7 @@
           :isLast="isLastItem"
           @item-completed="handleItemCompleted"
           @next-item="goToNextItem"
-          @back-to-lessons="goBack"
+          @back-to-lessons="handleBackToLessons"
           @start-from-beginning="startFromBeginning"
         />
       </div>
@@ -151,6 +151,9 @@ const initializeActiveItemIndex = () => {
     // Find first uncompleted item
     activeItemIndex.value = findFirstUncompletedIndex()
   }
+}
+const handleBackToLessons = () => {
+  router.push('/dashboard/lesson-groups')
 }
 
 // Watch for lesson data changes
