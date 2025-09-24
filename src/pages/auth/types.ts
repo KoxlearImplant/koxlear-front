@@ -100,4 +100,6 @@ export interface User {
   id: number
   email: string
   firstName: string
+  is_staff?: boolean
+  is_superuser?: boolean
 }

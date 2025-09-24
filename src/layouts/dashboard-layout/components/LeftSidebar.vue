@@ -5,14 +5,17 @@ import {
   AcademicCapIcon,
   SparklesIcon,
   MicrophoneIcon,
+  ShieldCheckIcon,
 } from '@heroicons/vue/24/solid'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { Component } from 'vue'
 import LangSelect from '@/components/common/LangSelect.vue'
+import { useAuthStore } from '@/store/auth.store'
 
 const { t } = useI18n()
 const route = useRoute()
+const authStore = useAuthStore()
 
 interface NavItem {
   to: string
@@ -49,30 +52,6 @@ const navItems: NavItem[] = [
     iconColor: 'text-green-200',
     borderColor: 'border-green-300',
   },
-  // {
-  //   to: '/achievements',
-  //   icon: TrophyIcon,
-  //   label: t('nav.achievements', 'Achievements'),
-  //   activePattern: '/achievements',
-  //   iconColor: 'text-yellow-200',
-  //   borderColor: 'border-yellow-300',
-  // },
-  // {
-  //   to: '/experiments',
-  //   icon: BeakerIcon,
-  //   label: t('nav.experiments', 'Experiments'),
-  //   activePattern: '/experiments',
-  //   iconColor: 'text-blue-200',
-  //   borderColor: 'border-blue-300',
-  // },
-  // {
-  //   to: '/store',
-  //   icon: ShoppingBagIcon,
-  //   label: t('nav.store', 'Store'),
-  //   activePattern: '/store',
-  //   iconColor: 'text-green-200',
-  //   borderColor: 'border-green-300',
-  // },
   {
     to: '/dashboard/random-cartoon',
     icon: SparklesIcon,
@@ -88,6 +67,18 @@ const navItems: NavItem[] = [
     activePattern: '/profile',
     iconColor: 'text-purple-200',
     borderColor: 'border-purple-300',
+  },
+]
+
+// Admin navigation items - only show for admin users
+const adminNavItems: NavItem[] = [
+  {
+    to: '/dashboard/admin',
+    icon: ShieldCheckIcon,
+    label: 'Admin Panel',
+    activePattern: '/dashboard/admin',
+    iconColor: 'text-red-200',
+    borderColor: 'border-red-300',
   },
 ]
 
@@ -125,6 +116,29 @@ const isRouteActive = (pattern: string): boolean => {
           <span class="text-2xl text-white font-bold">{{ item.label }}</span>
         </router-link>
       </li>
+
+      <!-- Admin navigation items - only show for admin users -->
+      <template v-if="authStore.isAdmin()">
+        <li v-for="item in adminNavItems" :key="item.to">
+          <router-link
+            :to="item.to"
+            class="flex items-center p-3 rounded-xl transition-all duration-300 hover:bg-white/10 hover:transform hover:translate-x-1"
+            :class="{
+              'bg-white/20 shadow-inner border-l-4': isRouteActive(
+                item.activePattern
+              ),
+              [item.borderColor]: isRouteActive(item.activePattern),
+            }"
+          >
+            <component
+              :is="item.icon"
+              class="inline-block size-6 mr-2 drop-shadow"
+              :class="item.iconColor"
+            />
+            <span class="text-2xl text-white font-bold">{{ item.label }}</span>
+          </router-link>
+        </li>
+      </template>
     </ul>
     <LangSelect class="mt-auto z-50 w-full" />
   </nav>

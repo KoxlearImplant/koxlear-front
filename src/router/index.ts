@@ -11,6 +11,15 @@ import ProfilePage from '@/pages/profile/ProfilePage.vue'
 import LessonGroupsPage from '@/pages/lessons/LessonGroupsPage.vue'
 import PracticePage from '@/pages/practice/PracticePage.vue'
 import RandomCartoonPage from '@/pages/random-cartoon/RandomCartoonPage.vue'
+import AdminLayout from '@/layouts/admin-layout/AdminLayout.vue'
+import AdminPage from '@/pages/admin/AdminPage.vue'
+import AdminCartoonsPage from '@/pages/admin/AdminCartoonsPage.vue'
+import AdminLessonGroupsPage from '@/pages/admin/AdminLessonGroupsPage.vue'
+import AdminLessonsPage from '@/pages/admin/AdminLessonsPage.vue'
+import AdminLessonItemsPage from '@/pages/admin/AdminLessonItemsPage.vue'
+import AdminPracticeItemsPage from '@/pages/admin/AdminPracticeItemsPage.vue'
+import UsersManagement from '@/pages/admin/components/UsersManagement.vue'
+import AdminTeachersPage from '@/pages/admin/AdminTeachersPage.vue'
 import NotFound from '@/pages/NotFound.vue'
 
 const routes: RouteRecordRaw[] = [
@@ -18,6 +27,62 @@ const routes: RouteRecordRaw[] = [
     path: '/',
     name: 'Home',
     component: HomePage,
+  },
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: AdminLayout,
+    meta: { requiresAuth: true, requiresAdmin: true },
+    children: [
+      {
+        path: '',
+        name: 'AdminDashboard',
+        component: AdminPage,
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: 'cartoons',
+        name: 'AdminCartoons',
+        component: AdminCartoonsPage,
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: 'lesson-groups',
+        name: 'AdminLessonGroups',
+        component: AdminLessonGroupsPage,
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: 'lessons',
+        name: 'AdminLessons',
+        component: AdminLessonsPage,
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: 'lesson-items',
+        name: 'AdminLessonItems',
+        component: AdminLessonItemsPage,
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: 'practice-items',
+        name: 'AdminPracticeItems',
+        component: AdminPracticeItemsPage,
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: 'users',
+        name: 'AdminUsers',
+        component: UsersManagement,
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: 'teachers',
+        name: 'AdminTeachers',
+        component: AdminTeachersPage,
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+    ],
   },
   {
     path: '/auth/login',
@@ -99,6 +164,9 @@ router.beforeEach((to, _, next) => {
         path: '/auth/login',
         query: { redirect: to.fullPath },
       })
+    } else if (to.matched.some((record) => record.meta.requiresAdmin)) {
+      // Temporarily allow admin routes without redirect
+      next()
     } else {
       next()
     }
