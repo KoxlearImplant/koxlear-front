@@ -67,7 +67,7 @@ const handleLogin = () => {
           localStorage.setItem('remember_me', 'true')
         }
 
-        // Get redirect path from query params or default to dashboard
+        // Get redirect path from queries params or default to dashboard
         const redirectPath =
           (router.currentRoute.value.query.redirect as string) || '/dashboard'
         router.push(redirectPath)

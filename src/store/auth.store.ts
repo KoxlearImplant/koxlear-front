@@ -49,7 +49,11 @@ export const useAuthStore = () => {
     // Check if user has admin privileges
     // You should implement this based on your user model
     // For now, we'll check if the user has admin role in their profile
-    return state.value.user?.is_staff || state.value.user?.is_superuser || false
+    return state.value.user?.is_superuser || false
+  }
+
+  const isTeacher = () => {
+    return state.value.user?.is_staff || false
   }
 
   const logout = () => {
@@ -70,6 +74,7 @@ export const useAuthStore = () => {
     clearUser,
     isAuthenticated,
     isAdmin,
+    isTeacher,
     logout,
     getToken,
   }

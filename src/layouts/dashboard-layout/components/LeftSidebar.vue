@@ -5,13 +5,13 @@ import {
   AcademicCapIcon,
   SparklesIcon,
   MicrophoneIcon,
-  ShieldCheckIcon,
 } from '@heroicons/vue/24/solid'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { Component } from 'vue'
 import LangSelect from '@/components/common/LangSelect.vue'
 import { useAuthStore } from '@/store/auth.store'
+import { GraduationCapIcon, UsersRoundIcon } from 'lucide-vue-next'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -71,14 +71,22 @@ const navItems: NavItem[] = [
 ]
 
 // Admin navigation items - only show for admin users
-const adminNavItems: NavItem[] = [
+const teacherNavItems: NavItem[] = [
   {
-    to: '/dashboard/admin',
-    icon: ShieldCheckIcon,
-    label: 'Admin Panel',
-    activePattern: '/dashboard/admin',
+    to: '/dashboard/teacher/lesson-groups',
+    icon: GraduationCapIcon,
+    label: 'My lessons',
+    activePattern: '/dashboard/teacher/lesson-groups',
     iconColor: 'text-red-200',
     borderColor: 'border-red-300',
+  },
+  {
+    to: '/dashboard/teacher/students',
+    icon: UsersRoundIcon,
+    label: 'My students',
+    activePattern: '/dashboard/teacher/students',
+    iconColor: 'text-blue-200',
+    borderColor: 'border-blue-300',
   },
 ]
 
@@ -118,8 +126,8 @@ const isRouteActive = (pattern: string): boolean => {
       </li>
 
       <!-- Admin navigation items - only show for admin users -->
-      <template v-if="authStore.isAdmin()">
-        <li v-for="item in adminNavItems" :key="item.to">
+      <template v-if="authStore.isTeacher()">
+        <li v-for="item in teacherNavItems" :key="item.to">
           <router-link
             :to="item.to"
             class="flex items-center p-3 rounded-xl transition-all duration-300 hover:bg-white/10 hover:transform hover:translate-x-1"

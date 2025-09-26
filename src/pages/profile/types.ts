@@ -1,4 +1,5 @@
 export interface Profile {
+  is_staff: boolean
   id: number
   username: string
   email: string

@@ -142,6 +142,21 @@ const routes: RouteRecordRaw[] = [
         component: RandomCartoonPage,
         meta: { requiresAuth: true },
       },
+      {
+        path: 'teacher',
+        children: [
+          {
+            path: 'students',
+            name: 'TeacherStudents',
+            component: () => import('@/pages/teacher/TeacherStudents.vue'),
+          },
+          {
+            path: 'lesson-groups',
+            name: 'TeacherLessonGroups',
+            component: () => import('@/pages/teacher/TeacherLessonGroups.vue'),
+          },
+        ],
+      },
     ],
   },
   {
