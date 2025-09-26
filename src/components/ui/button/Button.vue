@@ -4,6 +4,10 @@ import { Primitive, type PrimitiveProps } from 'reka-ui'
 import { cn } from '@/lib/utils'
 import { type ButtonVariants, buttonVariants } from '.'
 
+defineOptions({
+  name: 'ButtonComponent',
+})
+
 interface Props extends PrimitiveProps {
   variant?: ButtonVariants['variant']
   size?: ButtonVariants['size']
