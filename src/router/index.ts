@@ -18,7 +18,7 @@ import AdminLessonGroupsPage from '@/pages/admin/AdminLessonGroupsPage.vue'
 import AdminLessonsPage from '@/pages/admin/AdminLessonsPage.vue'
 import AdminLessonItemsPage from '@/pages/admin/AdminLessonItemsPage.vue'
 import AdminPracticeItemsPage from '@/pages/admin/AdminPracticeItemsPage.vue'
-import UsersManagement from '@/pages/admin/components/UsersManagement.vue'
+import AdminStudentsPage from '@/pages/admin/AdminStudentsPage.vue'
 import AdminTeachersPage from '@/pages/admin/AdminTeachersPage.vue'
 import NotFound from '@/pages/NotFound.vue'
 
@@ -71,9 +71,9 @@ const routes: RouteRecordRaw[] = [
         meta: { requiresAuth: true, requiresAdmin: true },
       },
       {
-        path: 'users',
-        name: 'AdminUsers',
-        component: UsersManagement,
+        path: 'students',
+        name: 'AdminStudents',
+        component: AdminStudentsPage,
         meta: { requiresAuth: true, requiresAdmin: true },
       },
       {

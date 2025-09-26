@@ -53,6 +53,14 @@
             </option>
           </select>
           <select
+            v-model="lessonType"
+            class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="">All Types</option>
+            <option value="simple">Simple</option>
+            <option value="tutorial">Tutorial</option>
+          </select>
+          <select
             v-model="statusFilter"
             class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
           >
@@ -131,18 +139,19 @@
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
+                Type
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
                 Items
               </th>
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
-                Status
+                Teacher
               </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Created
-              </th>
+
               <th
                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
@@ -187,23 +196,25 @@
                   {{ lesson.group_name }}
                 </span>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {{ lesson.total_items }}
-              </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
+                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                   :class="
-                    lesson.is_active
-                      ? 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'
-                      : 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800'
+                    lesson.lesson_type === 'tutorial'
+                      ? 'bg-purple-100 text-purple-800'
+                      : 'bg-gray-100 text-gray-800'
                   "
                 >
-                  {{ lesson.is_active ? 'Active' : 'Inactive' }}
+                  {{ lesson.lesson_type || 'simple' }}
                 </span>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {{ formatDate(lesson.created_at) }}
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ lesson.items_count ?? lesson.total_items ?? 0 }}
               </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ lesson.teacher_id ?? '—' }}
+              </td>
+
               <td
                 class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
               >
@@ -264,10 +275,12 @@
           <div>
             <p class="text-sm text-gray-700">
               Showing
-              <span class="font-medium">{{ (currentPage - 1) * 10 + 1 }}</span>
+              <span class="font-medium">{{
+                (currentPage - 1) * limit + 1
+              }}</span>
               to
               <span class="font-medium">{{
-                Math.min(currentPage * 10, lessonsData.count)
+                Math.min(currentPage * limit, lessonsData.count)
               }}</span>
               of
               <span class="font-medium">{{ lessonsData.count }}</span>
@@ -405,6 +418,33 @@
             </p>
           </div>
 
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1"
+              >Teacher</label
+            >
+            <select
+              :value="formData.teacher_id ?? ''"
+              @change="
+                updateField(
+                  'teacher_id',
+                  ($event.target as HTMLSelectElement).value
+                    ? parseInt(($event.target as HTMLSelectElement).value)
+                    : null
+                )
+              "
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              :disabled="isSubmitting"
+            >
+              <option value="">No teacher</option>
+              <option v-for="t in teachers" :key="t.id" :value="t.id">
+                {{ t.username }}
+              </option>
+            </select>
+            <p v-if="errors.teacher_id" class="mt-1 text-sm text-red-600">
+              {{ errors.teacher_id[0] }}
+            </p>
+          </div>
+
           <div class="flex items-center">
             <input
               :checked="formData.is_active !== false"
@@ -507,17 +547,26 @@ import {
   useCreateAdminLesson,
   useUpdateAdminLesson,
   useDeleteAdminLesson,
+  useAdminTeachers,
 } from './queries/useAdminContent'
 import UniversalFormModal from './components/UniversalFormModal.vue'
 import UniversalDeleteModal from './components/UniversalDeleteModal.vue'
-import type { AdminLesson, AdminLessonCreate, AdminLessonUpdate } from './types'
-import { format } from 'date-fns'
+import type {
+  AdminLesson,
+  AdminLessonCreate,
+  AdminLessonUpdate,
+  AdminTeacher,
+} from './types'
+import { useToasts } from '@/lib/toast'
+import { formatApiErrors } from '@/lib/utils'
 
 // Reactive data
 const searchQuery = ref('')
 const selectedGroupId = ref<number | ''>('')
+const lessonType = ref<'' | 'simple' | 'tutorial'>('')
 const statusFilter = ref('')
 const currentPage = ref(1)
+const limit = ref(10)
 const showCreateModal = ref(false)
 const showDeleteModal = ref(false)
 const showStatsModal = ref(false)
@@ -535,14 +584,21 @@ const {
   isLoading: loading,
   refetch: loadLessons,
 } = useAdminLessons({
-  page: currentPage,
   search: searchQuery,
-  group_id: selectedGroupId.value || undefined,
-  is_active: statusFilter.value ? statusFilter.value === 'true' : undefined,
+  group_id: computed(() =>
+    selectedGroupId.value ? Number(selectedGroupId.value) : undefined
+  ),
+  lesson_type: lessonType,
+  limit,
+  offset: computed(() => (currentPage.value - 1) * limit.value),
 })
 
 const { data: lessonGroupsData } = useAdminLessonGroups()
 const lessonGroups = computed(() => lessonGroupsData.value?.results || [])
+
+// Teachers for selection
+const { data: teachersData } = useAdminTeachers()
+const teachers = computed(() => teachersData?.value || [])
 
 const { data: lessonStats } = useAdminLessonStatistics(selectedLessonId)
 
@@ -575,9 +631,6 @@ const updateLessonMutation = useUpdateAdminLesson()
 const deleteLessonMutation = useDeleteAdminLesson()
 
 // Methods
-const formatDate = (dateString: string) => {
-  return format(new Date(dateString), 'MMM dd, yyyy')
-}
 
 const debouncedSearch = (() => {
   let timeout: ReturnType<typeof setTimeout>
@@ -610,28 +663,45 @@ const closeModal = () => {
   editingLesson.value = null
 }
 
+const { success: toastSuccess, error: toastError } = useToasts()
+
 const onLessonSubmit = async (data: AdminLessonCreate | AdminLessonUpdate) => {
   isSubmitting.value = true
   formErrors.value = {}
 
   try {
+    // Ensure teacher_id is valid or null
+    const validTeacherIds = new Set(
+      teachers.value.map((t: AdminTeacher) => t.id)
+    )
+    const payload = { ...data }
+    if (
+      payload.teacher_id != null &&
+      !validTeacherIds.has(payload.teacher_id)
+    ) {
+      payload.teacher_id = null
+    }
+
     if (editingLesson.value) {
       await updateLessonMutation.mutateAsync({
         id: editingLesson.value.id,
-        data: data as AdminLessonUpdate,
+        data: payload as AdminLessonUpdate,
       })
+      toastSuccess('Lesson updated')
     } else {
-      await createLessonMutation.mutateAsync(data as AdminLessonCreate)
+      await createLessonMutation.mutateAsync(payload as AdminLessonCreate)
+      toastSuccess('Lesson created')
     }
     closeModal()
     loadLessons()
   } catch (err: unknown) {
-    const e = err as {
-      response?: { data?: { errors?: Record<string, string[]> } }
-    }
-    if (e.response?.data?.errors) {
-      formErrors.value = e.response.data.errors
-    }
+    const apiErrors =
+      (err as { response?: { data?: { errors?: Record<string, string[]> } } })
+        ?.response?.data?.errors ||
+      (err as { response?: { data?: Record<string, string[]> } })?.response
+        ?.data
+    if (apiErrors) formErrors.value = apiErrors
+    toastError(formatApiErrors(apiErrors))
   } finally {
     isSubmitting.value = false
   }
@@ -654,7 +724,7 @@ const onLessonDeleted = async () => {
 }
 
 // Watchers
-watch([selectedGroupId, statusFilter], () => {
+watch([selectedGroupId, statusFilter, lessonType], () => {
   currentPage.value = 1
   loadLessons()
 })

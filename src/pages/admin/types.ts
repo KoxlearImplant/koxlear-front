@@ -76,6 +76,9 @@ export interface AdminLesson {
   is_active: boolean
   order: number
   total_items: number
+  items_count?: number
+  teacher_id?: number | null
+  lesson_type?: 'simple' | 'tutorial'
   created_at: string
   updated_at: string
 }
@@ -96,6 +99,8 @@ export interface AdminLessonCreate {
   group_id: number
   is_active?: boolean
   order?: number
+  teacher_id?: number | null
+  lesson_type?: 'simple' | 'tutorial'
 }
 
 export interface AdminLessonUpdate extends AdminLessonCreate {
@@ -242,4 +247,36 @@ export interface AdminTeacherUpdate {
   last_name?: string
   gender?: string
   password?: string
+}
+
+// Students (matches /backoffice/users/students/)
+export interface AdminStudent {
+  id: number
+  email?: string | null
+  username: string
+  first_name?: string
+  last_name?: string
+  gender?: string
+  image?: string | null
+  teacher_id?: number | null
+}
+
+export interface AdminStudentCreate {
+  email?: string | null
+  username: string
+  first_name?: string
+  last_name?: string
+  gender?: string
+  password: string
+  teacher_id?: number | null
+}
+
+export interface AdminStudentUpdate {
+  email?: string | null
+  username?: string
+  first_name?: string
+  last_name?: string
+  gender?: string
+  password?: string
+  teacher_id?: number | null
 }

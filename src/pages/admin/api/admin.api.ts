@@ -28,6 +28,9 @@ import type {
   AdminTeacher,
   AdminTeacherCreate,
   AdminTeacherUpdate,
+  AdminStudent,
+  AdminStudentCreate,
+  AdminStudentUpdate,
 } from '../types'
 
 // User Management APIs
@@ -190,18 +193,29 @@ export const getAdminLessonGroupStatistics = async (
 }
 
 export const getAdminLessons = async (params?: {
-  page?: number
   search?: string
+  group?: string
+  lesson_type?: 'simple' | 'tutorial'
+  order?: string
+  teacher?: string
+  ordering?: string
+  limit?: number
+  offset?: number
   group_id?: number
-  is_active?: boolean
 }): Promise<PaginatedResponse<AdminLesson>> => {
   const queryParams = new URLSearchParams()
-  if (params?.page) queryParams.append('page', params.page.toString())
   if (params?.search) queryParams.append('search', params.search)
-  if (params?.group_id)
-    queryParams.append('group_id', params.group_id.toString())
-  if (params?.is_active !== undefined)
-    queryParams.append('is_active', params.is_active.toString())
+  if (params?.group) queryParams.append('group', params.group)
+  if (params?.lesson_type) queryParams.append('lesson_type', params.lesson_type)
+  if (params?.order) queryParams.append('order', params.order)
+  if (params?.teacher) queryParams.append('teacher', params.teacher)
+  if (params?.ordering) queryParams.append('ordering', params.ordering)
+  if (params?.limit !== undefined)
+    queryParams.append('limit', String(params.limit))
+  if (params?.offset !== undefined)
+    queryParams.append('offset', String(params.offset))
+  if (params?.group_id !== undefined)
+    queryParams.append('group_id', String(params.group_id))
 
   const url = `/backoffice/lessons/${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
   return http.get<PaginatedResponse<AdminLesson>>(url).then((res) => res.data)
@@ -567,4 +581,58 @@ export const patchAdminTeacher = async (
 
 export const deleteAdminTeacher = async (id: number): Promise<void> => {
   return http.delete(`/backoffice/users/teachers/${id}/`).then(() => {})
+}
+
+// Students APIs
+export const getAdminStudents = async (params?: {
+  limit?: number
+  offset?: number
+  search?: string
+}): Promise<PaginatedResponse<AdminStudent>> => {
+  const queryParams = new URLSearchParams()
+  if (params?.limit !== undefined)
+    queryParams.append('limit', String(params.limit))
+  if (params?.offset !== undefined)
+    queryParams.append('offset', String(params.offset))
+  if (params?.search) queryParams.append('search', params.search)
+  const url = `/backoffice/users/students/${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
+  return http.get<PaginatedResponse<AdminStudent>>(url).then((res) => res.data)
+}
+
+export const getAdminStudentById = async (
+  id: number
+): Promise<AdminStudent> => {
+  return http
+    .get<AdminStudent>(`/backoffice/users/students/${id}/`)
+    .then((res) => res.data)
+}
+
+export const createAdminStudent = async (
+  data: AdminStudentCreate
+): Promise<AdminStudent> => {
+  return http
+    .post<AdminStudent>('/backoffice/users/students/', data)
+    .then((res) => res.data)
+}
+
+export const updateAdminStudent = async (
+  id: number,
+  data: AdminStudentUpdate
+): Promise<AdminStudent> => {
+  return http
+    .put<AdminStudent>(`/backoffice/users/students/${id}/`, data)
+    .then((res) => res.data)
+}
+
+export const patchAdminStudent = async (
+  id: number,
+  data: Partial<AdminStudentUpdate>
+): Promise<AdminStudent> => {
+  return http
+    .patch<AdminStudent>(`/backoffice/users/students/${id}/`, data)
+    .then((res) => res.data)
+}
+
+export const deleteAdminStudent = async (id: number): Promise<void> => {
+  return http.delete(`/backoffice/users/students/${id}/`).then(() => {})
 }

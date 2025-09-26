@@ -152,6 +152,8 @@ import {
 } from './queries/useAdminContent'
 import type { AdminTeacher } from './types'
 import ConfirmModal from '@/components/common/ConfirmModal.vue'
+import { useToasts } from '@/lib/toast'
+import { formatApiErrors } from '@/lib/utils'
 
 const { data, isLoading, error } = useAdminTeachers()
 const teachers = computed(() => data?.value || [])
@@ -178,6 +180,7 @@ const form = reactive<{
 const createMutation = useCreateAdminTeacher()
 const updateMutation = useUpdateAdminTeacher()
 const deleteMutation = useDeleteAdminTeacher()
+const { success: toastSuccess, error: toastError } = useToasts()
 
 function openCreate() {
   editing.value = false
@@ -211,33 +214,44 @@ function closeForm() {
   formOpen.value = false
 }
 
-function submitForm() {
-  if (editing.value && form.id) {
-    const { id, username, email, first_name, last_name, gender, password } =
-      form
-    updateMutation.mutate({
-      id,
-      data: {
+async function submitForm() {
+  try {
+    if (editing.value && form.id) {
+      const { id, username, email, first_name, last_name, gender, password } =
+        form
+      await updateMutation.mutateAsync({
+        id,
+        data: {
+          username,
+          email,
+          first_name,
+          last_name,
+          gender,
+          password: password || undefined,
+        },
+      })
+      toastSuccess('Teacher updated')
+    } else {
+      const { username, email, first_name, last_name, gender, password } = form
+      await createMutation.mutateAsync({
         username,
         email,
         first_name,
         last_name,
         gender,
-        password: password || undefined,
-      },
-    })
-  } else {
-    const { username, email, first_name, last_name, gender, password } = form
-    createMutation.mutate({
-      username,
-      email,
-      first_name,
-      last_name,
-      gender,
-      password: password || '',
-    })
+        password: password || '',
+      })
+      toastSuccess('Teacher created')
+    }
+    formOpen.value = false
+  } catch (e: unknown) {
+    console.error(e)
+    const apiErrors =
+      (e as { response?: { data?: { errors?: Record<string, string[]> } } })
+        ?.response?.data?.errors ||
+      (e as { response?: { data?: Record<string, string[]> } })?.response?.data
+    toastError(formatApiErrors(apiErrors))
   }
-  formOpen.value = false
 }
 
 const confirmOpen = ref(false)
@@ -246,9 +260,22 @@ function confirmDelete(t: AdminTeacher) {
   toDeleteId = t.id
   confirmOpen.value = true
 }
-function doDelete() {
-  if (toDeleteId != null) deleteMutation.mutate(toDeleteId)
-  confirmOpen.value = false
-  toDeleteId = null
+async function doDelete() {
+  try {
+    if (toDeleteId != null) {
+      await deleteMutation.mutateAsync(toDeleteId)
+      toastSuccess('Teacher deleted')
+    }
+  } catch (e: unknown) {
+    console.error(e)
+    const apiErrors =
+      (e as { response?: { data?: { errors?: Record<string, string[]> } } })
+        ?.response?.data?.errors ||
+      (e as { response?: { data?: Record<string, string[]> } })?.response?.data
+    toastError(formatApiErrors(apiErrors))
+  } finally {
+    confirmOpen.value = false
+    toDeleteId = null
+  }
 }
 </script>

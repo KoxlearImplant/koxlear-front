@@ -99,8 +99,8 @@ const navigationItems = [
     icon: ChartBarIcon,
   },
   {
-    name: 'Users',
-    href: '/admin/users',
+    name: 'Students',
+    href: '/admin/students',
     icon: UsersIcon,
   },
   {

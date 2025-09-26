@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import { computed, unref, type Ref } from 'vue'
 import {
   getAdminLessonGroups,
   getAdminLessonGroupById,
@@ -134,14 +135,31 @@ export const useDeleteAdminLessonGroup = () => {
 
 // Lessons
 export const useAdminLessons = (params?: {
-  page?: number
-  search?: string
-  group_id?: number
-  is_active?: boolean
+  search?: string | Ref<string>
+  group?: string | Ref<string>
+  lesson_type?: 'simple' | 'tutorial' | Ref<'simple' | 'tutorial' | ''>
+  order?: string | Ref<string>
+  teacher?: string | Ref<string>
+  ordering?: string | Ref<string>
+  limit?: number | Ref<number>
+  offset?: number | Ref<number>
+  group_id?: number | Ref<number | undefined>
 }) => {
+  const reactiveParams = computed(() => ({
+    search: unref(params?.search) || undefined,
+    group: unref(params?.group) || undefined,
+    lesson_type:
+      (unref(params?.lesson_type) as 'simple' | 'tutorial' | '') || undefined,
+    order: unref(params?.order) || undefined,
+    teacher: unref(params?.teacher) || undefined,
+    ordering: unref(params?.ordering) || undefined,
+    limit: unref(params?.limit) as number | undefined,
+    offset: unref(params?.offset) as number | undefined,
+    group_id: unref(params?.group_id) as number | undefined,
+  }))
   return useQuery({
-    queryKey: ['admin-lessons', params],
-    queryFn: () => getAdminLessons(params),
+    queryKey: ['admin-lessons', reactiveParams],
+    queryFn: () => getAdminLessons(reactiveParams.value),
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
 }
