@@ -179,7 +179,7 @@ watch(
           Math.min(urlIndex, currentLesson.value.items.length - 1)
         )
       } else {
-        // If no query, find first uncompleted
+        // If no queries, find first uncompleted
         activeItemIndex.value = findFirstUncompletedIndex()
       }
     }
@@ -207,7 +207,7 @@ const goToNextItem = () => {
   }
 
   const nextIndex = activeItemIndex.value + 1
-  // Update URL to include item index as query parameter
+  // Update URL to include item index as queries parameter
   router.push({
     path: `/dashboard/lessons/${lessonId.value}`,
     query: { item: nextIndex.toString() },
@@ -218,7 +218,7 @@ const goToNextItem = () => {
 const goToPreviousItem = () => {
   if (activeItemIndex.value > 0) {
     const prevIndex = activeItemIndex.value - 1
-    // Update URL to include item index as query parameter
+    // Update URL to include item index as queries parameter
     router.push({
       path: `/dashboard/lessons/${lessonId.value}`,
       query: { item: prevIndex.toString() },

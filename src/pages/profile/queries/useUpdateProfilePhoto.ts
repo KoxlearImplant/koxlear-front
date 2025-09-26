@@ -13,7 +13,7 @@ export const useUpdateProfilePhoto = () => {
       // Update the profile cache with new data
       queryClient.setQueryData(['profile'], data)
 
-      // Invalidate and refetch profile query to ensure fresh data
+      // Invalidate and refetch profile queries to ensure fresh data
       queryClient.invalidateQueries({ queryKey: ['profile'] })
     },
     onError: (error) => {
