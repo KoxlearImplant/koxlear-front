@@ -155,6 +155,18 @@ const routes: RouteRecordRaw[] = [
             name: 'TeacherLessonGroups',
             component: () => import('@/pages/teacher/TeacherLessonGroups.vue'),
           },
+          {
+            path: 'lesson-groups/:groupId/lessons',
+            name: 'TeacherLessons',
+            component: () => import('@/pages/teacher/TeacherLessons.vue'),
+            props: true,
+          },
+          {
+            path: 'lesson-groups/:groupId/lessons/:lessonId/items',
+            name: 'TeacherLessonItems',
+            component: () => import('@/pages/teacher/TeacherLessonItems.vue'),
+            props: true,
+          },
         ],
       },
     ],

@@ -1,4 +1,4 @@
-export interface LessonGroup {
+export interface LessonGroupRes {
   id: number
   name: string
 }
@@ -20,11 +20,11 @@ export interface ILessonItem {
   state: LessonItemState | null
 }
 
-export interface LessonType {
+export interface ILesson {
   id: number
   title: string
   items: ILessonItem[]
-  group: LessonGroup
+  group: LessonGroupRes
   completed_items_count: number
   items_count: number
 }

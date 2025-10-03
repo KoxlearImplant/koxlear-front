@@ -2,14 +2,18 @@
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import {
-  useCreateLessonGroup,
-  useDeleteLessonGroup,
-  useLessonGroups,
-  useUpdateLessonGroup,
-} from '@/pages/teacher/queries/use-lesson-groups'
-import type { LessonGroupFilter } from '@/pages/teacher/api/lesson-group'
+  useCreateLesson,
+  useDeleteLesson,
+  useLessons,
+  useUpdateLesson,
+} from '@/pages/teacher/queries/use-lessons'
+import type {
+  CreateLessonRequest,
+  LessonsFilter,
+  UpdateLessonRequest,
+} from '@/pages/teacher/api/lessons'
 import {
-  ChevronRightIcon,
+  ArrowLeftIcon,
   DocumentTextIcon,
   ExclamationTriangleIcon,
   MagnifyingGlassIcon,
@@ -25,54 +29,55 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import type { LessonGroupRes } from '@/pages/lessons/types'
+import type { ILesson } from '@/pages/lessons/types'
 
+interface Props {
+  groupId: string
+}
+
+const props = defineProps<Props>()
 const router = useRouter()
 
 const searchQuery = ref('')
 const limit = ref(20)
 const offset = ref(0)
 
-// Create lesson group dialog state
+// Create lesson dialog state
 const isCreateDialogOpen = ref(false)
-const newLessonGroupName = ref('')
+const newLessonTitle = ref('')
+const newLessonType = ref<'simple' | 'tutorial'>('simple')
 const createFormError = ref('')
 
-// Edit lesson group dialog state
+// Edit lesson dialog state
 const isEditDialogOpen = ref(false)
-const editLessonGroupId = ref<number | null>(null)
-const editLessonGroupName = ref('')
+const editLessonId = ref<number | null>(null)
+const editLessonTitle = ref('')
 const editFormError = ref('')
 
-// Delete lesson group dialog state
+// Delete lesson dialog state
 const isDeleteDialogOpen = ref(false)
-const deleteLessonGroupId = ref<number | null>(null)
-const lessonGroupToDelete = ref<LessonGroupRes | null>(null)
+const deleteLessonId = ref<number | null>(null)
+const lessonToDelete = ref<ILesson | null>(null)
 
-const filter = computed<LessonGroupFilter>(() => ({
+const groupIdNumber = computed(() => parseInt(props.groupId))
+
+const filter = computed<LessonsFilter>(() => ({
   limit: limit.value,
   offset: offset.value,
+  group: groupIdNumber.value,
   ...(searchQuery.value && { search: searchQuery.value }),
 }))
 
-const {
-  data: lessonGroupsData,
-  isLoading,
-  error,
-  refetch,
-} = useLessonGroups(filter)
+const { data: lessonsData, isLoading, error, refetch } = useLessons(filter)
 
-const { mutate: createLessonGroup, isPending: isCreating } =
-  useCreateLessonGroup()
+const { mutate: createLesson, isPending: isCreating } = useCreateLesson()
 
-const { mutate: updateLessonGroup, isPending: isUpdating } =
-  useUpdateLessonGroup()
+const { mutate: updateLesson, isPending: isUpdating } = useUpdateLesson()
 
-const { mutate: deleteLessonGroup, isPending: isDeleting } =
-  useDeleteLessonGroup()
+const { mutate: deleteLesson, isPending: isDeleting } = useDeleteLesson()
 
-const lessonGroups = computed(() => lessonGroupsData.value?.results || [])
-const totalCount = computed(() => lessonGroupsData.value?.count || 0)
+const lessons = computed(() => lessonsData.value?.results || [])
+const totalCount = computed(() => lessonsData.value?.count || 0)
 
 const handleSearch = () => {
   offset.value = 0
@@ -84,72 +89,75 @@ const loadMore = () => {
 }
 
 const canLoadMore = computed(() => {
-  return lessonGroups.value.length < totalCount.value
+  return lessons.value.length < totalCount.value
 })
 
 const handleRefetch = () => {
   refetch()
 }
 
-const handleCreateLessonGroup = async () => {
-  if (!newLessonGroupName.value.trim()) {
-    createFormError.value = 'Lesson group name is required'
+const handleCreateLesson = async () => {
+  if (!newLessonTitle.value.trim()) {
+    createFormError.value = 'Lesson title is required'
     return
   }
 
   createFormError.value = ''
 
-  createLessonGroup(
-    { name: newLessonGroupName.value.trim() },
-    {
-      onSuccess: () => {
-        newLessonGroupName.value = ''
-        isCreateDialogOpen.value = false
-        // Reset pagination to show the new group
-        offset.value = 0
-      },
-      onError: (error: unknown) => {
-        createFormError.value =
-          error &&
-          typeof error === 'object' &&
-          'response' in error &&
-          error.response &&
-          typeof error.response === 'object' &&
-          'data' in error.response &&
-          error.response.data &&
-          typeof error.response.data === 'object' &&
-          'message' in error.response.data
-            ? (error.response.data as { message: string }).message
-            : 'Failed to create lesson group'
-      },
-    }
-  )
+  const data: CreateLessonRequest = {
+    title: newLessonTitle.value.trim(),
+    group: groupIdNumber.value,
+    lesson_type: newLessonType.value,
+  }
+
+  createLesson(data, {
+    onSuccess: () => {
+      newLessonTitle.value = ''
+      newLessonType.value = 'simple'
+      isCreateDialogOpen.value = false
+      offset.value = 0
+    },
+    onError: (error: unknown) => {
+      createFormError.value =
+        error &&
+        typeof error === 'object' &&
+        'response' in error &&
+        error.response &&
+        typeof error.response === 'object' &&
+        'data' in error.response &&
+        error.response.data &&
+        typeof error.response.data === 'object' &&
+        'message' in error.response.data
+          ? (error.response.data as { message: string }).message
+          : 'Failed to create lesson'
+    },
+  })
 }
 
-const handleUpdateLessonGroup = async () => {
-  if (!editLessonGroupName.value.trim()) {
-    editFormError.value = 'Lesson group name is required'
+const handleUpdateLesson = async () => {
+  if (!editLessonTitle.value.trim()) {
+    editFormError.value = 'Lesson name is required'
     return
   }
 
-  if (editLessonGroupId.value === null) {
-    editFormError.value = 'Invalid lesson group ID'
+  if (editLessonId.value === null) {
+    editFormError.value = 'Invalid lesson ID'
     return
   }
 
   editFormError.value = ''
 
-  updateLessonGroup(
-    {
-      id: editLessonGroupId.value,
-      data: { name: editLessonGroupName.value.trim() },
-    },
+  const data: UpdateLessonRequest = {
+    name: editLessonTitle.value.trim(),
+  }
+
+  updateLesson(
+    { id: editLessonId.value, data },
     {
       onSuccess: () => {
-        editLessonGroupId.value = null
-        editLessonGroupName.value = ''
+        editLessonId.value = null
+        editLessonTitle.value = ''
         isEditDialogOpen.value = false
-        // Refetch lesson groups to get the updated data
         refetch()
       },
       onError: (error: unknown) => {
@@ -164,63 +172,71 @@ const handleUpdateLessonGroup = async () => {
           typeof error.response.data === 'object' &&
           'message' in error.response.data
             ? (error.response.data as { message: string }).message
-            : 'Failed to update lesson group'
+            : 'Failed to update lesson'
       },
     }
   )
 }
 
-const handleDeleteLessonGroup = async () => {
-  if (deleteLessonGroupId.value === null) {
-    return
-  }
+const handleDeleteLesson = async () => {
+  if (deleteLessonId.value === null) return
 
-  deleteLessonGroup(deleteLessonGroupId.value, {
+  deleteLesson(deleteLessonId.value, {
     onSuccess: () => {
-      closeDeleteDialog()
+      deleteLessonId.value = null
+      lessonToDelete.value = null
+      isDeleteDialogOpen.value = false
       refetch()
     },
     onError: (error: unknown) => {
-      console.error('Failed to delete lesson group:', error)
+      console.error('Failed to delete lesson:', error)
     },
   })
 }
 
-const openEditDialog = (group: LessonGroupRes) => {
-  editLessonGroupId.value = group.id
-  editLessonGroupName.value = group.name
+const openEditDialog = (lesson: ILesson) => {
+  editLessonId.value = lesson.id
+  editLessonTitle.value = lesson.title
   isEditDialogOpen.value = true
 }
 
-const openDeleteDialog = (group: LessonGroupRes) => {
-  deleteLessonGroupId.value = group.id
-  lessonGroupToDelete.value = group
+const openDeleteDialog = (lesson: ILesson) => {
+  deleteLessonId.value = lesson.id
+  lessonToDelete.value = lesson
   isDeleteDialogOpen.value = true
 }
 
 const closeCreateDialog = () => {
   isCreateDialogOpen.value = false
-  newLessonGroupName.value = ''
+  newLessonTitle.value = ''
+  newLessonType.value = 'simple'
   createFormError.value = ''
 }
 
 const closeEditDialog = () => {
   isEditDialogOpen.value = false
-  editLessonGroupId.value = null
-  editLessonGroupName.value = ''
+  editLessonId.value = null
+  editLessonTitle.value = ''
   editFormError.value = ''
 }
 
 const closeDeleteDialog = () => {
   isDeleteDialogOpen.value = false
-  deleteLessonGroupId.value = null
-  lessonGroupToDelete.value = null
+  deleteLessonId.value = null
+  lessonToDelete.value = null
 }
 
-const navigateToLessons = (group: LessonGroupRes) => {
+const goBack = () => {
+  router.push({ name: 'TeacherLessonGroups' })
+}
+
+const openLessonItems = (lesson: ILesson) => {
   router.push({
-    name: 'TeacherLessons',
-    params: { groupId: group.id.toString() },
+    name: 'TeacherLessonItems',
+    params: {
+      groupId: props.groupId,
+      lessonId: lesson.id.toString(),
+    },
   })
 }
 </script>
@@ -231,8 +247,17 @@ const navigateToLessons = (group: LessonGroupRes) => {
       <!-- Header -->
       <div class="mb-12">
         <div class="flex items-center justify-between mb-8">
-          <div>
-            <h1 class="text-2xl font-medium text-gray-900">Lesson Groups</h1>
+          <div class="flex items-center gap-4">
+            <button
+              @click="goBack"
+              class="p-2 hover:bg-gray-100 rounded transition-colors"
+            >
+              <ArrowLeftIcon class="w-5 h-5 text-gray-600" />
+            </button>
+            <div>
+              <h1 class="text-2xl font-medium text-gray-900">Lessons</h1>
+              <p class="text-sm text-gray-600">Group ID: {{ groupId }}</p>
+            </div>
           </div>
 
           <!-- Create Button -->
@@ -241,14 +266,14 @@ const navigateToLessons = (group: LessonGroupRes) => {
               <Button
                 class="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 text-sm font-medium"
               >
-                Create Group
+                Create Lesson
               </Button>
             </DialogTrigger>
 
             <DialogContent class="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle class="text-lg font-medium text-gray-900">
-                  Create Lesson Group
+                  Create Lesson
                 </DialogTitle>
               </DialogHeader>
 
@@ -262,26 +287,41 @@ const navigateToLessons = (group: LessonGroupRes) => {
                 </div>
 
                 <!-- Form -->
-                <form
-                  @submit.prevent="handleCreateLessonGroup"
-                  class="space-y-4"
-                >
+                <form @submit.prevent="handleCreateLesson" class="space-y-4">
                   <div>
                     <label
-                      for="lessonGroupName"
+                      for="lessonTitle"
                       class="block text-sm font-medium text-gray-700 mb-2"
                     >
-                      Name
+                      Title
                     </label>
                     <input
-                      id="lessonGroupName"
-                      v-model="newLessonGroupName"
+                      id="lessonTitle"
+                      v-model="newLessonTitle"
                       type="text"
-                      placeholder="Enter group name"
+                      placeholder="Enter lesson title"
                       class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-gray-900"
                       :disabled="isCreating"
                       required
                     />
+                  </div>
+
+                  <div>
+                    <label
+                      for="lessonType"
+                      class="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Type
+                    </label>
+                    <select
+                      id="lessonType"
+                      v-model="newLessonType"
+                      class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-gray-900"
+                      :disabled="isCreating"
+                    >
+                      <option value="simple">Simple</option>
+                      <option value="tutorial">Tutorial</option>
+                    </select>
                   </div>
 
                   <DialogFooter class="flex gap-3 pt-4">
@@ -296,7 +336,7 @@ const navigateToLessons = (group: LessonGroupRes) => {
                     </Button>
                     <Button
                       type="submit"
-                      :disabled="isCreating || !newLessonGroupName.trim()"
+                      :disabled="isCreating || !newLessonTitle.trim()"
                       class="flex-1 bg-gray-900 hover:bg-gray-800 text-sm"
                     >
                       {{ isCreating ? 'Creating...' : 'Create' }}
@@ -312,7 +352,7 @@ const navigateToLessons = (group: LessonGroupRes) => {
             <DialogContent class="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle class="text-lg font-medium text-gray-900">
-                  Edit Lesson Group
+                  Edit Lesson
                 </DialogTitle>
               </DialogHeader>
 
@@ -326,22 +366,19 @@ const navigateToLessons = (group: LessonGroupRes) => {
                 </div>
 
                 <!-- Form -->
-                <form
-                  @submit.prevent="handleUpdateLessonGroup"
-                  class="space-y-4"
-                >
+                <form @submit.prevent="handleUpdateLesson" class="space-y-4">
                   <div>
                     <label
-                      for="editLessonGroupName"
+                      for="editLessonName"
                       class="block text-sm font-medium text-gray-700 mb-2"
                     >
                       Name
                     </label>
                     <input
-                      id="editLessonGroupName"
-                      v-model="editLessonGroupName"
+                      id="editLessonName"
+                      v-model="editLessonTitle"
                       type="text"
-                      placeholder="Enter group name"
+                      placeholder="Enter lesson name"
                       class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-gray-900"
                       :disabled="isUpdating"
                       required
@@ -360,7 +397,7 @@ const navigateToLessons = (group: LessonGroupRes) => {
                     </Button>
                     <Button
                       type="submit"
-                      :disabled="isUpdating || !editLessonGroupName.trim()"
+                      :disabled="isUpdating || !editLessonTitle.trim()"
                       class="flex-1 bg-gray-900 hover:bg-gray-800 text-sm"
                     >
                       {{ isUpdating ? 'Updating...' : 'Update' }}
@@ -371,44 +408,42 @@ const navigateToLessons = (group: LessonGroupRes) => {
             </DialogContent>
           </Dialog>
 
-          <!-- Delete Confirmation Dialog -->
+          <!-- Delete Dialog -->
           <Dialog v-model:open="isDeleteDialogOpen">
             <DialogContent class="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle class="text-lg font-medium text-gray-900">
-                  Delete Lesson Group
+                  Delete Lesson
                 </DialogTitle>
               </DialogHeader>
 
-              <div class="mt-4">
-                <p class="text-sm text-gray-700">
-                  Are you sure you want to delete the lesson group "
-                  <span
-                    class="font-medium"
-                    v-text="lessonGroupToDelete?.name"
-                  />
-                  "? This action cannot be undone.
+              <div class="mt-6">
+                <p class="text-sm text-gray-600 mb-6">
+                  Are you sure you want to delete "<strong>{{
+                    lessonToDelete?.title
+                  }}</strong
+                  >"? This action cannot be undone.
                 </p>
-              </div>
 
-              <DialogFooter class="flex gap-3 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  @click="closeDeleteDialog"
-                  :disabled="isDeleting"
-                  class="flex-1 text-sm"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  @click="handleDeleteLessonGroup"
-                  :disabled="isDeleting"
-                  class="flex-1 bg-red-600 hover:bg-red-500 text-sm"
-                >
-                  {{ isDeleting ? 'Deleting...' : 'Delete Group' }}
-                </Button>
-              </DialogFooter>
+                <DialogFooter class="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    @click="closeDeleteDialog"
+                    :disabled="isDeleting"
+                    class="flex-1 text-sm"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    @click="handleDeleteLesson"
+                    :disabled="isDeleting"
+                    class="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm"
+                  >
+                    {{ isDeleting ? 'Deleting...' : 'Delete' }}
+                  </Button>
+                </DialogFooter>
+              </div>
             </DialogContent>
           </Dialog>
         </div>
@@ -419,7 +454,7 @@ const navigateToLessons = (group: LessonGroupRes) => {
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Search groups..."
+              placeholder="Search lessons..."
               class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-gray-900"
               @keyup.enter="handleSearch"
             />
@@ -437,7 +472,7 @@ const navigateToLessons = (group: LessonGroupRes) => {
       <div>
         <!-- Loading -->
         <div
-          v-if="isLoading && lessonGroups.length === 0"
+          v-if="isLoading && lessons.length === 0"
           class="flex justify-center py-16"
         >
           <div
@@ -448,7 +483,7 @@ const navigateToLessons = (group: LessonGroupRes) => {
         <!-- Error -->
         <div v-else-if="error" class="text-center py-16">
           <ExclamationTriangleIcon class="w-8 h-8 text-gray-400 mx-auto mb-4" />
-          <p class="text-gray-600 mb-6">Failed to load lesson groups</p>
+          <p class="text-gray-600 mb-6">Failed to load lessons</p>
           <Button
             @click="handleRefetch"
             class="bg-gray-900 hover:bg-gray-800 text-sm px-4 py-2"
@@ -457,45 +492,53 @@ const navigateToLessons = (group: LessonGroupRes) => {
           </Button>
         </div>
 
-        <!-- Groups Grid -->
-        <div v-else-if="lessonGroups.length > 0" class="space-y-8">
+        <!-- Lessons Grid -->
+        <div v-else-if="lessons.length > 0" class="space-y-8">
           <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div
-              v-for="group in lessonGroups"
-              :key="group.id"
-              class="border border-gray-200 rounded p-4 hover:border-gray-300 transition-colors"
+              v-for="lesson in lessons"
+              :key="lesson.id"
+              class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer group"
+              @click="openLessonItems(lesson)"
             >
-              <!-- Group Info -->
-              <div class="mb-4">
-                <h3 class="font-medium text-gray-900 mb-1">{{ group.name }}</h3>
-                <p class="text-xs text-gray-500">ID: {{ group.id }}</p>
-              </div>
+              <div class="p-6">
+                <div class="mb-4">
+                  <h3
+                    class="font-medium text-gray-900 mb-2 group-hover:text-gray-700 transition-colors"
+                  >
+                    {{ lesson.title }}
+                  </h3>
+                  <div class="flex items-center justify-between">
+                    <p class="text-xs text-gray-500">ID: {{ lesson.id }}</p>
+                    <span
+                      class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+                    >
+                      {{ lesson.lesson_type || 'simple' }}
+                    </span>
+                  </div>
+                </div>
 
-              <!-- Actions -->
-              <div class="space-y-2">
-                <button
-                  @click="navigateToLessons(group)"
-                  class="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white text-sm py-2 px-3 rounded transition-colors"
+                <div
+                  class="flex items-center justify-between pt-4 border-t border-gray-100"
                 >
-                  View Lessons
-                  <ChevronRightIcon class="w-4 h-4" />
-                </button>
-
-                <button
-                  @click="openEditDialog(group)"
-                  class="w-full flex items-center justify-center gap-2 border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm py-2 px-3 rounded transition-colors"
-                >
-                  <PencilIcon class="w-4 h-4" />
-                  Edit Group
-                </button>
-
-                <button
-                  @click="openDeleteDialog(group)"
-                  class="w-full flex items-center justify-center gap-2 border border-red-300 hover:bg-red-50 text-red-700 text-sm py-2 px-3 rounded transition-colors"
-                >
-                  <TrashIcon class="w-4 h-4" />
-                  Delete Group
-                </button>
+                  <span class="text-sm text-gray-600">Click to view items</span>
+                  <div class="flex gap-1">
+                    <button
+                      @click.stop="openEditDialog(lesson)"
+                      class="p-2 hover:bg-gray-100 rounded transition-colors"
+                      title="Edit lesson"
+                    >
+                      <PencilIcon class="w-4 h-4 text-gray-600" />
+                    </button>
+                    <button
+                      @click.stop="openDeleteDialog(lesson)"
+                      class="p-2 hover:bg-red-50 rounded transition-colors"
+                      title="Delete lesson"
+                    >
+                      <TrashIcon class="w-4 h-4 text-red-600" />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -514,7 +557,7 @@ const navigateToLessons = (group: LessonGroupRes) => {
 
           <!-- Results Count -->
           <div class="text-center text-sm text-gray-500 pt-4">
-            {{ lessonGroups.length }} of {{ totalCount }} groups
+            {{ lessons.length }} of {{ totalCount }} lessons
           </div>
         </div>
 
@@ -522,19 +565,19 @@ const navigateToLessons = (group: LessonGroupRes) => {
         <div v-else class="text-center py-20">
           <DocumentTextIcon class="w-12 h-12 text-gray-300 mx-auto mb-6" />
           <h3 class="text-lg font-medium text-gray-900 mb-2">
-            {{ searchQuery ? 'No groups found' : 'No lesson groups' }}
+            {{ searchQuery ? 'No lessons found' : 'No lessons yet' }}
           </h3>
           <p class="text-gray-600 mb-8 max-w-sm mx-auto">
             {{
               searchQuery
                 ? 'Try a different search term.'
-                : 'Create your first lesson group to get started.'
+                : 'Create your first lesson to get started.'
             }}
           </p>
           <Dialog v-model:open="isCreateDialogOpen" v-if="!searchQuery">
             <DialogTrigger as-child>
               <Button class="bg-gray-900 hover:bg-gray-800 text-sm px-6 py-2">
-                Create Group
+                Create Lesson
               </Button>
             </DialogTrigger>
           </Dialog>
