@@ -21,6 +21,7 @@ import AdminPracticeItemsPage from '@/pages/admin/AdminPracticeItemsPage.vue'
 import AdminStudentsPage from '@/pages/admin/AdminStudentsPage.vue'
 import AdminTeachersPage from '@/pages/admin/AdminTeachersPage.vue'
 import AdminAssignmentsPage from '@/pages/admin/AdminAssignmentsPage.vue'
+import AssignmentsPage from '@/pages/assignments/AssignmentsPage.vue'
 import NotFound from '@/pages/NotFound.vue'
 
 const routes: RouteRecordRaw[] = [
@@ -150,6 +151,12 @@ const routes: RouteRecordRaw[] = [
         meta: { requiresAuth: true },
       },
       {
+        path: 'assignments',
+        name: 'Assignments',
+        component: AssignmentsPage,
+        meta: { requiresAuth: true },
+      },
+      {
         path: 'teacher',
         children: [
           {
@@ -173,6 +180,12 @@ const routes: RouteRecordRaw[] = [
             name: 'TeacherLessonItems',
             component: () => import('@/pages/teacher/TeacherLessonItems.vue'),
             props: true,
+          },
+          {
+            path: 'assignments',
+            name: 'TeacherAssignments',
+            component: () => import('@/pages/teacher/TeacherAssignments.vue'),
+            meta: { requiresAuth: true },
           },
         ],
       },

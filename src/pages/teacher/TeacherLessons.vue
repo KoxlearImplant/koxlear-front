@@ -7,11 +7,14 @@ import {
   useLessons,
   useUpdateLesson,
 } from '@/pages/teacher/queries/use-lessons'
+import { useCreateAssignment } from '@/pages/teacher/queries/use-assignments'
+import { useStudents } from '@/pages/teacher/queries/use-students'
 import type {
   CreateLessonRequest,
   LessonsFilter,
   UpdateLessonRequest,
 } from '@/pages/teacher/api/lessons'
+import type { AssignmentReq } from '@/pages/teacher/api/assignments'
 import {
   ArrowLeftIcon,
   DocumentTextIcon,
@@ -19,6 +22,7 @@ import {
   MagnifyingGlassIcon,
   PencilIcon,
   TrashIcon,
+  UserPlusIcon,
 } from '@heroicons/vue/24/outline'
 import {
   Dialog,
@@ -30,6 +34,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import type { ILesson } from '@/pages/lessons/types'
+import { toast } from 'vue-sonner'
 
 interface Props {
   groupId: string
@@ -59,6 +64,17 @@ const isDeleteDialogOpen = ref(false)
 const deleteLessonId = ref<number | null>(null)
 const lessonToDelete = ref<ILesson | null>(null)
 
+// Assignment dialog state
+const isAssignDialogOpen = ref(false)
+const selectedLessonForAssign = ref<ILesson | null>(null)
+const assignmentForm = ref<AssignmentReq>({
+  student: 0,
+  lesson: 0,
+  begin_time: '',
+  end_time: '',
+  passing_score: 70,
+})
+
 const groupIdNumber = computed(() => parseInt(props.groupId))
 
 const filter = computed<LessonsFilter>(() => ({
@@ -75,6 +91,13 @@ const { mutate: createLesson, isPending: isCreating } = useCreateLesson()
 const { mutate: updateLesson, isPending: isUpdating } = useUpdateLesson()
 
 const { mutate: deleteLesson, isPending: isDeleting } = useDeleteLesson()
+
+const { mutate: createAssignment, isPending: isAssigning } =
+  useCreateAssignment()
+
+// Fetch students for assignment
+const { data: studentsData } = useStudents({ limit: 100, offset: 0 })
+const students = computed(() => studentsData.value?.results || [])
 
 const lessons = computed(() => lessonsData.value?.results || [])
 const totalCount = computed(() => lessonsData.value?.count || 0)
@@ -194,6 +217,56 @@ const handleDeleteLesson = async () => {
   })
 }
 
+const handleCreateAssignment = async () => {
+  if (!assignmentForm.value.student) {
+    toast.error('Please select a student')
+    return
+  }
+
+  if (!assignmentForm.value.begin_time || !assignmentForm.value.end_time) {
+    toast.error('Please select begin and end time')
+    return
+  }
+
+  if (
+    new Date(assignmentForm.value.end_time) <=
+    new Date(assignmentForm.value.begin_time)
+  ) {
+    toast.error('End time must be after begin time')
+    return
+  }
+
+  if (
+    assignmentForm.value.passing_score < 0 ||
+    assignmentForm.value.passing_score > 100
+  ) {
+    toast.error('Passing score must be between 0 and 100')
+    return
+  }
+
+  createAssignment(assignmentForm.value, {
+    onSuccess: () => {
+      toast.success('Assignment created successfully')
+      closeAssignDialog()
+    },
+    onError: (error: unknown) => {
+      const errorMessage =
+        error &&
+        typeof error === 'object' &&
+        'response' in error &&
+        error.response &&
+        typeof error.response === 'object' &&
+        'data' in error.response &&
+        error.response.data &&
+        typeof error.response.data === 'object' &&
+        'message' in error.response.data
+          ? (error.response.data as { message: string }).message
+          : 'Failed to create assignment'
+      toast.error(errorMessage)
+    },
+  })
+}
+
 const openEditDialog = (lesson: ILesson) => {
   editLessonId.value = lesson.id
   editLessonTitle.value = lesson.title
@@ -204,6 +277,18 @@ const openDeleteDialog = (lesson: ILesson) => {
   deleteLessonId.value = lesson.id
   lessonToDelete.value = lesson
   isDeleteDialogOpen.value = true
+}
+
+const openAssignDialog = (lesson: ILesson) => {
+  selectedLessonForAssign.value = lesson
+  assignmentForm.value = {
+    student: 0,
+    lesson: lesson.id,
+    begin_time: '',
+    end_time: '',
+    passing_score: 70,
+  }
+  isAssignDialogOpen.value = true
 }
 
 const closeCreateDialog = () => {
@@ -224,6 +309,18 @@ const closeDeleteDialog = () => {
   isDeleteDialogOpen.value = false
   deleteLessonId.value = null
   lessonToDelete.value = null
+}
+
+const closeAssignDialog = () => {
+  isAssignDialogOpen.value = false
+  selectedLessonForAssign.value = null
+  assignmentForm.value = {
+    student: 0,
+    lesson: 0,
+    begin_time: '',
+    end_time: '',
+    passing_score: 70,
+  }
 }
 
 const goBack = () => {
@@ -446,6 +543,124 @@ const openLessonItems = (lesson: ILesson) => {
               </div>
             </DialogContent>
           </Dialog>
+
+          <!-- Assign Dialog -->
+          <Dialog v-model:open="isAssignDialogOpen">
+            <DialogContent class="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle class="text-lg font-medium text-gray-900">
+                  Assign Lesson
+                </DialogTitle>
+              </DialogHeader>
+
+              <div class="mt-6">
+                <!-- Form -->
+                <form
+                  @submit.prevent="handleCreateAssignment"
+                  class="space-y-4"
+                >
+                  <div>
+                    <label
+                      for="studentSelect"
+                      class="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Student
+                    </label>
+                    <select
+                      id="studentSelect"
+                      v-model.number="assignmentForm.student"
+                      class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-gray-900"
+                      :disabled="isAssigning"
+                      required
+                    >
+                      <option :value="0" disabled>Select a student</option>
+                      <option
+                        v-for="student in students"
+                        :key="student.id"
+                        :value="student.id"
+                      >
+                        {{ student.first_name }} {{ student.last_name }} (@{{
+                          student.username
+                        }})
+                      </option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label
+                      for="beginTime"
+                      class="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Begin Time
+                    </label>
+                    <input
+                      id="beginTime"
+                      v-model="assignmentForm.begin_time"
+                      type="datetime-local"
+                      class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-gray-900"
+                      :disabled="isAssigning"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      for="endTime"
+                      class="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      End Time
+                    </label>
+                    <input
+                      id="endTime"
+                      v-model="assignmentForm.end_time"
+                      type="datetime-local"
+                      class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-gray-900"
+                      :disabled="isAssigning"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      for="passingScore"
+                      class="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Passing Score
+                    </label>
+                    <input
+                      id="passingScore"
+                      v-model.number="assignmentForm.passing_score"
+                      type="number"
+                      min="0"
+                      max="100"
+                      class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-gray-900"
+                      :disabled="isAssigning"
+                      required
+                    />
+                  </div>
+
+                  <DialogFooter class="flex gap-3 pt-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      @click="closeAssignDialog"
+                      :disabled="isAssigning"
+                      class="flex-1 text-sm"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      :disabled="isAssigning || !assignmentForm.student"
+                      class="flex-1 bg-gray-900 hover:bg-gray-800 text-sm"
+                    >
+                      {{ isAssigning ? 'Assigning...' : 'Assign' }}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
 
         <!-- Search -->
@@ -536,6 +751,13 @@ const openLessonItems = (lesson: ILesson) => {
                       title="Delete lesson"
                     >
                       <TrashIcon class="w-4 h-4 text-red-600" />
+                    </button>
+                    <button
+                      @click.stop="openAssignDialog(lesson)"
+                      class="p-2 hover:bg-blue-50 rounded transition-colors"
+                      title="Assign lesson"
+                    >
+                      <UserPlusIcon class="w-4 h-4 text-blue-600" />
                     </button>
                   </div>
                 </div>

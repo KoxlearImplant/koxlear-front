@@ -6,23 +6,40 @@ export interface AssignmentsFilter extends BaseFilter {
   status?: string
 }
 
+export interface LessonFull {
+  id: number
+  group: number
+  group_name: string
+  lesson_type: string
+  title: string
+  order: number
+  items_count: number
+  items: unknown[]
+  teacher_id: number
+}
+
+export interface StudentFull {
+  id: number
+  email: string
+  username: string
+  first_name: string
+  last_name: string
+  teacher_id: number
+  gender: string
+  image: string | null
+}
+
 export interface AssignmentRes {
   id: number
   student: number
-  lessons: number[]
+  teacher_id: number
+  lesson: number
   begin_time: string
   end_time: string
   passing_score: number
+  lesson_full: LessonFull
+  student_full: StudentFull
   status: string
-  created_at: string
-  updated_at: string
-  assignment_lessons: {
-    id: number
-    assignment: number
-    lesson: number
-    score: number
-    status: 'PENDING' | 'COMPLETED' | 'FAILED'
-  }[]
 }
 
 export interface AssignmentReq {
@@ -35,6 +52,8 @@ export interface AssignmentReq {
 
 export interface AssignmentsRes {
   count: number
+  next: string | null
+  previous: string | null
   results: AssignmentRes[]
 }
 

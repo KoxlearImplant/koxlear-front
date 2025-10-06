@@ -1,6 +1,14 @@
 {
   "common": {
-    "daysStreak": "Kunlar ketma-ketligi"
+    "daysStreak": "Kunlar ketma-ketligi",
+    "refresh": "Yangilash",
+    "loading": "Yuklanmoqda...",
+    "tryAgain": "Qayta urinib ko'ring",
+    "previous": "Orqaga",
+    "next": "Keyingi",
+    "cancel": "Bekor qilish",
+    "save": "Saqlash",
+    "saving": "Saqlanmoqda..."
   },
   "actions": {
     "getStarted": "Boshlash",
@@ -179,13 +187,15 @@
     "completed": "tugallangan"
   },
   "nav": {
-    "lessons": "O‘rganish",
+    "lessons": "O'rganish",
     "letters": "Harflar",
     "practice": "Amaliyot",
     "achievements": "Yutuqlar",
     "experiments": "Tajriba",
-    "store": "Do‘kon",
-    "profile": "Profil"
+    "store": "Do'kon",
+    "profile": "Profil",
+    "randomCartoon": "Tasodifiy multfilm",
+    "assignments": "Topshiriqlar"
   },
   "profile": {
     "title": "Profil sozlamalari",
@@ -219,5 +229,32 @@
     "signOutTitle": "Hisobdan chiqish",
     "signOutDescription": "Bu joriy seansni tugatadi",
     "signOut": "Chiqish"
+  },
+  "teacher": {
+    "assignments": {
+      "title": "Mening topshiriqlarim",
+      "description": "O'quvchilar uchun topshiriqlarni boshqarish",
+      "list": "Topshiriqlar ro'yxati",
+      "create": "Topshiriq yaratish",
+      "edit": "Topshiriqni tahrirlash",
+      "empty": "Topshiriqlar hali yo'q. Birinchi topshiriqni yarating!",
+      "createDescription": "O'quvchi uchun yangi topshiriq yaratish",
+      "editDescription": "Topshiriq tafsilotlarini yangilash",
+      "student": "O'quvchi",
+      "lesson": "Dars",
+      "selectStudent": "O'quvchini tanlang",
+      "selectLesson": "Darsni tanlang",
+      "beginTime": "Boshlanish vaqti",
+      "endTime": "Tugash vaqti",
+      "passingScore": "O'tish bali"
+    }
+  },
+  "assignments": {
+    "title": "Mening topshiriqlarim",
+    "description": "Topshiriqlarni ko'rish va bajarish",
+    "list": "Topshiriqlar",
+    "empty": "Topshiriqlar topilmadi",
+    "start": "Boshlash",
+    "completed": "Tugallangan"
   }
 }

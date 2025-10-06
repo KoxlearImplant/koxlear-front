@@ -5,6 +5,7 @@ import {
   AcademicCapIcon,
   SparklesIcon,
   MicrophoneIcon,
+  ClipboardDocumentListIcon,
 } from '@heroicons/vue/24/solid'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -35,6 +36,14 @@ const navItems: NavItem[] = [
     activePattern: '/dashboard/lessons',
     iconColor: 'text-yellow-200',
     borderColor: 'border-yellow-300',
+  },
+  {
+    to: '/dashboard/assignments',
+    icon: ClipboardDocumentListIcon,
+    label: t('nav.assignments', 'Assignments'),
+    activePattern: '/dashboard/assignments',
+    iconColor: 'text-cyan-200',
+    borderColor: 'border-cyan-300',
   },
   {
     to: '/dashboard/letters',
@@ -87,6 +96,14 @@ const teacherNavItems: NavItem[] = [
     activePattern: '/dashboard/teacher/students',
     iconColor: 'text-blue-200',
     borderColor: 'border-blue-300',
+  },
+  {
+    to: '/dashboard/teacher/assignments',
+    icon: ClipboardDocumentListIcon,
+    label: 'My assignments',
+    activePattern: '/dashboard/teacher/assignments',
+    iconColor: 'text-green-200',
+    borderColor: 'border-green-300',
   },
 ]
 

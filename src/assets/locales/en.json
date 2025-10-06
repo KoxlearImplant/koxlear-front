@@ -1,6 +1,14 @@
 {
   "common": {
-    "daysStreak": "Days Streak"
+    "daysStreak": "Days Streak",
+    "refresh": "Refresh",
+    "loading": "Loading...",
+    "tryAgain": "Try Again",
+    "previous": "Previous",
+    "next": "Next",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving..."
   },
   "actions": {
     "getStarted": "Get Started",
@@ -176,7 +184,8 @@
     "experiments": "Experiments",
     "store": "Store",
     "profile": "Profile",
-    "randomCartoon": "Random Cartoon"
+    "randomCartoon": "Random Cartoon",
+    "assignments": "Assignments"
   },
   "profile": {
     "title": "Profile Settings",
@@ -210,5 +219,32 @@
     "signOutTitle": "Sign out of your account",
     "signOutDescription": "This will end your current session",
     "signOut": "Sign Out"
+  },
+  "teacher": {
+    "assignments": {
+      "title": "My Assignments",
+      "description": "Manage assignments for your students",
+      "list": "Assignments List",
+      "create": "Create Assignment",
+      "edit": "Edit Assignment",
+      "empty": "No assignments yet. Create your first assignment!",
+      "createDescription": "Create a new assignment for a student",
+      "editDescription": "Update assignment details",
+      "student": "Student",
+      "lesson": "Lesson",
+      "selectStudent": "Select a student",
+      "selectLesson": "Select a lesson",
+      "beginTime": "Begin Time",
+      "endTime": "End Time",
+      "passingScore": "Passing Score"
+    }
+  },
+  "assignments": {
+    "title": "My Assignments",
+    "description": "View and complete your assignments",
+    "list": "Assignments",
+    "empty": "No assignments found",
+    "start": "Start",
+    "completed": "Completed"
   }
 }
