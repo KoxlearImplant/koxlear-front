@@ -198,22 +198,23 @@ export interface APIError {
 // Assignments (matches /backoffice/assignments/)
 export interface AdminAssignment {
   id: number
-  // Optional fields are tentative; backend may provide richer schema
-  title?: string
-  description?: string
-  due_date?: string
-  teacher_id?: number
-  is_active?: boolean
+  student: number
+  teacher_id: number
+  lesson: number
+  begin_time: string
+  end_time: string
+  passing_score: number
   created_at?: string
   updated_at?: string
 }
 
 export interface AdminAssignmentCreate {
-  title?: string
-  description?: string
-  due_date?: string
-  teacher_id?: number
-  is_active?: boolean
+  student: number
+  teacher_id: number
+  lesson: number
+  begin_time: string
+  end_time: string
+  passing_score: number
 }
 
 export interface AdminAssignmentUpdate extends AdminAssignmentCreate {

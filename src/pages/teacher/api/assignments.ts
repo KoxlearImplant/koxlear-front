@@ -27,7 +27,7 @@ export interface AssignmentRes {
 
 export interface AssignmentReq {
   student: number
-  lessons: number[]
+  lesson: number
   begin_time: string
   end_time: string
   passing_score: number

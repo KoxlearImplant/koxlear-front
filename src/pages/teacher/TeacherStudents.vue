@@ -54,11 +54,14 @@ const editForm = ref<Partial<CreateStudentReq>>({})
 // Assignment form data
 const assignmentForm = ref<AssignmentReq>({
   student: 0,
-  lessons: [],
+  lesson: 0,
   begin_time: '',
   end_time: '',
   passing_score: 70,
 })
+
+// Selected lesson for single selection
+const selectedLesson = ref<number | null>(null)
 
 // Queries and mutations
 const {
@@ -118,9 +121,10 @@ const openDeleteModal = (student: StudentRes) => {
 
 const openAssignModal = (student: StudentRes) => {
   selectedStudentForAssign.value = student
+  selectedLesson.value = null
   assignmentForm.value = {
     student: student.id,
-    lessons: [],
+    lesson: 0,
     begin_time: '',
     end_time: '',
     passing_score: 70,
@@ -206,8 +210,8 @@ const handleCreateAssignment = async () => {
     return
   }
 
-  if (assignmentForm.value.lessons.length === 0) {
-    toast.error('Please select at least one lesson')
+  if (!selectedLesson.value) {
+    toast.error('Please select a lesson')
     return
   }
 
@@ -233,10 +237,13 @@ const handleCreateAssignment = async () => {
   }
 
   try {
+    // Set lesson field with selected lesson
+    assignmentForm.value.lesson = selectedLesson.value
     await createAssignmentMutation.mutateAsync(assignmentForm.value)
     toast.success('Assignment created successfully')
     isAssignModalOpen.value = false
     selectedStudentForAssign.value = null
+    selectedLesson.value = null
   } catch (err: unknown) {
     const errorMessage =
       err instanceof Error
@@ -643,25 +650,22 @@ const handleCreateAssignment = async () => {
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
-              Lessons *
+              Lesson *
             </label>
-            <div class="space-y-2">
-              <div
+            <select
+              v-model.number="selectedLesson"
+              required
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option :value="null">Select a lesson</option>
+              <option
                 v-for="lesson in lessons"
                 :key="lesson.id"
-                class="flex items-center"
+                :value="lesson.id"
               >
-                <input
-                  type="checkbox"
-                  :value="lesson.id"
-                  v-model="assignmentForm.lessons"
-                  class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <label class="ml-2 text-sm text-gray-700">
-                  {{ lesson.title }}
-                </label>
-              </div>
-            </div>
+                {{ lesson.title }}
+              </option>
+            </select>
           </div>
 
           <div class="grid grid-cols-2 gap-4">

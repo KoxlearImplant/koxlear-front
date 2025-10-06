@@ -20,6 +20,7 @@ import AdminLessonItemsPage from '@/pages/admin/AdminLessonItemsPage.vue'
 import AdminPracticeItemsPage from '@/pages/admin/AdminPracticeItemsPage.vue'
 import AdminStudentsPage from '@/pages/admin/AdminStudentsPage.vue'
 import AdminTeachersPage from '@/pages/admin/AdminTeachersPage.vue'
+import AdminAssignmentsPage from '@/pages/admin/AdminAssignmentsPage.vue'
 import NotFound from '@/pages/NotFound.vue'
 
 const routes: RouteRecordRaw[] = [
@@ -80,6 +81,12 @@ const routes: RouteRecordRaw[] = [
         path: 'teachers',
         name: 'AdminTeachers',
         component: AdminTeachersPage,
+        meta: { requiresAuth: true, requiresAdmin: true },
+      },
+      {
+        path: 'assignments',
+        name: 'AdminAssignments',
+        component: AdminAssignmentsPage,
         meta: { requiresAuth: true, requiresAdmin: true },
       },
     ],
