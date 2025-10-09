@@ -57,7 +57,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends Record<string, unknown>">
 import { ref, watch } from 'vue'
 import { Button } from '@/components/ui/button'
 import { XMarkIcon, ArrowPathIcon } from '@heroicons/vue/24/outline'
@@ -65,7 +65,7 @@ import { XMarkIcon, ArrowPathIcon } from '@heroicons/vue/24/outline'
 interface Props {
   show: boolean
   itemType: string
-  initialData?: Record<string, unknown>
+  initialData?: T
   isEditing?: boolean
   isSubmitting?: boolean
   errors?: Record<string, string[]>
@@ -73,7 +73,7 @@ interface Props {
 
 interface Emits {
   (e: 'close'): void
-  (e: 'submit', data: Record<string, unknown>): void
+  (e: 'submit', data: T): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -84,7 +84,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 
-const formData = ref<Record<string, unknown>>({})
+const formData = ref<T>({} as T)
 
 // Initialize form data
 watch(
@@ -93,14 +93,14 @@ watch(
     if (newData) {
       formData.value = { ...newData }
     } else {
-      formData.value = {}
+      formData.value = {} as T
     }
   },
   { immediate: true }
 )
 
 const updateField = (field: string, value: unknown) => {
-  formData.value[field] = value
+  formData.value = { ...formData.value, [field]: value }
 }
 
 const closeModal = () => {

@@ -63,9 +63,9 @@
             />
             <p class="text-gray-500">Loading user activity...</p>
           </div>
-          <div v-else-if="userActivity.data?.results" class="space-y-3">
+          <div v-else-if="userActivity.data.value?.results" class="space-y-3">
             <div
-              v-for="activity in userActivity.data.results.slice(0, 10)"
+              v-for="activity in userActivity.data.value.results.slice(0, 10)"
               :key="activity.user_id"
               class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
             >
@@ -112,9 +112,9 @@
             />
             <p class="text-gray-500">Loading lesson statistics...</p>
           </div>
-          <div v-else-if="lessonStats.data?.results" class="space-y-3">
+          <div v-else-if="lessonStats.data.value?.results" class="space-y-3">
             <div
-              v-for="lesson in lessonStats.data.results.slice(0, 10)"
+              v-for="lesson in lessonStats.data.value.results.slice(0, 10)"
               :key="lesson.lesson_id"
               class="p-3 bg-gray-50 rounded-lg"
             >
@@ -172,48 +172,48 @@
           <p class="text-gray-500">Loading platform statistics...</p>
         </div>
         <div
-          v-else-if="stats.data"
+          v-else-if="stats.data.value"
           class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           <div class="text-center">
             <div class="text-2xl font-bold text-blue-600">
-              {{ stats.data.total_users.toLocaleString() }}
+              {{ stats.data.value.total_users.toLocaleString() }}
             </div>
             <div class="text-sm text-gray-500">Total Users</div>
           </div>
           <div class="text-center">
             <div class="text-2xl font-bold text-green-600">
-              {{ stats.data.active_users_today.toLocaleString() }}
+              {{ stats.data.value.active_users_today.toLocaleString() }}
             </div>
             <div class="text-sm text-gray-500">Active Today</div>
           </div>
           <div class="text-center">
             <div class="text-2xl font-bold text-purple-600">
-              {{ stats.data.total_lessons_completed.toLocaleString() }}
+              {{ stats.data.value.total_lessons_completed.toLocaleString() }}
             </div>
             <div class="text-sm text-gray-500">Lessons Completed</div>
           </div>
           <div class="text-center">
             <div class="text-2xl font-bold text-yellow-600">
-              {{ stats.data.average_completion_rate.toFixed(1) }}%
+              {{ stats.data.value.average_completion_rate.toFixed(1) }}%
             </div>
             <div class="text-sm text-gray-500">Avg Completion Rate</div>
           </div>
           <div class="text-center">
             <div class="text-2xl font-bold text-indigo-600">
-              {{ stats.data.total_practice_sessions.toLocaleString() }}
+              {{ stats.data.value.total_practice_sessions.toLocaleString() }}
             </div>
             <div class="text-sm text-gray-500">Practice Sessions</div>
           </div>
           <div class="text-center">
             <div class="text-2xl font-bold text-pink-600">
-              {{ stats.data.average_session_duration.toFixed(1) }} min
+              {{ stats.data.value.average_session_duration.toFixed(1) }} min
             </div>
             <div class="text-sm text-gray-500">Avg Session Duration</div>
           </div>
           <div class="text-center">
             <div class="text-2xl font-bold text-orange-600">
-              {{ stats.data.new_users_this_week.toLocaleString() }}
+              {{ stats.data.value.new_users_this_week.toLocaleString() }}
             </div>
             <div class="text-sm text-gray-500">New Users This Week</div>
           </div>
@@ -284,12 +284,12 @@ const isLoading = computed(
 )
 
 const overviewMetrics = computed(() => {
-  if (!stats.value) return []
+  if (!stats.data.value) return []
 
   return [
     {
       name: 'Total Users',
-      value: stats.value.total_users.toLocaleString(),
+      value: stats.data.value.total_users.toLocaleString(),
       icon: UserGroupIcon,
       iconColor: 'text-blue-500',
       change: '+12% from last month',
@@ -297,7 +297,7 @@ const overviewMetrics = computed(() => {
     },
     {
       name: 'Active Today',
-      value: stats.value.active_users_today.toLocaleString(),
+      value: stats.data.value.active_users_today.toLocaleString(),
       icon: ClockIcon,
       iconColor: 'text-green-500',
       change: '+5% from yesterday',
@@ -305,7 +305,7 @@ const overviewMetrics = computed(() => {
     },
     {
       name: 'Lessons Completed',
-      value: stats.value.total_lessons_completed.toLocaleString(),
+      value: stats.data.value.total_lessons_completed.toLocaleString(),
       icon: AcademicCapIcon,
       iconColor: 'text-purple-500',
       change: '+8% from last week',
@@ -313,7 +313,7 @@ const overviewMetrics = computed(() => {
     },
     {
       name: 'Completion Rate',
-      value: `${stats.value.average_completion_rate.toFixed(1)}%`,
+      value: `${stats.data.value.average_completion_rate.toFixed(1)}%`,
       icon: CheckCircleIcon,
       iconColor: 'text-yellow-500',
       change: '+2% from last month',
@@ -339,10 +339,10 @@ const formatDate = (dateString: string) => {
 }
 
 const calculateRetentionRate = () => {
-  if (!stats.value) return 0
+  if (!stats.data.value) return 0
   // Simple calculation - in real app, you'd have more sophisticated retention metrics
   const retentionRate =
-    (stats.value.active_users_today / stats.value.total_users) * 100
+    (stats.data.value.active_users_today / stats.data.value.total_users) * 100
   return retentionRate.toFixed(1)
 }
 

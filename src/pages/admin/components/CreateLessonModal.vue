@@ -58,7 +58,7 @@
             >
               <option value="">Select a lesson group</option>
               <option
-                v-for="group in lessonGroups.data?.results"
+                v-for="group in lessonGroups.data.value?.results"
                 :key="group.id"
                 :value="group.id"
               >

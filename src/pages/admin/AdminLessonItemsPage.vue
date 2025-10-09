@@ -304,14 +304,14 @@
       >
         <div class="flex-1 flex justify-between sm:hidden">
           <Button
-            @click="loadLessonItems(currentPage - 1)"
+            @click="currentPage--"
             :disabled="!lessonItemsData.previous"
             variant="outline"
           >
             Previous
           </Button>
           <Button
-            @click="loadLessonItems(currentPage + 1)"
+            @click="currentPage++"
             :disabled="!lessonItemsData.next"
             variant="outline"
           >
@@ -339,7 +339,7 @@
               class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
             >
               <Button
-                @click="loadLessonItems(currentPage - 1)"
+                @click="currentPage--"
                 :disabled="!lessonItemsData.previous"
                 variant="outline"
                 size="sm"
@@ -348,7 +348,7 @@
                 Previous
               </Button>
               <Button
-                @click="loadLessonItems(currentPage + 1)"
+                @click="currentPage++"
                 :disabled="!lessonItemsData.next"
                 variant="outline"
                 size="sm"
@@ -367,7 +367,7 @@
       v-if="showCreateModal"
       :show="showCreateModal"
       :item-type="'Lesson Item'"
-      :initial-data="editingLessonItem"
+      :initial-data="editingLessonItem || undefined"
       :is-editing="!!editingLessonItem"
       :is-submitting="isSubmitting"
       :errors="formErrors"
@@ -574,7 +574,7 @@ import { format } from 'date-fns'
 const searchQuery = ref('')
 const selectedLessonId = ref<number | ''>('')
 const selectedGroupId = ref<number | ''>('')
-const typeFilter = ref('')
+const typeFilter = ref<'tts' | 'tutorial' | ''>('')
 const hasAudioFilter = ref(false)
 const hasImageFilter = ref(false)
 const currentPage = ref(1)
@@ -587,19 +587,21 @@ const isDeleting = ref(false)
 const formErrors = ref<Record<string, string[]>>({})
 
 // Queries
+const queryParams = computed(() => ({
+  page: currentPage.value,
+  search: searchQuery.value || undefined,
+  lesson_id: selectedLessonId.value || undefined,
+  group_id: selectedGroupId.value || undefined,
+  type: (typeFilter.value as 'tts' | 'tutorial' | undefined) || undefined,
+  has_audio: hasAudioFilter.value || undefined,
+  has_image: hasImageFilter.value || undefined,
+}))
+
 const {
   data: lessonItemsData,
   isLoading: loading,
   refetch: loadLessonItems,
-} = useAdminLessonItems({
-  page: currentPage,
-  search: searchQuery,
-  lesson_id: selectedLessonId.value || undefined,
-  group_id: selectedGroupId.value || undefined,
-  type: typeFilter.value || undefined,
-  has_audio: hasAudioFilter.value || undefined,
-  has_image: hasImageFilter.value || undefined,
-})
+} = useAdminLessonItems(queryParams.value)
 
 const { data: lessonsData } = useAdminLessons()
 const lessons = computed(() => lessonsData.value?.results || [])

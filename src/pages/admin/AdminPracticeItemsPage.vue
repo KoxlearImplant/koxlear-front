@@ -355,14 +355,14 @@
       >
         <div class="flex-1 flex justify-between sm:hidden">
           <Button
-            @click="loadPracticeItems(currentPage - 1)"
+            @click="currentPage--"
             :disabled="!practiceItemsData.previous"
             variant="outline"
           >
             Previous
           </Button>
           <Button
-            @click="loadPracticeItems(currentPage + 1)"
+            @click="currentPage++"
             :disabled="!practiceItemsData.next"
             variant="outline"
           >
@@ -390,7 +390,7 @@
               class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
             >
               <Button
-                @click="loadPracticeItems(currentPage - 1)"
+                @click="currentPage--"
                 :disabled="!practiceItemsData.previous"
                 variant="outline"
                 size="sm"
@@ -399,7 +399,7 @@
                 Previous
               </Button>
               <Button
-                @click="loadPracticeItems(currentPage + 1)"
+                @click="currentPage++"
                 :disabled="!practiceItemsData.next"
                 variant="outline"
                 size="sm"
@@ -418,7 +418,7 @@
       v-if="showCreateModal"
       :show="showCreateModal"
       :item-type="'Practice Item'"
-      :initial-data="editingPracticeItem"
+      :initial-data="editingPracticeItem || undefined"
       :is-editing="!!editingPracticeItem"
       :is-submitting="isSubmitting"
       :errors="formErrors"
@@ -616,8 +616,8 @@ import { format } from 'date-fns'
 
 // Reactive data
 const searchQuery = ref('')
-const typeFilter = ref('')
-const difficultyFilter = ref('')
+const typeFilter = ref<'tts' | 'stt' | ''>('')
+const difficultyFilter = ref<number | ''>('')
 const statusFilter = ref('')
 const minDifficulty = ref<number | ''>('')
 const maxDifficulty = ref<number | ''>('')
@@ -632,21 +632,25 @@ const isSubmitting = ref(false)
 const isDeleting = ref(false)
 const formErrors = ref<Record<string, string[]>>({})
 
-const {
-  data: practiceItemsData,
-  isLoading: loading,
-  refetch: loadPracticeItems,
-} = useAdminPracticeItems({
-  page: currentPage,
-  search: searchQuery,
-  type: typeFilter.value || undefined,
-  difficulty: difficultyFilter.value || undefined,
+const queryParams = computed(() => ({
+  page: currentPage.value,
+  search: searchQuery.value || undefined,
+  type: (typeFilter.value as 'tts' | 'stt' | undefined) || undefined,
+  difficulty: difficultyFilter.value
+    ? String(difficultyFilter.value)
+    : undefined,
   is_active: statusFilter.value ? statusFilter.value === 'true' : undefined,
   difficulty_min: minDifficulty.value || undefined,
   difficulty_max: maxDifficulty.value || undefined,
   has_audio: hasAudioFilter.value || undefined,
   has_image: hasImageFilter.value || undefined,
-})
+}))
+
+const {
+  data: practiceItemsData,
+  isLoading: loading,
+  refetch: loadPracticeItems,
+} = useAdminPracticeItems(queryParams.value)
 
 // Computed properties
 const activeItemsCount = computed(() => {

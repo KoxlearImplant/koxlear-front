@@ -22,7 +22,7 @@
             <div class="flex items-center space-x-2">
               <UserCircleIcon class="h-6 w-6 text-gray-400" />
               <span class="text-sm text-gray-700">{{
-                authStore.user?.firstName || 'Admin'
+                authStore.user.value?.firstName || 'Admin'
               }}</span>
             </div>
           </div>

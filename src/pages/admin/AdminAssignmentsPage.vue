@@ -35,8 +35,7 @@
         <div>
           <div class="font-medium text-gray-900">Assignment #{{ item.id }}</div>
           <div class="text-sm text-gray-500">
-            Student ID: {{ item.student }} ·
-            {{ item.lessons?.length || 0 }} Lesson(s)
+            Student ID: {{ item.student }} · Lesson ID: {{ item.lesson }}
           </div>
           <div class="text-xs text-gray-400 mt-1">
             <span
@@ -354,9 +353,13 @@ async function submitForm() {
     form.value.lesson = selectedLesson.value
 
     if (editingItem.value) {
+      const updateData = {
+        ...form.value,
+        id: editingItem.value.id,
+      }
       await updateMutation.mutateAsync({
         id: editingItem.value.id,
-        data: form.value,
+        data: updateData,
       })
       toast.success('Assignment updated successfully')
     } else {

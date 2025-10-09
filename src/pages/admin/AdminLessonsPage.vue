@@ -255,14 +255,14 @@
       >
         <div class="flex-1 flex justify-between sm:hidden">
           <Button
-            @click="loadLessons(currentPage - 1)"
+            @click="currentPage--"
             :disabled="!lessonsData.previous"
             variant="outline"
           >
             Previous
           </Button>
           <Button
-            @click="loadLessons(currentPage + 1)"
+            @click="currentPage++"
             :disabled="!lessonsData.next"
             variant="outline"
           >
@@ -292,7 +292,7 @@
               class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
             >
               <Button
-                @click="loadLessons(currentPage - 1)"
+                @click="currentPage--"
                 :disabled="!lessonsData.previous"
                 variant="outline"
                 size="sm"
@@ -301,7 +301,7 @@
                 Previous
               </Button>
               <Button
-                @click="loadLessons(currentPage + 1)"
+                @click="currentPage++"
                 :disabled="!lessonsData.next"
                 variant="outline"
                 size="sm"
@@ -320,7 +320,7 @@
       v-if="showCreateModal"
       :show="showCreateModal"
       :item-type="'Lesson'"
-      :initial-data="editingLesson"
+      :initial-data="editingLesson || undefined"
       :is-editing="!!editingLesson"
       :is-submitting="isSubmitting"
       :errors="formErrors"
@@ -352,7 +352,7 @@
               >Description</label
             >
             <textarea
-              :value="formData.description || ''"
+              :value="String(formData.description || '')"
               @input="
                 updateField(
                   'description',

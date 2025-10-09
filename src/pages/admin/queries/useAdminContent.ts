@@ -382,11 +382,15 @@ export const useDeleteAdminLessonItem = () => {
 }
 
 // Lesson Statistics
-export const useAdminLessonStatistics = (id: number) => {
+export const useAdminLessonStatistics = (id: Ref<number | null> | number) => {
   return useQuery({
-    queryKey: ['admin-lesson-statistics', id],
-    queryFn: () => getAdminLessonStatistics(id),
-    enabled: !!id,
+    queryKey: ['admin-lesson-statistics', computed(() => unref(id))],
+    queryFn: () => {
+      const lessonId = unref(id)
+      if (!lessonId) throw new Error('Lesson ID is required')
+      return getAdminLessonStatistics(lessonId)
+    },
+    enabled: computed(() => !!unref(id)),
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
 }

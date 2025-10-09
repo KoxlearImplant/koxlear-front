@@ -53,7 +53,7 @@
     <div class="bg-white shadow rounded-lg overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-200">
         <h3 class="text-lg font-medium text-gray-900">
-          Users ({{ users.data?.count || 0 }} total)
+          Users ({{ users.data.value?.count || 0 }} total)
         </h3>
       </div>
 
@@ -72,8 +72,8 @@
         <Button @click="refreshUsers" variant="outline"> Try Again </Button>
       </div>
 
-      <!-- Users Table -->
-      <div v-else-if="users.data?.results" class="overflow-x-auto">
+      <!-- Table -->
+      <div v-else-if="users.data.value?.results" class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
@@ -115,7 +115,7 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <tr v-for="user in users.data.results" :key="user.id">
+            <tr v-for="user in users.data.value.results" :key="user.id">
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
                   <img
@@ -220,19 +220,19 @@
 
         <!-- Pagination -->
         <div
-          v-if="users.data && users.data.count > 10"
+          v-if="users.data.value && users.data.value.count > 10"
           class="px-6 py-4 border-t border-gray-200"
         >
           <div class="flex items-center justify-between">
             <div class="text-sm text-gray-700">
               Showing {{ (currentPage - 1) * 10 + 1 }} to
-              {{ Math.min(currentPage * 10, users.data.count) }} of
-              {{ users.data.count }} results
+              {{ Math.min(currentPage * 10, users.data.value.count) }} of
+              {{ users.data.value.count }} results
             </div>
             <div class="flex space-x-2">
               <Button
                 @click="changePage(currentPage - 1)"
-                :disabled="!users.data.previous"
+                :disabled="!users.data.value.previous"
                 size="sm"
                 variant="outline"
               >
@@ -240,7 +240,7 @@
               </Button>
               <Button
                 @click="changePage(currentPage + 1)"
-                :disabled="!users.data.next"
+                :disabled="!users.data.value.next"
                 size="sm"
                 variant="outline"
               >
