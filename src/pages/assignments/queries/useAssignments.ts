@@ -8,12 +8,14 @@ export const useAssignments = (
     | { limit?: number; offset?: number }
 ) => {
   const computedParams = computed(() => {
-    return params && 'value' in params ? params.value : params
+    const p = params && 'value' in params ? params.value : params
+    return p || { limit: undefined, offset: undefined }
   })
 
   return useQuery({
     queryKey: ['assignments', computedParams],
-    queryFn: () => getAssignments(computedParams.value),
+    queryFn: () =>
+      getAssignments(computedParams.value as { limit: number; offset: number }),
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
 }
