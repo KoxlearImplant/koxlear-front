@@ -24,6 +24,10 @@ import DialogFooter from '@/components/ui/dialog/DialogFooter.vue'
 import ConfirmModal from '@/components/common/ConfirmModal.vue'
 import BasePagination from '@/components/common/BasePagination.vue'
 import { toast } from 'vue-sonner'
+import { useI18n } from 'vue-i18n'
+import { PencilIcon, TrashIcon, UserPlusIcon } from '@heroicons/vue/24/outline'
+
+const { t } = useI18n()
 
 // Filter and pagination state
 const filter = reactive<StudentsFilter>({
@@ -138,13 +142,19 @@ const handleCreateStudent = async () => {
     !createForm.value.first_name ||
     !createForm.value.last_name
   ) {
-    toast.error('Username, first name, and last name are required')
+    toast.error(
+      t('teacher.students.usernameRequired') +
+        ', ' +
+        t('teacher.students.firstNameRequired') +
+        ', ' +
+        t('teacher.students.lastNameRequired')
+    )
     return
   }
 
   try {
     await createStudentMutation.mutateAsync(createForm.value)
-    toast.success('Student created successfully')
+    toast.success(t('teacher.students.createSuccess'))
     isCreateModalOpen.value = false
     resetCreateForm()
   } catch (err: unknown) {
@@ -152,7 +162,7 @@ const handleCreateStudent = async () => {
       err instanceof Error
         ? err.message
         : (err as { response?: { data?: { message?: string } } })?.response
-            ?.data?.message || 'Failed to create student'
+            ?.data?.message || t('teacher.students.createSuccess')
     toast.error(errorMessage)
   }
 }
@@ -164,7 +174,13 @@ const handleUpdateStudent = async () => {
     !editForm.value.first_name ||
     !editForm.value.last_name
   ) {
-    toast.error('Username, first name, and last name are required')
+    toast.error(
+      t('teacher.students.usernameRequired') +
+        ', ' +
+        t('teacher.students.firstNameRequired') +
+        ', ' +
+        t('teacher.students.lastNameRequired')
+    )
     return
   }
 
@@ -173,7 +189,7 @@ const handleUpdateStudent = async () => {
       id: selectedStudent.value.id,
       data: editForm.value,
     })
-    toast.success('Student updated successfully')
+    toast.success(t('teacher.students.updateSuccess'))
     isEditModalOpen.value = false
     selectedStudent.value = null
   } catch (err: unknown) {
@@ -181,7 +197,7 @@ const handleUpdateStudent = async () => {
       err instanceof Error
         ? err.message
         : (err as { response?: { data?: { message?: string } } })?.response
-            ?.data?.message || 'Failed to update student'
+            ?.data?.message || t('teacher.students.updateSuccess')
     toast.error(errorMessage)
   }
 }
@@ -191,7 +207,7 @@ const handleDeleteStudent = async () => {
 
   try {
     await deleteStudentMutation.mutateAsync(selectedStudent.value.id)
-    toast.success('Student deleted successfully')
+    toast.success(t('teacher.students.deleteSuccess'))
     isDeleteModalOpen.value = false
     selectedStudent.value = null
   } catch (err: unknown) {
@@ -199,24 +215,29 @@ const handleDeleteStudent = async () => {
       err instanceof Error
         ? err.message
         : (err as { response?: { data?: { message?: string } } })?.response
-            ?.data?.message || 'Failed to delete student'
+            ?.data?.message || t('teacher.students.deleteSuccess')
     toast.error(errorMessage)
   }
 }
 
 const handleCreateAssignment = async () => {
   if (!selectedStudentForAssign.value) {
-    toast.error('Please select a student')
+    toast.error(t('teacher.students.selectStudent'))
     return
   }
 
   if (!selectedLesson.value) {
-    toast.error('Please select a lesson')
+    toast.error(t('teacher.students.selectLesson'))
     return
   }
 
   if (!assignmentForm.value.begin_time || !assignmentForm.value.end_time) {
-    toast.error('Please select begin and end time')
+    toast.error(
+      t('teacher.students.beginTime') +
+        ' and ' +
+        t('teacher.students.endTime') +
+        ' required'
+    )
     return
   }
 
@@ -240,7 +261,7 @@ const handleCreateAssignment = async () => {
     // Set lesson field with selected lesson
     assignmentForm.value.lesson = selectedLesson.value
     await createAssignmentMutation.mutateAsync(assignmentForm.value)
-    toast.success('Assignment created successfully')
+    toast.success(t('teacher.students.assignSuccess'))
     isAssignModalOpen.value = false
     selectedStudentForAssign.value = null
     selectedLesson.value = null
@@ -249,7 +270,7 @@ const handleCreateAssignment = async () => {
       err instanceof Error
         ? err.message
         : (err as { response?: { data?: { message?: string } } })?.response
-            ?.data?.message || 'Failed to create assignment'
+            ?.data?.message || t('teacher.students.assignSuccess')
     toast.error(errorMessage)
   }
 }
@@ -259,24 +280,30 @@ const handleCreateAssignment = async () => {
   <div class="p-6">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-gray-900">Students</h1>
-        <p class="text-sm text-gray-600 mt-1">Manage your students</p>
+        <h1 class="text-2xl font-semibold text-gray-900">
+          {{ t('teacher.students.title') }}
+        </h1>
+        <p class="text-sm text-gray-600 mt-1">
+          {{ t('teacher.students.description') }}
+        </p>
       </div>
 
       <Dialog v-model:open="isCreateModalOpen">
         <DialogTrigger as-child>
-          <Button>Add Student</Button>
+          <Button>{{ t('teacher.students.create') }}</Button>
         </DialogTrigger>
         <DialogContent class="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Create New Student</DialogTitle>
+            <DialogTitle>{{
+              t('teacher.students.createDescription')
+            }}</DialogTitle>
           </DialogHeader>
 
           <form @submit.prevent="handleCreateStudent" class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  First Name *
+                  {{ t('teacher.students.firstName') }} *
                 </label>
                 <input
                   v-model="createForm.first_name"
@@ -287,7 +314,7 @@ const handleCreateAssignment = async () => {
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
-                  Last Name *
+                  {{ t('teacher.students.lastName') }} *
                 </label>
                 <input
                   v-model="createForm.last_name"
@@ -300,7 +327,7 @@ const handleCreateAssignment = async () => {
 
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Username *
+                {{ t('teacher.students.username') }} *
               </label>
               <input
                 v-model="createForm.username"
@@ -312,7 +339,7 @@ const handleCreateAssignment = async () => {
 
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Email
+                {{ t('teacher.students.email') }}
               </label>
               <input
                 v-model="createForm.email"
@@ -323,21 +350,21 @@ const handleCreateAssignment = async () => {
 
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Gender
+                {{ t('teacher.students.gender') }}
               </label>
               <select
                 v-model="createForm.gender"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Select gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
+                <option value="">{{ t('teacher.students.gender') }}</option>
+                <option value="male">{{ t('gender.male') }}</option>
+                <option value="female">{{ t('gender.female') }}</option>
               </select>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Password
+                {{ t('teacher.students.password') }}
               </label>
               <input
                 v-model="createForm.password"
@@ -352,7 +379,7 @@ const handleCreateAssignment = async () => {
                 variant="outline"
                 @click="isCreateModalOpen = false"
               >
-                Cancel
+                {{ t('common.cancel') }}
               </Button>
               <Button
                 type="submit"
@@ -360,8 +387,8 @@ const handleCreateAssignment = async () => {
               >
                 {{
                   createStudentMutation.isPending.value
-                    ? 'Creating...'
-                    : 'Create Student'
+                    ? t('common.saving')
+                    : t('teacher.students.create')
                 }}
               </Button>
             </DialogFooter>
@@ -385,14 +412,14 @@ const handleCreateAssignment = async () => {
       <div class="flex">
         <div class="ml-3">
           <h3 class="text-sm font-medium text-red-800">
-            Error loading students
+            {{ t('practice.error') }}
           </h3>
           <div class="mt-2 text-sm text-red-700">
             <p>{{ queryError.message }}</p>
           </div>
           <div class="mt-3">
             <Button variant="outline" size="sm" @click="refetch()">
-              Try again
+              {{ t('common.tryAgain') }}
             </Button>
           </div>
         </div>
@@ -402,7 +429,7 @@ const handleCreateAssignment = async () => {
     <!-- Students Table -->
     <div v-else class="bg-white shadow rounded-lg overflow-hidden">
       <div v-if="students.length === 0" class="p-8 text-center">
-        <p class="text-gray-500">No students found</p>
+        <p class="text-gray-500">{{ t('teacher.students.empty') }}</p>
       </div>
 
       <div v-else class="overflow-x-auto">
@@ -412,27 +439,22 @@ const handleCreateAssignment = async () => {
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
-                Student
+                {{ t('teacher.students.student') }}
               </th>
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
-                Username
+                {{ t('teacher.students.email') }}
               </th>
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
-                Email
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Gender
+                {{ t('teacher.students.gender') }}
               </th>
               <th
                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
-                Actions
+                {{ t('teacher.students.actions') }}
               </th>
             </tr>
           </thead>
@@ -466,9 +488,6 @@ const handleCreateAssignment = async () => {
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {{ student.username }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {{ student.email || '-' }}
               </td>
               <td
@@ -480,29 +499,27 @@ const handleCreateAssignment = async () => {
                 class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
               >
                 <div class="flex items-center justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
+                  <button
                     @click="openEditModal(student)"
+                    :title="t('teacher.students.edit')"
+                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
                   >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
+                    <PencilIcon class="w-5 h-5" />
+                  </button>
+                  <button
                     @click="openDeleteModal(student)"
-                    class="text-red-600 border-red-300 hover:bg-red-50"
+                    :title="t('teacher.students.delete')"
+                    class="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
                   >
-                    Delete
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
+                    <TrashIcon class="w-5 h-5" />
+                  </button>
+                  <button
                     @click="openAssignModal(student)"
-                    class="text-green-600 border-green-300 hover:bg-green-50"
+                    :title="t('teacher.students.assign')"
+                    class="p-2 text-green-600 hover:bg-green-50 rounded-md transition-colors"
                   >
-                    Assign
-                  </Button>
+                    <UserPlusIcon class="w-5 h-5" />
+                  </button>
                 </div>
               </td>
             </tr>
@@ -526,14 +543,14 @@ const handleCreateAssignment = async () => {
     <Dialog v-model:open="isEditModalOpen">
       <DialogContent class="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Edit Student</DialogTitle>
+          <DialogTitle>{{ t('teacher.students.edit') }}</DialogTitle>
         </DialogHeader>
 
         <form @submit.prevent="handleUpdateStudent" class="space-y-4">
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                First Name *
+                {{ t('teacher.students.firstName') }} *
               </label>
               <input
                 v-model="editForm.first_name"
@@ -544,7 +561,7 @@ const handleCreateAssignment = async () => {
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Last Name *
+                {{ t('teacher.students.lastName') }} *
               </label>
               <input
                 v-model="editForm.last_name"
@@ -557,7 +574,7 @@ const handleCreateAssignment = async () => {
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
-              Username *
+              {{ t('teacher.students.username') }} *
             </label>
             <input
               v-model="editForm.username"
@@ -569,7 +586,7 @@ const handleCreateAssignment = async () => {
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
-              Email
+              {{ t('teacher.students.email') }}
             </label>
             <input
               v-model="editForm.email"
@@ -580,15 +597,15 @@ const handleCreateAssignment = async () => {
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
-              Gender
+              {{ t('teacher.students.gender') }}
             </label>
             <select
               v-model="editForm.gender"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">Select gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
+              <option value="">{{ t('teacher.students.gender') }}</option>
+              <option value="male">{{ t('gender.male') }}</option>
+              <option value="female">{{ t('gender.female') }}</option>
             </select>
           </div>
 
@@ -598,7 +615,7 @@ const handleCreateAssignment = async () => {
               variant="outline"
               @click="isEditModalOpen = false"
             >
-              Cancel
+              {{ t('common.cancel') }}
             </Button>
             <Button
               type="submit"
@@ -606,8 +623,8 @@ const handleCreateAssignment = async () => {
             >
               {{
                 updateStudentMutation.isPending.value
-                  ? 'Updating...'
-                  : 'Update Student'
+                  ? t('common.saving')
+                  : t('teacher.students.edit')
               }}
             </Button>
           </DialogFooter>
@@ -618,8 +635,8 @@ const handleCreateAssignment = async () => {
     <!-- Delete Confirmation Modal -->
     <ConfirmModal
       v-model:open="isDeleteModalOpen"
-      :title="`Delete ${selectedStudent?.first_name} ${selectedStudent?.last_name}?`"
-      description="This action cannot be undone. This will permanently delete the student."
+      :title="t('teacher.students.deleteConfirm')"
+      :description="t('teacher.students.deleteWarning')"
       :loading="deleteStudentMutation.isPending.value"
       @confirm="handleDeleteStudent"
     />
@@ -628,13 +645,13 @@ const handleCreateAssignment = async () => {
     <Dialog v-model:open="isAssignModalOpen">
       <DialogContent class="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Assign Lessons to Student</DialogTitle>
+          <DialogTitle>{{ t('teacher.students.assignLesson') }}</DialogTitle>
         </DialogHeader>
 
         <form @submit.prevent="handleCreateAssignment" class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
-              Student
+              {{ t('teacher.students.student') }}
             </label>
             <input
               :value="
@@ -650,14 +667,16 @@ const handleCreateAssignment = async () => {
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
-              Lesson *
+              {{ t('teacher.students.selectLesson') }} *
             </label>
             <select
               v-model.number="selectedLesson"
               required
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option :value="null">Select a lesson</option>
+              <option :value="null">
+                {{ t('teacher.students.selectLesson') }}
+              </option>
               <option
                 v-for="lesson in lessons"
                 :key="lesson.id"
@@ -671,7 +690,7 @@ const handleCreateAssignment = async () => {
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                Begin Time *
+                {{ t('teacher.students.beginTime') }} *
               </label>
               <input
                 v-model="assignmentForm.begin_time"
@@ -682,7 +701,7 @@ const handleCreateAssignment = async () => {
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                End Time *
+                {{ t('teacher.students.endTime') }} *
               </label>
               <input
                 v-model="assignmentForm.end_time"
@@ -695,7 +714,7 @@ const handleCreateAssignment = async () => {
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
-              Passing Score (0-100) *
+              {{ t('teacher.students.passingScore') }} (0-100) *
             </label>
             <input
               v-model.number="assignmentForm.passing_score"
@@ -713,7 +732,7 @@ const handleCreateAssignment = async () => {
               variant="outline"
               @click="isAssignModalOpen = false"
             >
-              Cancel
+              {{ t('common.cancel') }}
             </Button>
             <Button
               type="submit"
@@ -721,8 +740,8 @@ const handleCreateAssignment = async () => {
             >
               {{
                 createAssignmentMutation.isPending.value
-                  ? 'Assigning...'
-                  : 'Assign Lessons'
+                  ? t('common.saving')
+                  : t('teacher.students.assignLesson')
               }}
             </Button>
           </DialogFooter>

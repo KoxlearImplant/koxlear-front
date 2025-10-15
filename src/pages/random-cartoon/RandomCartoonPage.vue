@@ -10,19 +10,19 @@
         class="text-3xl sm:text-4xl font-extrabold mb-6 flex items-center gap-3 text-blue-700 dark:text-yellow-200 drop-shadow-lg"
       >
         <SparklesIcon class="w-9 h-9 text-yellow-500" />
-        Random Cartoon
+        {{ t('randomCartoon.title') }}
       </h1>
       <div class="w-full flex flex-col items-center flex-1 justify-center">
-        <transition name="fade" mode="out-in">
+        <transition mode="out-in" name="fade">
           <div
             v-if="isLoading || isFetching"
             key="loading"
             class="flex flex-col items-center justify-center h-[315px] w-full max-w-[560px]"
           >
             <ArrowPathIcon class="animate-spin h-10 w-10 text-blue-600 mb-3" />
-            <span class="text-lg text-blue-700 dark:text-yellow-200"
-              >Loading...</span
-            >
+            <span class="text-lg text-blue-700 dark:text-yellow-200">{{
+              t('randomCartoon.loading')
+            }}</span>
           </div>
           <div
             v-else-if="cartoon"
@@ -36,18 +36,18 @@
                 >
                   <iframe
                     :src="getYouTubeEmbedUrl(cartoon.link)"
-                    width="560"
-                    height="315"
-                    frameborder="0"
                     allowfullscreen
                     class="w-full h-full"
+                    frameborder="0"
+                    height="315"
+                    width="560"
                   ></iframe>
                 </div>
               </template>
               <template v-else>
                 <img
-                  :src="cartoon.link"
                   :alt="cartoon.title"
+                  :src="cartoon.link"
                   class="w-full max-w-[560px] h-auto aspect-video object-contain rounded-2xl border-2 border-blue-200 dark:border-yellow-400 mb-2 shadow-lg bg-white animate-fade-in"
                 />
               </template>
@@ -63,26 +63,28 @@
             key="error"
             class="text-red-500 mb-4 text-lg h-[315px] flex items-center justify-center w-full max-w-[560px] animate-fade-in"
           >
-            Failed to load cartoon.
+            {{ t('randomCartoon.error') }}
           </div>
         </transition>
         <button
-          @click="handleRefetch"
-          class="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-2xl shadow-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 mt-2"
           :disabled="isLoading || isFetching"
+          class="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-2xl shadow-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200 mt-2"
+          @click="handleRefetch"
         >
           <ArrowPathIcon class="w-6 h-6" />
-          New Cartoon
+          {{ t('randomCartoon.newCartoon') }}
         </button>
       </div>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { ArrowPathIcon, SparklesIcon } from '@heroicons/vue/24/outline'
 import { useRandomCartoon } from './queries/useRandomCartoon'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const {
   data: cartoon,
   isLoading,
@@ -109,13 +111,16 @@ function getYouTubeEmbedUrl(url: string): string | undefined {
 .fade-leave-active {
   transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
 }
+
 .animate-fade-in {
   animation: fadeIn 0.7s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 @keyframes fadeIn {
   from {
     opacity: 0;

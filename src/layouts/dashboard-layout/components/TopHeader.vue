@@ -7,6 +7,7 @@
       <button
         class="relative p-2.5 rounded-full hover:bg-sky-900/10 transition"
         @click="notify"
+        :aria-label="t('header.notifications')"
       >
         <BellIcon class="w-8 h-8 text-sky-400" />
         <span
@@ -37,7 +38,9 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { BellIcon } from '@heroicons/vue/24/outline'
 import { useGetProfile } from '@/pages/profile/queries/useGetProfile'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const hasNotifications = ref(false) // Replace with real notification logic if needed
 const router = useRouter()
 
@@ -51,7 +54,7 @@ const avatarUrl = computed(() => profile.value?.image || '/default-avatar.png')
 
 function notify() {
   // Placeholder for notification logic
-  alert('No new notifications!')
+  alert(t('header.noNotifications'))
 }
 
 function goProfile() {

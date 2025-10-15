@@ -26,7 +26,9 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import type { LessonGroupRes } from '@/pages/lessons/types'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const router = useRouter()
 
 const searchQuery = ref('')
@@ -93,7 +95,7 @@ const handleRefetch = () => {
 
 const handleCreateLessonGroup = async () => {
   if (!newLessonGroupName.value.trim()) {
-    createFormError.value = 'Lesson group name is required'
+    createFormError.value = t('teacher.lessonGroups.nameRequired')
     return
   }
 
@@ -120,7 +122,7 @@ const handleCreateLessonGroup = async () => {
           typeof error.response.data === 'object' &&
           'message' in error.response.data
             ? (error.response.data as { message: string }).message
-            : 'Failed to create lesson group'
+            : t('teacher.lessonGroups.createSuccess')
       },
     }
   )
@@ -128,7 +130,7 @@ const handleCreateLessonGroup = async () => {
 
 const handleUpdateLessonGroup = async () => {
   if (!editLessonGroupName.value.trim()) {
-    editFormError.value = 'Lesson group name is required'
+    editFormError.value = t('teacher.lessonGroups.nameRequired')
     return
   }
 
@@ -164,7 +166,7 @@ const handleUpdateLessonGroup = async () => {
           typeof error.response.data === 'object' &&
           'message' in error.response.data
             ? (error.response.data as { message: string }).message
-            : 'Failed to update lesson group'
+            : t('teacher.lessonGroups.updateSuccess')
       },
     }
   )
@@ -232,7 +234,9 @@ const navigateToLessons = (group: LessonGroupRes) => {
       <div class="mb-12">
         <div class="flex items-center justify-between mb-8">
           <div>
-            <h1 class="text-2xl font-medium text-gray-900">Lesson Groups</h1>
+            <h1 class="text-2xl font-medium text-gray-900">
+              {{ t('teacher.lessonGroups.title') }}
+            </h1>
           </div>
 
           <!-- Create Button -->
@@ -241,14 +245,14 @@ const navigateToLessons = (group: LessonGroupRes) => {
               <Button
                 class="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 text-sm font-medium"
               >
-                Create Group
+                {{ t('teacher.lessonGroups.create') }}
               </Button>
             </DialogTrigger>
 
             <DialogContent class="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle class="text-lg font-medium text-gray-900">
-                  Create Lesson Group
+                  {{ t('teacher.lessonGroups.createDescription') }}
                 </DialogTitle>
               </DialogHeader>
 
@@ -271,13 +275,13 @@ const navigateToLessons = (group: LessonGroupRes) => {
                       for="lessonGroupName"
                       class="block text-sm font-medium text-gray-700 mb-2"
                     >
-                      Name
+                      {{ t('teacher.lessonGroups.groupName') }}
                     </label>
                     <input
                       id="lessonGroupName"
                       v-model="newLessonGroupName"
                       type="text"
-                      placeholder="Enter group name"
+                      :placeholder="t('teacher.lessonGroups.groupName')"
                       class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-gray-900"
                       :disabled="isCreating"
                       required
@@ -292,14 +296,18 @@ const navigateToLessons = (group: LessonGroupRes) => {
                       :disabled="isCreating"
                       class="flex-1 text-sm"
                     >
-                      Cancel
+                      {{ t('common.cancel') }}
                     </Button>
                     <Button
                       type="submit"
                       :disabled="isCreating || !newLessonGroupName.trim()"
                       class="flex-1 bg-gray-900 hover:bg-gray-800 text-sm"
                     >
-                      {{ isCreating ? 'Creating...' : 'Create' }}
+                      {{
+                        isCreating
+                          ? t('common.saving')
+                          : t('teacher.lessonGroups.create')
+                      }}
                     </Button>
                   </DialogFooter>
                 </form>
@@ -312,7 +320,7 @@ const navigateToLessons = (group: LessonGroupRes) => {
             <DialogContent class="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle class="text-lg font-medium text-gray-900">
-                  Edit Lesson Group
+                  {{ t('teacher.lessonGroups.edit') }}
                 </DialogTitle>
               </DialogHeader>
 
@@ -335,13 +343,13 @@ const navigateToLessons = (group: LessonGroupRes) => {
                       for="editLessonGroupName"
                       class="block text-sm font-medium text-gray-700 mb-2"
                     >
-                      Name
+                      {{ t('teacher.lessonGroups.groupName') }}
                     </label>
                     <input
                       id="editLessonGroupName"
                       v-model="editLessonGroupName"
                       type="text"
-                      placeholder="Enter group name"
+                      :placeholder="t('teacher.lessonGroups.groupName')"
                       class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-gray-900"
                       :disabled="isUpdating"
                       required
@@ -356,14 +364,18 @@ const navigateToLessons = (group: LessonGroupRes) => {
                       :disabled="isUpdating"
                       class="flex-1 text-sm"
                     >
-                      Cancel
+                      {{ t('common.cancel') }}
                     </Button>
                     <Button
                       type="submit"
                       :disabled="isUpdating || !editLessonGroupName.trim()"
                       class="flex-1 bg-gray-900 hover:bg-gray-800 text-sm"
                     >
-                      {{ isUpdating ? 'Updating...' : 'Update' }}
+                      {{
+                        isUpdating
+                          ? t('common.saving')
+                          : t('teacher.lessonGroups.edit')
+                      }}
                     </Button>
                   </DialogFooter>
                 </form>
@@ -376,18 +388,13 @@ const navigateToLessons = (group: LessonGroupRes) => {
             <DialogContent class="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle class="text-lg font-medium text-gray-900">
-                  Delete Lesson Group
+                  {{ t('teacher.lessonGroups.delete') }}
                 </DialogTitle>
               </DialogHeader>
 
               <div class="mt-4">
                 <p class="text-sm text-gray-700">
-                  Are you sure you want to delete the lesson group "
-                  <span
-                    class="font-medium"
-                    v-text="lessonGroupToDelete?.name"
-                  />
-                  "? This action cannot be undone.
+                  {{ t('teacher.lessonGroups.deleteConfirm') }}
                 </p>
               </div>
 
@@ -399,14 +406,18 @@ const navigateToLessons = (group: LessonGroupRes) => {
                   :disabled="isDeleting"
                   class="flex-1 text-sm"
                 >
-                  Cancel
+                  {{ t('common.cancel') }}
                 </Button>
                 <Button
                   @click="handleDeleteLessonGroup"
                   :disabled="isDeleting"
                   class="flex-1 bg-red-600 hover:bg-red-500 text-sm"
                 >
-                  {{ isDeleting ? 'Deleting...' : 'Delete Group' }}
+                  {{
+                    isDeleting
+                      ? t('common.saving')
+                      : t('teacher.lessonGroups.delete')
+                  }}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -419,7 +430,7 @@ const navigateToLessons = (group: LessonGroupRes) => {
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="Search groups..."
+              :placeholder="t('teacher.lessonGroups.search')"
               class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-gray-900"
               @keyup.enter="handleSearch"
             />
@@ -448,12 +459,12 @@ const navigateToLessons = (group: LessonGroupRes) => {
         <!-- Error -->
         <div v-else-if="error" class="text-center py-16">
           <ExclamationTriangleIcon class="w-8 h-8 text-gray-400 mx-auto mb-4" />
-          <p class="text-gray-600 mb-6">Failed to load lesson groups</p>
+          <p class="text-gray-600 mb-6">{{ t('practice.error') }}</p>
           <Button
             @click="handleRefetch"
             class="bg-gray-900 hover:bg-gray-800 text-sm px-4 py-2"
           >
-            Try Again
+            {{ t('common.tryAgain') }}
           </Button>
         </div>
 
@@ -477,7 +488,7 @@ const navigateToLessons = (group: LessonGroupRes) => {
                   @click="navigateToLessons(group)"
                   class="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white text-sm py-2 px-3 rounded transition-colors"
                 >
-                  View Lessons
+                  {{ t('teacher.lessonGroups.viewLessons') }}
                   <ChevronRightIcon class="w-4 h-4" />
                 </button>
 
@@ -486,7 +497,7 @@ const navigateToLessons = (group: LessonGroupRes) => {
                   class="w-full flex items-center justify-center gap-2 border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm py-2 px-3 rounded transition-colors"
                 >
                   <PencilIcon class="w-4 h-4" />
-                  Edit Group
+                  {{ t('teacher.lessonGroups.edit') }}
                 </button>
 
                 <button
@@ -494,7 +505,7 @@ const navigateToLessons = (group: LessonGroupRes) => {
                   class="w-full flex items-center justify-center gap-2 border border-red-300 hover:bg-red-50 text-red-700 text-sm py-2 px-3 rounded transition-colors"
                 >
                   <TrashIcon class="w-4 h-4" />
-                  Delete Group
+                  {{ t('teacher.lessonGroups.delete') }}
                 </button>
               </div>
             </div>
@@ -508,13 +519,18 @@ const navigateToLessons = (group: LessonGroupRes) => {
               variant="outline"
               class="text-sm px-6 py-2"
             >
-              {{ isLoading ? 'Loading...' : 'Load More' }}
+              {{
+                isLoading
+                  ? t('common.loading')
+                  : t('teacher.lessonGroups.loadMore')
+              }}
             </Button>
           </div>
 
           <!-- Results Count -->
           <div class="text-center text-sm text-gray-500 pt-4">
-            {{ lessonGroups.length }} of {{ totalCount }} groups
+            {{ lessonGroups.length }} {{ t('common.of') }} {{ totalCount }}
+            {{ t('teacher.lessonGroups.list') }}
           </div>
         </div>
 
@@ -522,19 +538,23 @@ const navigateToLessons = (group: LessonGroupRes) => {
         <div v-else class="text-center py-20">
           <DocumentTextIcon class="w-12 h-12 text-gray-300 mx-auto mb-6" />
           <h3 class="text-lg font-medium text-gray-900 mb-2">
-            {{ searchQuery ? 'No groups found' : 'No lesson groups' }}
+            {{
+              searchQuery
+                ? t('teacher.lessonGroups.empty')
+                : t('teacher.lessonGroups.empty')
+            }}
           </h3>
           <p class="text-gray-600 mb-8 max-w-sm mx-auto">
             {{
               searchQuery
-                ? 'Try a different search term.'
-                : 'Create your first lesson group to get started.'
+                ? t('teacher.lessonGroups.search')
+                : t('teacher.lessonGroups.empty')
             }}
           </p>
           <Dialog v-model:open="isCreateDialogOpen" v-if="!searchQuery">
             <DialogTrigger as-child>
               <Button class="bg-gray-900 hover:bg-gray-800 text-sm px-6 py-2">
-                Create Group
+                {{ t('teacher.lessonGroups.create') }}
               </Button>
             </DialogTrigger>
           </Dialog>

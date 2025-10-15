@@ -1,10 +1,14 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+</script>
 
 <template>
   <div>
-    <h1 class="text-3xl font-bold mb-4">Letters Page</h1>
+    <h1 class="text-3xl font-bold mb-4">{{ t('letters.title') }}</h1>
     <p class="text-gray-700">
-      This is the letters page where you can learn about letters.
+      {{ t('letters.description') }}
     </p>
     <!-- Add your content here -->
   </div>

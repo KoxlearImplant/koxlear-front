@@ -2,6 +2,7 @@ import { createI18n } from 'vue-i18n'
 
 import uz from '@/assets/locales/uz.json'
 import ru from '@/assets/locales/ru.json'
+import en from '@/assets/locales/en.json'
 
 import { setLocale } from 'yup'
 
@@ -29,12 +30,14 @@ setLocale({
   },
 })
 
-const availableLocales = ['uz', 'ru']
+const availableLocales = ['uz', 'ru', 'en']
 
 function getDefaultLocale(): string {
-  // Get locale from navigator
+  // Get locale from localStorage (check both keys for backwards compatibility)
   const locale =
-    localStorage.getItem('locale') ?? navigator.language.split('-')[0]
+    localStorage.getItem('user-locale') ??
+    localStorage.getItem('locale') ??
+    navigator.language.split('-')[0]
 
   if (availableLocales.includes(locale)) {
     return locale
@@ -53,5 +56,6 @@ export const i18n = createI18n({
   messages: {
     uz,
     ru,
+    en,
   },
 })
