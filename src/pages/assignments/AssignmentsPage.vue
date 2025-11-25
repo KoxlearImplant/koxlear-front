@@ -332,10 +332,6 @@ onMounted(() => {
                 </div>
                 <div class="flex items-center gap-2">
                   <AcademicCapIcon class="w-4 h-4" />
-                  <span>Passing Score: {{ assignment.passing_score }}%</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <AcademicCapIcon class="w-4 h-4" />
                   <span>Group: {{ assignment.lesson_full.group_name }}</span>
                 </div>
               </div>

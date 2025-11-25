@@ -401,17 +401,6 @@ onMounted(() => {
                   <CalendarIcon class="w-4 h-4" />
                   <span>End: {{ formatDate(assignment.end_time) }}</span>
                 </div>
-                <div class="flex items-center gap-2">
-                  <AcademicCapIcon class="w-4 h-4" />
-                  <span>Passing Score: {{ assignment.passing_score }}%</span>
-                </div>
-                <div
-                  v-if="assignment.lesson_full?.group_name"
-                  class="flex items-center gap-2"
-                >
-                  <AcademicCapIcon class="w-4 h-4" />
-                  <span>Group: {{ assignment.lesson_full.group_name }}</span>
-                </div>
               </div>
             </div>
 

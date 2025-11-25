@@ -35,6 +35,7 @@ export const useAuthStore = () => {
 
   const clearUser = () => {
     state.value.user = null
+    localStorage.removeItem('user')
   }
 
   const getToken = () => {

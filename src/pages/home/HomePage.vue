@@ -13,6 +13,7 @@ import {
   ChartBarIcon,
 } from '@heroicons/vue/24/outline'
 import { useLessonGroups } from '@/pages/home/queries/useLessonGroups.ts'
+import { useGetProfile } from '@/pages/profile/queries/useGetProfile.ts'
 
 const auth = useAuthStore()
 const { t } = useI18n()
@@ -31,9 +32,10 @@ const goToLessonGroup = (groupId: number) => {
   router.push(`dashboard/lesson-groups/${groupId}`)
 }
 
-const userStreak = ref(3)
-const userPoints = ref(120)
-const userName = ref('Alex')
+const { data: userProfile } = useGetProfile()
+
+const userStreak = computed(() => userProfile.value?.streak_days || 0)
+const userName = computed(() => userProfile.value?.first_name || 'Mehmon')
 
 const features = ref([
   {
@@ -66,7 +68,7 @@ const goToRegister = () => {
   if (isLoggedIn.value) {
     router.push('/dashboard')
   } else {
-    router.push('/auth/register')
+    router.push('/auth/login')
   }
 }
 </script>
@@ -146,13 +148,6 @@ const goToRegister = () => {
                   <div class="text-xl font-bold">
                     {{ userStreak }} {{ t('home.days') }}
                   </div>
-                </div>
-              </div>
-              <div class="flex items-center">
-                <div class="text-2xl mr-2">⭐</div>
-                <div>
-                  <div class="text-sm">{{ t('home.points') }}</div>
-                  <div class="text-xl font-bold">{{ userPoints }} XP</div>
                 </div>
               </div>
             </div>

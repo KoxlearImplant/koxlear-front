@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import {
-  ItalicIcon,
   UserCircleIcon,
-  AcademicCapIcon,
-  SparklesIcon,
-  MicrophoneIcon,
   ClipboardDocumentListIcon,
 } from '@heroicons/vue/24/solid'
 import { useRoute } from 'vue-router'
@@ -33,14 +29,14 @@ interface NavItem {
 const navItems = computed<NavItem[]>(() => {
   // Force reactivity by accessing locale.value
   return [
-    {
-      to: '/dashboard/lesson-groups',
-      icon: AcademicCapIcon,
-      label: t('nav.lessons'),
-      activePattern: '/dashboard/lessons',
-      iconColor: 'text-yellow-200',
-      borderColor: 'border-yellow-300',
-    },
+    // {
+    //   to: '/dashboard/lesson-groups',
+    //   icon: AcademicCapIcon,
+    //   label: t('nav.lessons'),
+    //   activePattern: '/dashboard/lessons',
+    //   iconColor: 'text-yellow-200',
+    //   borderColor: 'border-yellow-300',
+    // },
     {
       to: '/dashboard/assignments',
       icon: ClipboardDocumentListIcon,
@@ -49,30 +45,30 @@ const navItems = computed<NavItem[]>(() => {
       iconColor: 'text-cyan-200',
       borderColor: 'border-cyan-300',
     },
-    {
-      to: '/dashboard/letters',
-      icon: ItalicIcon,
-      label: t('nav.letters'),
-      activePattern: '/letters',
-      iconColor: 'text-pink-200',
-      borderColor: 'border-pink-300',
-    },
-    {
-      to: '/dashboard/practice',
-      icon: MicrophoneIcon,
-      label: t('nav.practice'),
-      activePattern: '/practice',
-      iconColor: 'text-green-200',
-      borderColor: 'border-green-300',
-    },
-    {
-      to: '/dashboard/random-cartoon',
-      icon: SparklesIcon,
-      label: t('nav.randomCartoon'),
-      activePattern: '/dashboard/random-cartoon',
-      iconColor: 'text-orange-200',
-      borderColor: 'border-orange-300',
-    },
+    // {
+    //   to: '/dashboard/letters',
+    //   icon: ItalicIcon,
+    //   label: t('nav.letters'),
+    //   activePattern: '/letters',
+    //   iconColor: 'text-pink-200',
+    //   borderColor: 'border-pink-300',
+    // },
+    // {
+    //   to: '/dashboard/practice',
+    //   icon: MicrophoneIcon,
+    //   label: t('nav.practice'),
+    //   activePattern: '/practice',
+    //   iconColor: 'text-green-200',
+    //   borderColor: 'border-green-300',
+    // },
+    // {
+    //   to: '/dashboard/random-cartoon',
+    //   icon: SparklesIcon,
+    //   label: t('nav.randomCartoon'),
+    //   activePattern: '/dashboard/random-cartoon',
+    //   iconColor: 'text-orange-200',
+    //   borderColor: 'border-orange-300',
+    // },
     {
       to: '/dashboard/profile',
       icon: UserCircleIcon,
@@ -136,25 +132,29 @@ const isRouteActive = (pattern: string): boolean => {
       class="flex-1 overflow-y-auto w-full px-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent hover:scrollbar-thumb-white/30"
     >
       <ul class="space-y-6 w-full pb-4">
-        <li v-for="item in navItems" :key="item.to">
-          <router-link
-            :to="item.to"
-            class="flex items-center p-3 rounded-xl transition-all duration-300 hover:bg-white/10 hover:transform hover:translate-x-1"
-            :class="{
-              'bg-white/20 shadow-inner border-l-4': isRouteActive(
-                item.activePattern
-              ),
-              [item.borderColor]: isRouteActive(item.activePattern),
-            }"
-          >
-            <component
-              :is="item.icon"
-              class="inline-block size-6 mr-2 drop-shadow"
-              :class="item.iconColor"
-            />
-            <span class="text-2xl text-white font-bold">{{ item.label }}</span>
-          </router-link>
-        </li>
+        <template v-if="!authStore.isTeacher()">
+          <li v-for="item in navItems" :key="item.to">
+            <router-link
+              :to="item.to"
+              class="flex items-center p-3 rounded-xl transition-all duration-300 hover:bg-white/10 hover:transform hover:translate-x-1"
+              :class="{
+                'bg-white/20 shadow-inner border-l-4': isRouteActive(
+                  item.activePattern
+                ),
+                [item.borderColor]: isRouteActive(item.activePattern),
+              }"
+            >
+              <component
+                :is="item.icon"
+                class="inline-block size-6 mr-2 drop-shadow"
+                :class="item.iconColor"
+              />
+              <span class="text-2xl text-white font-bold">{{
+                item.label
+              }}</span>
+            </router-link>
+          </li>
+        </template>
 
         <!-- Teacher navigation items - only show for teacher users -->
         <template v-if="authStore.isTeacher()">

@@ -25,7 +25,7 @@ import ConfirmModal from '@/components/common/ConfirmModal.vue'
 import BasePagination from '@/components/common/BasePagination.vue'
 import { toast } from 'vue-sonner'
 import { useI18n } from 'vue-i18n'
-import { PencilIcon, TrashIcon, UserPlusIcon } from '@heroicons/vue/24/outline'
+import { PencilIcon, UserPlusIcon } from '@heroicons/vue/24/outline'
 
 const { t } = useI18n()
 
@@ -116,11 +116,6 @@ const openEditModal = (student: StudentRes) => {
     email: student.email || '',
   }
   isEditModalOpen.value = true
-}
-
-const openDeleteModal = (student: StudentRes) => {
-  selectedStudent.value = student
-  isDeleteModalOpen.value = true
 }
 
 const openAssignModal = (student: StudentRes) => {
@@ -506,13 +501,13 @@ const handleCreateAssignment = async () => {
                   >
                     <PencilIcon class="w-5 h-5" />
                   </button>
-                  <button
-                    @click="openDeleteModal(student)"
-                    :title="t('teacher.students.delete')"
-                    class="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                  >
-                    <TrashIcon class="w-5 h-5" />
-                  </button>
+                  <!--                  <button-->
+                  <!--                    @click="openDeleteModal(student)"-->
+                  <!--                    :title="t('teacher.students.delete')"-->
+                  <!--                    class="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"-->
+                  <!--                  >-->
+                  <!--                    <TrashIcon class="w-5 h-5" />-->
+                  <!--                  </button>-->
                   <button
                     @click="openAssignModal(student)"
                     :title="t('teacher.students.assign')"

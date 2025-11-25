@@ -2,7 +2,6 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '@/store/auth.store'
 import HomePage from '@/pages/home/HomePage.vue'
 import LoginView from '@/pages/auth/LoginView.vue'
-import RegisterView from '@/pages/auth/RegisterView.vue'
 import DashboardLayout from '@/layouts/dashboard-layout/DashboardLayout.vue'
 import LessonsPage from '@/pages/lessons/LessonsPage.vue'
 import LettersPage from '@/pages/letters/LettersPage.vue'
@@ -97,11 +96,11 @@ const routes: RouteRecordRaw[] = [
     name: 'Login',
     component: LoginView,
   },
-  {
-    path: '/auth/register',
-    name: 'Register',
-    component: RegisterView,
-  },
+  // {
+  //   path: '/auth/register',
+  //   name: 'Register',
+  //   component: RegisterView,
+  // },
   {
     path: '/dashboard',
     name: 'Dashboard',

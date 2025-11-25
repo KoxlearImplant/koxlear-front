@@ -8,7 +8,8 @@
     "next": "Keyingi",
     "cancel": "Bekor qilish",
     "save": "Saqlash",
-    "saving": "Saqlanmoqda..."
+    "saving": "Saqlanmoqda...",
+    "of": "dan"
   },
   "actions": {
     "getStarted": "Boshlash",

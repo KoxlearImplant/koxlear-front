@@ -87,7 +87,7 @@ const handleTelegramLogin = (user: TelegramUser) => {
 }
 
 const goToRegister = () => {
-  router.push('/auth/register')
+  router.push('/auth/login')
 }
 
 const goToHome = () => {
