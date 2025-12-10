@@ -65,7 +65,9 @@
     "parentBenefit2": "Отслеживание прогресса для контроля улучшений со временем",
     "parentBenefit3": "Игры, разработанные, чтобы сделать обучение увлекательным и интересным",
     "parentSupport": "Поддержите образовательный путь вашего ребенка",
-    "learnMoreParents": "Узнать больше"
+    "learnMoreParents": "Узнать больше",
+    "ourPartners": "Наши партнеры",
+    "proudPartner": "Гордый партнер"
   },
   "courses": {
     "hearingBasics": "Основы слуха",
@@ -379,6 +381,27 @@
     "empty": "Заданий не найдено",
     "start": "Начать",
     "completed": "Завершено"
+  },
+  "footer": {
+    "aboutKoxlear": "О Коксляр",
+    "aboutDescription": "Увлекательная образовательная платформа для детей с кохлеарными имплантами для развития навыков слушания и речи.",
+    "quickLinks": "Быстрые ссылки",
+    "home": "Главная",
+    "lessons": "Уроки",
+    "practice": "Практика",
+    "profile": "Профиль",
+    "resources": "Ресурсы",
+    "forParents": "Для родителей",
+    "forTeachers": "Для учителей",
+    "helpCenter": "Центр помощи",
+    "faq": "Вопросы и ответы",
+    "legal": "Правовая информация",
+    "privacyPolicy": "Политика конфиденциальности",
+    "termsOfService": "Условия использования",
+    "cookiePolicy": "Политика cookie",
+    "accessibility": "Доступность",
+    "copyright": "Коксляр. Все права защищены.",
+    "contactEmail": "support@koxlear.com"
   }
 }
 

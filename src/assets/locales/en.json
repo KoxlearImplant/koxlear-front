@@ -65,7 +65,9 @@
     "parentBenefit2": "Progress tracking to monitor improvement over time",
     "parentBenefit3": "Games designed to make learning fun and engaging",
     "parentSupport": "Support your child's learning journey",
-    "learnMoreParents": "Learn More"
+    "learnMoreParents": "Learn More",
+    "ourPartners": "Our Partners",
+    "proudPartner": "Proud Partner"
   },
   "courses": {
     "hearingBasics": "Hearing Basics",
@@ -377,5 +379,26 @@
     "empty": "No assignments found",
     "start": "Start",
     "completed": "Completed"
+  },
+  "footer": {
+    "aboutKoxlear": "About Koxlear",
+    "aboutDescription": "A fun learning platform designed for children with cochlear implants to develop listening and speaking skills.",
+    "quickLinks": "Quick Links",
+    "home": "Home",
+    "lessons": "Lessons",
+    "practice": "Practice",
+    "profile": "Profile",
+    "resources": "Resources",
+    "forParents": "For Parents",
+    "forTeachers": "For Teachers",
+    "helpCenter": "Help Center",
+    "faq": "FAQ",
+    "legal": "Legal",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "cookiePolicy": "Cookie Policy",
+    "accessibility": "Accessibility",
+    "copyright": "Koxlear. All rights reserved.",
+    "contactEmail": "support@koxlear.com"
   }
 }

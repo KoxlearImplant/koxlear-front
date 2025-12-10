@@ -65,7 +65,9 @@
     "parentBenefit2": "Vaqt o'tishi bilan takomillashishni kuzatish uchun progressni kuzatib borish",
     "parentBenefit3": "O'rganishni qiziqarli va maroqli qilish uchun mo'ljallangan o'yinlar",
     "parentSupport": "Farzandingizning o'rganish yo'lini qo'llab-quvvatlang",
-    "learnMoreParents": "Ko'proq ma'lumot olish"
+    "learnMoreParents": "Ko'proq ma'lumot olish",
+    "ourPartners": "Hamkorlarimiz",
+    "proudPartner": "Faxrli Hamkor"
   },
   "courses": {
     "hearingBasics": "Eshitish asoslari",
@@ -387,5 +389,26 @@
     "empty": "Topshiriqlar topilmadi",
     "start": "Boshlash",
     "completed": "Tugallangan"
+  },
+  "footer": {
+    "aboutKoxlear": "Koxlear haqida",
+    "aboutDescription": "Koxlear implantli bolalar uchun tinglab tushunish va nutq ko'nikmalarini rivojlantirish uchun qiziqarli ta'lim platformasi.",
+    "quickLinks": "Tezkor havolalar",
+    "home": "Bosh sahifa",
+    "lessons": "Darslar",
+    "practice": "Mashqlar",
+    "profile": "Profil",
+    "resources": "Resurslar",
+    "forParents": "Ota-onalar uchun",
+    "forTeachers": "O'qituvchilar uchun",
+    "helpCenter": "Yordam markazi",
+    "faq": "Tez-tez so'raladigan savollar",
+    "legal": "Huquqiy ma'lumot",
+    "privacyPolicy": "Maxfiylik siyosati",
+    "termsOfService": "Foydalanish shartlari",
+    "cookiePolicy": "Cookie siyosati",
+    "accessibility": "Foydalanish qulayligi",
+    "copyright": "Koxlear. Barcha huquqlar himoyalangan.",
+    "contactEmail": "support@koxlear.com"
   }
 }
