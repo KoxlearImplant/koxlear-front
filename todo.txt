@@ -1,0 +1,6 @@
+1. pochta -> telefon nomer
+2. Hisoobot o'qituvchi uchun
+3. Video qo'yish
+4. Telefon uchun moslashtirish
+5. Bildirishnomalar
+6. Tarjimalarni to'g'irlash
