@@ -2,7 +2,7 @@
 @import 'tw-animate-css';
 
 body{
-  font-family: 'Fredoka', 'Comic Sans MS', cursive, sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 @custom-variant dark (&:is(.dark *));

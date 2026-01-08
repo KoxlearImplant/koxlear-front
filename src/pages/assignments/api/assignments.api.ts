@@ -17,7 +17,18 @@ export interface Assignment {
     title: string
     order: number
     items_count: number
-    items: unknown[]
+    items: {
+      id: number
+      lesson: number
+      type: 'tts'
+      word: string
+      audio: string
+      image: string
+      order: number
+      audio_url: string
+      image_url: string
+      teacher_id: number
+    }[]
     teacher_id: number
   }
   status: string

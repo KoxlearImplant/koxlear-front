@@ -22,6 +22,7 @@ const { t } = useI18n()
 const props = defineProps<{
   item: ILessonItem
   isLast?: boolean // Add isLast prop, optional for backward compatibility
+  assignmentId?: number // Optional assignment ID for tracking assignment progress
 }>()
 
 const emit = defineEmits<{
@@ -605,8 +606,13 @@ const submitRecording = async () => {
     formData.append('user_audio', wavBlob, 'recording.wav')
     formData.append('lesson_item', props.item.id.toString())
 
+    // Build the URL with assignment_id as query parameter if provided
+    const checkUrl = props.assignmentId
+      ? `/check/?assignment_id=${props.assignmentId}`
+      : '/check/'
+
     // Call the API endpoint to check the recording
-    const response = await http.post('/check/', formData, {
+    const response = await http.post(checkUrl, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

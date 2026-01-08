@@ -72,6 +72,34 @@ const isActive = (assignment: Assignment) => {
   return now >= start && now <= end && assignment.status === 'PENDING'
 }
 
+// Check if assignment hasn't started yet
+const isPending = (assignment: Assignment) => {
+  const now = new Date()
+  const start = new Date(assignment.begin_time)
+  return now < start && assignment.status === 'PENDING'
+}
+
+// Get time until assignment starts
+const getTimeUntilStart = (assignment: Assignment) => {
+  const now = new Date()
+  const start = new Date(assignment.begin_time)
+  const diff = start.getTime() - now.getTime()
+
+  if (diff <= 0) return null
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+
+  if (days > 0) {
+    return `${days}d ${hours}h`
+  } else if (hours > 0) {
+    return `${hours}h ${minutes}m`
+  } else {
+    return `${minutes}m`
+  }
+}
+
 // Check if assignment is expired
 const isExpired = (assignment: Assignment) => {
   const now = new Date()
@@ -119,8 +147,8 @@ const getStatusText = (assignment: Assignment) => {
 
 // Start assignment
 const startAssignment = (assignment: Assignment) => {
-  // Navigate to the lesson
-  router.push(`/dashboard/lessons/${assignment.lesson}`)
+  // Navigate to the assignment detail page
+  router.push(`/dashboard/assignments/${assignment.id}`)
 }
 
 // Filter by status
@@ -342,6 +370,16 @@ onMounted(() => {
                 <PlayIcon class="w-4 h-4 mr-2" />
                 {{ t('assignments.start', 'Start') }}
               </Button>
+            </div>
+            <div v-else-if="isPending(assignment)" class="text-right">
+              <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">
+                {{ t('assignments.startsIn', 'Starts in') }}
+              </div>
+              <div
+                class="text-lg font-semibold text-blue-600 dark:text-blue-400"
+              >
+                {{ getTimeUntilStart(assignment) }}
+              </div>
             </div>
             <div v-else-if="assignment.status === 'COMPLETED'">
               <Button variant="outline" disabled>

@@ -8,7 +8,6 @@ import LettersPage from '@/pages/letters/LettersPage.vue'
 import LessonDetailPage from '@/pages/lessons/LessonDetailPage.vue'
 import ProfilePage from '@/pages/profile/ProfilePage.vue'
 import LessonGroupsPage from '@/pages/lessons/LessonGroupsPage.vue'
-import PracticePage from '@/pages/practice/PracticePage.vue'
 import RandomCartoonPage from '@/pages/random-cartoon/RandomCartoonPage.vue'
 import AdminLayout from '@/layouts/admin-layout/AdminLayout.vue'
 import AdminPage from '@/pages/admin/AdminPage.vue'
@@ -138,12 +137,6 @@ const routes: RouteRecordRaw[] = [
         meta: { requiresAuth: true },
       },
       {
-        path: 'practice',
-        name: 'Practice',
-        component: PracticePage,
-        meta: { requiresAuth: true },
-      },
-      {
         path: 'random-cartoon',
         name: 'RandomCartoon',
         component: RandomCartoonPage,
@@ -153,6 +146,12 @@ const routes: RouteRecordRaw[] = [
         path: 'assignments',
         name: 'Assignments',
         component: AssignmentsPage,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'assignments/:id',
+        name: 'AssignmentDetail',
+        component: () => import('@/pages/assignments/AssignmentDetailPage.vue'),
         meta: { requiresAuth: true },
       },
       {
