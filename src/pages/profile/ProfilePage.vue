@@ -203,15 +203,17 @@ const uploadPhoto = async () => {
   <div
     class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50"
   >
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
       <!-- Header Section -->
-      <div class="text-center mb-12">
+      <div class="text-center mb-6 sm:mb-12">
         <h1
-          class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+          class="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
         >
           {{ t('profile.title') }}
         </h1>
-        <p class="mt-3 text-lg text-gray-600 max-w-2xl mx-auto">
+        <p
+          class="mt-2 sm:mt-3 text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4"
+        >
           {{ t('profile.subtitle') }}
         </p>
       </div>
@@ -238,20 +240,24 @@ const uploadPhoto = async () => {
       <!-- Error State -->
       <div v-else-if="error" class="max-w-2xl mx-auto">
         <div
-          class="bg-red-50 border-l-4 border-red-400 p-6 rounded-lg shadow-sm"
+          class="bg-red-50 border-l-4 border-red-400 p-4 sm:p-6 rounded-lg shadow-sm"
         >
           <div class="flex items-center">
             <div class="flex-shrink-0">
-              <ExclamationTriangleIcon class="h-8 w-8 text-red-400" />
+              <ExclamationTriangleIcon
+                class="h-6 w-6 sm:h-8 sm:w-8 text-red-400"
+              />
             </div>
-            <div class="ml-4">
-              <h3 class="text-lg font-medium text-red-800">
+            <div class="ml-3 sm:ml-4">
+              <h3 class="text-base sm:text-lg font-medium text-red-800">
                 {{ t('profile.errorTitle') }}
               </h3>
-              <p class="mt-1 text-red-700">{{ error.message }}</p>
+              <p class="mt-1 text-sm sm:text-base text-red-700">
+                {{ error.message }}
+              </p>
             </div>
           </div>
-          <div class="mt-6">
+          <div class="mt-4 sm:mt-6">
             <button
               @click="() => refetch()"
               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
@@ -264,38 +270,25 @@ const uploadPhoto = async () => {
       </div>
 
       <!-- Profile Content -->
-      <div v-else-if="profile" class="space-y-8">
+      <div v-else-if="profile" class="space-y-4 sm:space-y-8">
         <!-- Main Profile Card -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div
+          class="bg-white rounded-xl sm:rounded-2xl shadow-xl overflow-hidden"
+        >
           <!-- Profile Header -->
           <div
-            class="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-12 relative"
+            class="bg-gradient-to-r from-blue-600 to-purple-600 px-4 sm:px-6 md:px-8 py-6 sm:py-8 md:py-12 relative"
           >
             <div class="absolute inset-0 bg-black opacity-30"></div>
-            <div class="relative flex items-center space-x-8">
-              <!-- Profile Info (Name first) -->
-              <div class="flex-1 text-white">
-                <h2 class="text-3xl font-bold mb-2">
-                  {{ fullName || t('profile.completeProfile') }}
-                </h2>
-                <p class="text-blue-100 text-lg">{{ profile.email }}</p>
-                <div class="flex items-center mt-3 space-x-6 text-blue-100">
-                  <div class="flex items-center">
-                    <CalendarDaysIcon class="w-5 h-5 mr-2" />
-                    <span>{{
-                      t('profile.memberSince', { date: joinDate })
-                    }}</span>
-                  </div>
-                  <div v-if="profile.gender" class="flex items-center">
-                    <UserIcon class="w-5 h-5 mr-2" />
-                    <span>{{ genderDisplay }}</span>
-                  </div>
-                </div>
-              </div>
-              <!-- Avatar -->
-              <div class="relative group">
+            <div
+              class="relative flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 md:space-x-8"
+            >
+              <!-- Avatar - First on mobile, centered -->
+              <div
+                class="relative group order-first sm:order-last flex-shrink-0"
+              >
                 <div
-                  class="w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden cursor-pointer transition-all duration-200 group-hover:border-blue-200"
+                  class="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-white shadow-lg overflow-hidden cursor-pointer transition-all duration-200 group-hover:border-blue-200"
                   @click="fileInputRef?.click()"
                 >
                   <img
@@ -309,12 +302,12 @@ const uploadPhoto = async () => {
                   >
                     <CameraIcon
                       v-if="!isUpdatingPhoto"
-                      class="w-6 h-6 text-white"
+                      class="w-5 h-5 sm:w-6 sm:h-6 text-white"
                     />
                     <!-- Loading spinner during upload -->
                     <ArrowPathIconSolid
                       v-else
-                      class="w-6 h-6 text-white animate-spin"
+                      class="w-5 h-5 sm:w-6 sm:h-6 text-white animate-spin"
                     />
                   </div>
                 </div>
@@ -328,14 +321,44 @@ const uploadPhoto = async () => {
                 />
               </div>
 
+              <!-- Profile Info -->
+              <div class="flex-1 text-white text-center sm:text-left">
+                <h2
+                  class="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2"
+                >
+                  {{ fullName || t('profile.completeProfile') }}
+                </h2>
+                <p
+                  class="text-blue-100 text-sm sm:text-base md:text-lg break-all sm:break-normal"
+                >
+                  {{ profile.email }}
+                </p>
+                <div
+                  class="flex flex-col sm:flex-row items-center sm:items-start justify-center sm:justify-start mt-2 sm:mt-3 space-y-2 sm:space-y-0 sm:space-x-4 md:space-x-6 text-blue-100 text-xs sm:text-sm"
+                >
+                  <div class="flex items-center">
+                    <CalendarDaysIcon
+                      class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2"
+                    />
+                    <span>{{
+                      t('profile.memberSince', { date: joinDate })
+                    }}</span>
+                  </div>
+                  <div v-if="profile.gender" class="flex items-center">
+                    <UserIcon class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
+                    <span>{{ genderDisplay }}</span>
+                  </div>
+                </div>
+              </div>
+
               <!-- Edit Button -->
-              <div class="flex-shrink-0">
+              <div class="flex-shrink-0 order-last sm:order-none">
                 <button
                   v-if="!isEditing"
                   @click="toggleEdit"
-                  class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-blue-600 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-all duration-200 shadow-lg hover:shadow-xl"
+                  class="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 border border-transparent text-sm sm:text-base font-medium rounded-lg sm:rounded-xl text-blue-600 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
-                  <PencilIcon class="w-5 h-5 mr-2" />
+                  <PencilIcon class="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                   {{ t('profile.editProfile') }}
                 </button>
               </div>
@@ -353,8 +376,8 @@ const uploadPhoto = async () => {
             leave-to-class="opacity-0 max-h-0 overflow-hidden transform scale-y-95"
           >
             <div v-if="isEditFormExpanded" class="border-t border-gray-200">
-              <div class="p-8 space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div class="space-y-2 transform transition-all duration-300">
                     <label class="block text-sm font-semibold text-gray-700">
                       {{ t('profile.firstName') }}
@@ -363,7 +386,7 @@ const uploadPhoto = async () => {
                       v-model="editForm.first_name"
                       type="text"
                       :placeholder="t('profile.firstNamePlaceholder')"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 transform hover:scale-[1.02] focus:scale-[1.02]"
+                      class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                     />
                   </div>
                   <div class="space-y-2 transform transition-all duration-300">
@@ -374,7 +397,7 @@ const uploadPhoto = async () => {
                       v-model="editForm.last_name"
                       type="text"
                       :placeholder="t('profile.lastNamePlaceholder')"
-                      class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 transform hover:scale-[1.02] focus:scale-[1.02]"
+                      class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                     />
                   </div>
                 </div>
@@ -384,7 +407,7 @@ const uploadPhoto = async () => {
                   </label>
                   <select
                     v-model="editForm.gender"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 transform hover:scale-[1.02] focus:scale-[1.02]"
+                    class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
                   >
                     <option :value="null">
                       {{ t('profile.preferNotToSay') }}
@@ -396,24 +419,24 @@ const uploadPhoto = async () => {
 
                 <!-- Action Buttons -->
                 <div
-                  class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200 transform transition-all duration-300"
+                  class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 sm:gap-4 pt-4 sm:pt-6 border-t border-gray-200 transform transition-all duration-300"
                 >
                   <button
                     @click="cancelEdit"
-                    class="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200 transform hover:scale-105 active:scale-95"
+                    class="px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 text-gray-700 rounded-lg sm:rounded-xl font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200 order-2 sm:order-1"
                   >
                     {{ t('profile.cancel') }}
                   </button>
                   <button
                     @click="saveProfile"
                     :disabled="isUpdating"
-                    class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+                    class="inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 border border-transparent text-sm sm:text-base font-medium rounded-lg sm:rounded-xl text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl order-1 sm:order-2"
                   >
                     <ArrowPathIconSolid
                       v-if="isUpdating"
-                      class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      class="animate-spin -ml-1 mr-3 h-4 w-4 sm:h-5 sm:w-5 text-white"
                     />
-                    <CheckIcon v-else class="w-5 h-5 mr-2" />
+                    <CheckIcon v-else class="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                     {{
                       isUpdating
                         ? t('profile.saving')
@@ -427,92 +450,103 @@ const uploadPhoto = async () => {
         </div>
 
         <!-- Account Information Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
           <!-- Account Details -->
-          <div class="bg-white rounded-2xl shadow-xl p-8">
-            <div class="flex items-center mb-6">
+          <div
+            class="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8"
+          >
+            <div class="flex items-center mb-4 sm:mb-6">
               <div
-                class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-4"
+                class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center mr-3 sm:mr-4"
               >
-                <UserIcon class="w-6 h-6 text-blue-600" />
+                <UserIcon class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
               </div>
-              <h3 class="text-xl font-bold text-gray-900">
+              <h3 class="text-lg sm:text-xl font-bold text-gray-900">
                 {{ t('profile.accountDetails') }}
               </h3>
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-3 sm:space-y-4">
               <div
-                class="flex justify-between items-center py-3 border-b border-gray-100"
+                class="flex flex-col sm:flex-row sm:justify-between sm:items-center py-2 sm:py-3 border-b border-gray-100 gap-1 sm:gap-0"
               >
-                <span class="text-gray-600 font-medium">{{
+                <span class="text-sm sm:text-base text-gray-600 font-medium">{{
                   t('profile.userId')
                 }}</span>
-                <span class="text-gray-900 font-semibold"
+                <span class="text-sm sm:text-base text-gray-900 font-semibold"
                   >#{{ profile.id }}</span
                 >
               </div>
               <div
-                class="flex justify-between items-center py-3 border-b border-gray-100"
+                class="flex flex-col sm:flex-row sm:justify-between sm:items-center py-2 sm:py-3 border-b border-gray-100 gap-1 sm:gap-0"
               >
-                <span class="text-gray-600 font-medium">{{
+                <span class="text-sm sm:text-base text-gray-600 font-medium">{{
                   t('profile.email')
                 }}</span>
-                <span class="text-gray-900 font-semibold">{{
-                  profile.email
-                }}</span>
+                <span
+                  class="text-sm sm:text-base text-gray-900 font-semibold break-all sm:break-normal"
+                  >{{ profile.email }}</span
+                >
               </div>
               <div
-                class="flex justify-between items-center py-3 border-b border-gray-100"
+                class="flex flex-col sm:flex-row sm:justify-between sm:items-center py-2 sm:py-3 border-b border-gray-100 gap-1 sm:gap-0"
               >
-                <span class="text-gray-600 font-medium">{{
+                <span class="text-sm sm:text-base text-gray-600 font-medium">{{
                   t('profile.gender')
                 }}</span>
-                <span class="text-gray-900 font-semibold">{{
-                  genderDisplay
-                }}</span>
+                <span
+                  class="text-sm sm:text-base text-gray-900 font-semibold"
+                  >{{ genderDisplay }}</span
+                >
               </div>
               <div
-                class="flex justify-between items-center py-3 border-b border-gray-100"
+                class="flex flex-col sm:flex-row sm:justify-between sm:items-center py-2 sm:py-3 border-b border-gray-100 gap-1 sm:gap-0"
               >
-                <span class="text-gray-600 font-medium">{{
+                <span class="text-sm sm:text-base text-gray-600 font-medium">{{
                   t('profile.created')
                 }}</span>
-                <span class="text-gray-900 font-semibold">{{ joinDate }}</span>
+                <span
+                  class="text-sm sm:text-base text-gray-900 font-semibold"
+                  >{{ joinDate }}</span
+                >
               </div>
             </div>
           </div>
 
           <!-- Connected Services -->
-          <div class="bg-white rounded-2xl shadow-xl p-8">
-            <div class="flex items-center mb-6">
+          <div
+            class="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8"
+          >
+            <div class="flex items-center mb-4 sm:mb-6">
               <div
-                class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mr-4"
+                class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center mr-3 sm:mr-4"
               >
-                <TelegramIcon class="w-6 h-6 text-blue-500" />
+                <TelegramIcon class="w-5 h-5 sm:w-6 sm:h-6 text-blue-500" />
               </div>
-              <h3 class="text-xl font-bold text-gray-900">
+              <h3 class="text-lg sm:text-xl font-bold text-gray-900">
                 {{ t('profile.connectedServices') }}
               </h3>
             </div>
             <div class="space-y-4">
               <div
-                class="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-sky-50 rounded-xl border border-blue-100 hover:shadow-md transition-all duration-200"
+                class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-sky-50 rounded-lg sm:rounded-xl border border-blue-100 hover:shadow-md transition-all duration-200 gap-3 sm:gap-0"
               >
-                <div class="flex items-center">
+                <div class="flex items-center w-full sm:w-auto">
                   <div
-                    class="w-12 h-12 bg-gradient-to-br from-blue-500 to-sky-600 rounded-xl flex items-center justify-center mr-3 text-white shadow-lg"
+                    class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-sky-600 rounded-lg sm:rounded-xl flex items-center justify-center mr-3 text-white shadow-lg flex-shrink-0"
                   >
-                    <TelegramIcon class="w-6 h-6" />
+                    <TelegramIcon class="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <div class="flex-1">
-                    <div class="flex items-center gap-2">
-                      <p class="font-semibold text-gray-900">
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <p
+                        class="font-semibold text-gray-900 text-sm sm:text-base"
+                      >
                         {{ t('profile.telegram') }}
                       </p>
                       <div
                         v-if="profile.telegram_id"
-                        class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full flex items-center gap-1"
+                        class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full flex items-center gap-1 whitespace-nowrap"
                       >
                         <div class="w-2 h-2 bg-green-500 rounded-full"></div>
                         Connected
@@ -520,48 +554,54 @@ const uploadPhoto = async () => {
                     </div>
                     <p
                       v-if="!profile.telegram_id"
-                      class="text-sm text-gray-500 mt-1"
+                      class="text-xs sm:text-sm text-gray-500 mt-1"
                     >
                       {{ t('profile.notConnected') }}
                     </p>
                   </div>
-                  <TelegramLogin
-                    v-if="!profile.telegram_id"
-                    @login-success="handleTelegramLogin"
-                    class="ml-4"
-                  />
                 </div>
+                <TelegramLogin
+                  v-if="!profile.telegram_id"
+                  @login-success="handleTelegramLogin"
+                  class="sm:w-auto sm:ml-4"
+                />
               </div>
             </div>
           </div>
         </div>
 
         <!-- Account Actions -->
-        <div class="bg-white rounded-2xl shadow-xl p-8">
-          <div class="flex items-center mb-6">
+        <div
+          class="bg-white rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-6 md:p-8"
+        >
+          <div class="flex items-center mb-4 sm:mb-6">
             <div
-              class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center mr-4"
+              class="w-8 h-8 sm:w-10 sm:h-10 bg-red-100 rounded-lg sm:rounded-xl flex items-center justify-center mr-3 sm:mr-4"
             >
-              <ArrowRightOnRectangleIcon class="w-6 h-6 text-red-600" />
+              <ArrowRightOnRectangleIcon
+                class="w-5 h-5 sm:w-6 sm:h-6 text-red-600"
+              />
             </div>
-            <h3 class="text-xl font-bold text-gray-900">
+            <h3 class="text-lg sm:text-xl font-bold text-gray-900">
               {{ t('profile.accountActions') }}
             </h3>
           </div>
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-900 font-medium">
+          <div
+            class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+          >
+            <div class="flex-1">
+              <p class="text-sm sm:text-base text-gray-900 font-medium">
                 {{ t('profile.signOutTitle') }}
               </p>
-              <p class="text-gray-500 text-sm">
+              <p class="text-xs sm:text-sm text-gray-500 mt-1">
                 {{ t('profile.signOutDescription') }}
               </p>
             </div>
             <button
               @click="logout"
-              class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 shadow-lg hover:shadow-xl"
+              class="w-full sm:w-auto inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 border border-transparent text-sm sm:text-base font-medium rounded-lg sm:rounded-xl text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
-              <ArrowRightOnRectangleIcon class="w-5 h-5 mr-2" />
+              <ArrowRightOnRectangleIcon class="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
               {{ t('profile.signOut') }}
             </button>
           </div>

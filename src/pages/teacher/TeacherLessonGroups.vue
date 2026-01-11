@@ -229,10 +229,12 @@ const navigateToLessons = (group: LessonGroupRes) => {
 
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div class="max-w-6xl mx-auto px-6 py-12">
+    <div class="max-w-6xl mx-auto sm:px-6 py-6 sm:py-12">
       <!-- Header -->
-      <div class="mb-12">
-        <div class="flex items-center justify-between mb-8">
+      <div class="mb-6 sm:mb-12">
+        <div
+          class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8"
+        >
           <div>
             <h1 class="text-2xl font-medium text-gray-900">
               {{ t('teacher.lessonGroups.title') }}
@@ -474,39 +476,58 @@ const navigateToLessons = (group: LessonGroupRes) => {
             <div
               v-for="group in lessonGroups"
               :key="group.id"
-              class="border border-gray-200 rounded p-4 hover:border-gray-300 transition-colors"
+              class="bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden relative group flex flex-col"
             >
-              <!-- Group Info -->
-              <div class="mb-4">
-                <h3 class="font-medium text-gray-900 mb-1">{{ group.name }}</h3>
-                <p class="text-xs text-gray-500">ID: {{ group.id }}</p>
-              </div>
+              <div class="p-5 flex-1 flex flex-col">
+                <!-- Group Info -->
+                <div class="mb-5">
+                  <div class="flex items-start justify-between mb-1">
+                    <h3
+                      class="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight"
+                    >
+                      {{ group.name }}
+                    </h3>
+                    <span
+                      class="shrink-0 px-2 py-0.5 rounded text-[10px] font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+                    >
+                      #{{ group.id }}
+                    </span>
+                  </div>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    {{ t('teacher.lessonGroups.manageContent') }}
+                  </p>
+                </div>
 
-              <!-- Actions -->
-              <div class="space-y-2">
-                <button
-                  @click="navigateToLessons(group)"
-                  class="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white text-sm py-2 px-3 rounded transition-colors"
-                >
-                  {{ t('teacher.lessonGroups.viewLessons') }}
-                  <ChevronRightIcon class="w-4 h-4" />
-                </button>
+                <!-- Actions -->
+                <div class="mt-auto space-y-2.5">
+                  <button
+                    @click="navigateToLessons(group)"
+                    class="w-full flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100 text-white text-sm font-medium py-2.5 px-3 rounded-lg transition-colors shadow-sm"
+                  >
+                    <span>{{ t('teacher.lessonGroups.viewLessons') }}</span>
+                    <ChevronRightIcon
+                      class="w-4 h-4 text-white/70 dark:text-gray-900/70"
+                    />
+                  </button>
 
-                <button
-                  @click="openEditDialog(group)"
-                  class="w-full flex items-center justify-center gap-2 border border-gray-300 hover:bg-gray-50 text-gray-700 text-sm py-2 px-3 rounded transition-colors"
-                >
-                  <PencilIcon class="w-4 h-4" />
-                  {{ t('teacher.lessonGroups.edit') }}
-                </button>
+                  <div class="grid grid-cols-2 gap-2.5">
+                    <button
+                      @click="openEditDialog(group)"
+                      class="flex items-center justify-center gap-2 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700/50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs font-medium py-2 px-3 rounded-lg transition-colors border border-gray-200 dark:border-gray-600"
+                    >
+                      <PencilIcon class="w-3.5 h-3.5" />
+                      {{ t('teacher.lessonGroups.edit') }}
+                    </button>
 
-                <button
-                  @click="openDeleteDialog(group)"
-                  class="w-full flex items-center justify-center gap-2 border border-red-300 hover:bg-red-50 text-red-700 text-sm py-2 px-3 rounded transition-colors"
-                >
-                  <TrashIcon class="w-4 h-4" />
-                  {{ t('teacher.lessonGroups.delete') }}
-                </button>
+                    <button
+                      @click="openDeleteDialog(group)"
+                      class="flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-700 dark:text-red-400 text-xs font-medium py-2 px-3 rounded-lg transition-colors border border-red-100 dark:border-red-800/30"
+                    >
+                      <TrashIcon class="w-3.5 h-3.5" />
+                      {{ t('teacher.lessonGroups.delete') }}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
