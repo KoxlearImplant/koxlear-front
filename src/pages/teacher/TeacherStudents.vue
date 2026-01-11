@@ -272,22 +272,26 @@ const handleCreateAssignment = async () => {
 </script>
 
 <template>
-  <div class="p-6">
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <h1 class="text-2xl font-semibold text-gray-900">
+  <div class="p-2 sm:p-6">
+    <div
+      class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 sm:mb-6"
+    >
+      <div class="w-full sm:w-auto">
+        <h1 class="text-xl sm:text-2xl font-semibold text-gray-900">
           {{ t('teacher.students.title') }}
         </h1>
-        <p class="text-sm text-gray-600 mt-1">
+        <p class="text-xs sm:text-sm text-gray-600 mt-1">
           {{ t('teacher.students.description') }}
         </p>
       </div>
 
       <Dialog v-model:open="isCreateModalOpen">
         <DialogTrigger as-child>
-          <Button>{{ t('teacher.students.create') }}</Button>
+          <Button class="w-full sm:w-auto">{{
+            t('teacher.students.create')
+          }}</Button>
         </DialogTrigger>
-        <DialogContent class="sm:max-w-md">
+        <DialogContent class="w-[95vw] max-w-md mx-auto">
           <DialogHeader>
             <DialogTitle>{{
               t('teacher.students.createDescription')
@@ -295,7 +299,7 @@ const handleCreateAssignment = async () => {
           </DialogHeader>
 
           <form @submit.prevent="handleCreateStudent" class="space-y-4">
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   {{ t('teacher.students.firstName') }} *
@@ -368,16 +372,18 @@ const handleCreateAssignment = async () => {
               />
             </div>
 
-            <DialogFooter>
+            <DialogFooter class="flex flex-col-reverse sm:flex-row gap-2">
               <Button
                 type="button"
                 variant="outline"
+                class="w-full sm:w-auto"
                 @click="isCreateModalOpen = false"
               >
                 {{ t('common.cancel') }}
               </Button>
               <Button
                 type="submit"
+                class="w-full sm:w-auto"
                 :disabled="createStudentMutation.isPending.value"
               >
                 {{
@@ -422,98 +428,117 @@ const handleCreateAssignment = async () => {
     </div>
 
     <!-- Students Table -->
-    <div v-else class="bg-white shadow rounded-lg overflow-hidden">
-      <div v-if="students.length === 0" class="p-8 text-center">
+    <div v-else class="bg-white shadow rounded-lg">
+      <div v-if="students.length === 0" class="p-4 sm:p-8 text-center">
         <p class="text-gray-500">{{ t('teacher.students.empty') }}</p>
       </div>
 
-      <div v-else class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
+      <div v-else class="sm:mx-0">
+        <table class="min-w-full divide-y divide-gray-200 block sm:table">
+          <thead class="bg-gray-50 hidden sm:table-header-group">
             <tr>
               <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                class="px-2 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
                 {{ t('teacher.students.student') }}
               </th>
               <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                class="px-2 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
                 {{ t('teacher.students.email') }}
               </th>
               <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                class="px-2 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
                 {{ t('teacher.students.gender') }}
               </th>
               <th
-                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                class="px-2 sm:px-4 md:px-6 py-2 sm:py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
                 {{ t('teacher.students.actions') }}
               </th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody
+            class="bg-white sm:divide-y sm:divide-gray-200 block sm:table-row-group"
+          >
             <tr
               v-for="student in students"
               :key="student.id"
-              class="hover:bg-gray-50"
+              class="hover:bg-gray-50 block sm:table-row border-b border-gray-200 sm:border-b-0 last:border-b-0 mb-2 sm:mb-0 p-3 sm:p-0 relative"
             >
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
+              <td
+                class="block sm:table-cell px-0 sm:px-4 md:px-6 py-1 sm:py-4 pr-10 sm:pr-6"
+              >
+                <div class="flex items-center gap-2">
                   <div
-                    class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center"
+                    class="h-8 w-8 sm:h-9 sm:w-9 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0"
                   >
                     <img
                       v-if="student.image"
                       :src="student.image"
                       :alt="`${student.first_name} ${student.last_name}`"
-                      class="h-8 w-8 rounded-full object-cover"
+                      class="h-8 w-8 sm:h-9 sm:w-9 rounded-full object-cover"
                     />
                     <span v-else class="text-xs font-medium text-gray-600">
                       {{ student.first_name.charAt(0)
                       }}{{ student.last_name.charAt(0) }}
                     </span>
                   </div>
-                  <div class="ml-3">
-                    <div class="text-sm font-medium text-gray-900">
+                  <div class="min-w-0 flex-1">
+                    <div
+                      class="text-sm font-medium text-gray-900 truncate max-w-[200px] sm:max-w-none"
+                    >
                       {{ student.first_name }} {{ student.last_name }}
                     </div>
                   </div>
                 </div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {{ student.email || '-' }}
+              <td
+                class="block sm:table-cell px-0 sm:px-4 md:px-6 py-0.5 sm:py-4 text-xs sm:text-sm text-gray-900"
+              >
+                <div class="flex items-center sm:hidden">
+                  <span class="text-gray-500 mr-2"
+                    >{{ t('teacher.students.email') }}:</span
+                  >
+                  <span class="truncate">{{ student.email || '-' }}</span>
+                </div>
+                <!-- Desktop view -->
+                <div class="hidden sm:block truncate max-w-[200px]">
+                  {{ student.email || '-' }}
+                </div>
               </td>
               <td
-                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize"
+                class="block sm:table-cell px-0 sm:px-4 md:px-6 py-0.5 sm:py-4 text-xs sm:text-sm text-gray-900 capitalize"
               >
-                {{ student.gender || '-' }}
+                <div class="flex items-center sm:hidden">
+                  <span class="text-gray-500 mr-2"
+                    >{{ t('teacher.students.gender') }}:</span
+                  >
+                  <span>{{ student.gender || '-' }}</span>
+                </div>
+                <!-- Desktop view -->
+                <span class="hidden sm:inline">{{
+                  student.gender || '-'
+                }}</span>
               </td>
               <td
-                class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
+                class="block sm:table-cell px-0 sm:px-4 md:px-6 py-0 sm:py-4 text-right text-xs sm:text-sm font-medium absolute top-3 right-3 sm:static"
               >
-                <div class="flex items-center justify-end gap-2">
+                <div class="flex items-center justify-end gap-1">
                   <button
                     @click="openEditModal(student)"
                     :title="t('teacher.students.edit')"
-                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                    class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
                   >
-                    <PencilIcon class="w-5 h-5" />
+                    <PencilIcon class="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
-                  <!--                  <button-->
-                  <!--                    @click="openDeleteModal(student)"-->
-                  <!--                    :title="t('teacher.students.delete')"-->
-                  <!--                    class="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"-->
-                  <!--                  >-->
-                  <!--                    <TrashIcon class="w-5 h-5" />-->
-                  <!--                  </button>-->
                   <button
                     @click="openAssignModal(student)"
                     :title="t('teacher.students.assign')"
-                    class="p-2 text-green-600 hover:bg-green-50 rounded-md transition-colors"
+                    class="p-1.5 text-green-600 hover:bg-green-50 rounded-md transition-colors"
                   >
-                    <UserPlusIcon class="w-5 h-5" />
+                    <UserPlusIcon class="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
               </td>
@@ -523,7 +548,10 @@ const handleCreateAssignment = async () => {
       </div>
 
       <!-- Use BasePagination -->
-      <div v-if="totalPages > 1" class="px-6 py-4 border-t border-gray-200">
+      <div
+        v-if="totalPages > 1"
+        class="px-2 sm:px-6 py-3 sm:py-4 border-t border-gray-200"
+      >
         <BasePagination
           :total-count="totalCount"
           :current-page="currentPage"
@@ -536,13 +564,13 @@ const handleCreateAssignment = async () => {
 
     <!-- Edit Modal -->
     <Dialog v-model:open="isEditModalOpen">
-      <DialogContent class="sm:max-w-md">
+      <DialogContent class="w-[95vw] max-w-md mx-auto">
         <DialogHeader>
           <DialogTitle>{{ t('teacher.students.edit') }}</DialogTitle>
         </DialogHeader>
 
         <form @submit.prevent="handleUpdateStudent" class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 {{ t('teacher.students.firstName') }} *
@@ -604,16 +632,18 @@ const handleCreateAssignment = async () => {
             </select>
           </div>
 
-          <DialogFooter>
+          <DialogFooter class="flex flex-col-reverse sm:flex-row gap-2">
             <Button
               type="button"
               variant="outline"
+              class="w-full sm:w-auto"
               @click="isEditModalOpen = false"
             >
               {{ t('common.cancel') }}
             </Button>
             <Button
               type="submit"
+              class="w-full sm:w-auto"
               :disabled="updateStudentMutation.isPending.value"
             >
               {{
@@ -638,7 +668,7 @@ const handleCreateAssignment = async () => {
 
     <!-- Assignment Modal -->
     <Dialog v-model:open="isAssignModalOpen">
-      <DialogContent class="sm:max-w-md">
+      <DialogContent class="w-[95vw] max-w-md mx-auto">
         <DialogHeader>
           <DialogTitle>{{ t('teacher.students.assignLesson') }}</DialogTitle>
         </DialogHeader>
@@ -682,7 +712,7 @@ const handleCreateAssignment = async () => {
             </select>
           </div>
 
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 {{ t('teacher.students.beginTime') }} *
@@ -721,16 +751,18 @@ const handleCreateAssignment = async () => {
             />
           </div>
 
-          <DialogFooter>
+          <DialogFooter class="flex flex-col-reverse sm:flex-row gap-2">
             <Button
               type="button"
               variant="outline"
+              class="w-full sm:w-auto"
               @click="isAssignModalOpen = false"
             >
               {{ t('common.cancel') }}
             </Button>
             <Button
               type="submit"
+              class="w-full sm:w-auto"
               :disabled="createAssignmentMutation.isPending.value"
             >
               {{

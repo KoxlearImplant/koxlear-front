@@ -259,12 +259,14 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container mx-auto p-6">
-    <div class="mb-6">
-      <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
+  <div class="container mx-auto p-2 sm:p-6">
+    <div class="mb-4 sm:mb-6">
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-white">
         {{ t('teacher.assignments.title', 'My Assignments') }}
       </h1>
-      <p class="text-gray-600 dark:text-gray-400 mt-2">
+      <p
+        class="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1 sm:mt-2"
+      >
         {{
           t(
             'teacher.assignments.description',
@@ -277,33 +279,38 @@ onMounted(() => {
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
       <!-- Header -->
       <div
-        class="flex justify-between items-center p-6 border-b dark:border-gray-700"
+        class="flex flex-col sm:flex-row justify-between sm:items-center p-3 sm:p-6 border-b dark:border-gray-700 gap-3 sm:gap-0"
       >
-        <h2 class="text-xl font-semibold">
+        <h2 class="text-lg sm:text-xl font-semibold">
           {{ t('teacher.assignments.list', 'Assignments List') }}
           <span
             v-if="totalCount > 0"
-            class="text-sm font-normal text-gray-500 ml-2"
+            class="text-xs sm:text-sm font-normal text-gray-500 ml-2"
           >
             ({{ totalCount }} total)
           </span>
         </h2>
-        <div class="flex gap-2">
+        <div class="flex gap-2 w-full sm:w-auto">
           <Button
             variant="outline"
             size="sm"
             @click="loadAssignments"
             :disabled="isLoading"
+            class="sm:flex-none"
           >
             <ArrowPathIcon
-              class="w-4 h-4 mr-2"
+              class="w-4 h-4 sm:mr-2"
               :class="{ 'animate-spin': isLoading }"
             />
-            {{ t('common.refresh', 'Refresh') }}
+            <span class="hidden sm:inline">{{
+              t('common.refresh', 'Refresh')
+            }}</span>
           </Button>
-          <Button size="sm" @click="openCreateModal">
+          <Button size="sm" @click="openCreateModal" class="sm:flex-none">
             <PlusIcon class="w-4 h-4 mr-2" />
-            {{ t('teacher.assignments.create', 'Create Assignment') }}
+            <span class="text-xs sm:text-sm">{{
+              t('teacher.assignments.create', 'Create Assignment')
+            }}</span>
           </Button>
         </div>
       </div>
@@ -311,29 +318,35 @@ onMounted(() => {
       <!-- Loading State -->
       <div
         v-if="isLoading && assignments.length === 0"
-        class="p-12 text-center"
+        class="p-4 sm:p-12 text-center"
       >
         <ArrowPathIcon
-          class="w-8 h-8 mx-auto mb-4 animate-spin text-gray-400"
+          class="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-4 animate-spin text-gray-400"
         />
-        <p class="text-gray-500 dark:text-gray-400">
+        <p class="text-sm sm:text-base text-gray-500 dark:text-gray-400">
           {{ t('common.loading', 'Loading...') }}
         </p>
       </div>
 
       <!-- Error State -->
-      <div v-else-if="error" class="p-12 text-center">
-        <XCircleIcon class="w-12 h-12 mx-auto mb-4 text-red-500" />
-        <p class="text-red-600 dark:text-red-400">{{ error }}</p>
+      <div v-else-if="error" class="p-4 sm:p-12 text-center">
+        <XCircleIcon
+          class="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-4 text-red-500"
+        />
+        <p class="text-sm sm:text-base text-red-600 dark:text-red-400">
+          {{ error }}
+        </p>
         <Button variant="outline" class="mt-4" @click="loadAssignments">
           {{ t('common.tryAgain', 'Try Again') }}
         </Button>
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="assignments.length === 0" class="p-12 text-center">
-        <AcademicCapIcon class="w-16 h-16 mx-auto mb-4 text-gray-400" />
-        <p class="text-gray-500 dark:text-gray-400 mb-2">
+      <div v-else-if="assignments.length === 0" class="p-4 sm:p-12 text-center">
+        <AcademicCapIcon
+          class="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 text-gray-400"
+        />
+        <p class="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-2">
           {{
             t(
               'teacher.assignments.empty',
@@ -352,12 +365,18 @@ onMounted(() => {
         <div
           v-for="assignment in assignments"
           :key="assignment.id"
-          class="p-6 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+          class="p-3 sm:p-6 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors relative"
         >
-          <div class="flex items-start justify-between">
-            <div class="flex-1">
-              <div class="flex items-center gap-3 mb-2">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+          <div
+            class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-0"
+          >
+            <div class="flex-1 pr-16 sm:pr-0">
+              <div
+                class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mb-1.5 sm:mb-2"
+              >
+                <h3
+                  class="text-sm sm:text-lg font-semibold text-gray-900 dark:text-white truncate"
+                >
                   {{
                     assignment.lesson_full?.title ||
                     'Lesson #' + assignment.lesson
@@ -365,11 +384,11 @@ onMounted(() => {
                 </h3>
                 <span
                   :class="getStatusColor(assignment.status)"
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                  class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium w-fit"
                 >
                   <component
                     :is="getStatusIcon(assignment.status)"
-                    class="w-4 h-4 mr-1"
+                    class="w-3 h-3 sm:w-4 sm:h-4 mr-1"
                   />
                   {{ assignment.status }}
                 </span>
@@ -378,46 +397,58 @@ onMounted(() => {
               <!-- Student Info -->
               <div
                 v-if="assignment.student_full"
-                class="flex items-center gap-2 mb-3 text-sm text-gray-700 dark:text-gray-300"
+                class="flex items-center gap-1.5 mb-2 text-xs sm:text-sm text-gray-700 dark:text-gray-300"
               >
-                <UserIcon class="w-4 h-4" />
-                <span class="font-medium">
+                <UserIcon class="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                <span class="font-medium truncate">
                   {{ assignment.student_full.first_name }}
                   {{ assignment.student_full.last_name }}
                 </span>
-                <span class="text-gray-500 dark:text-gray-400">
+                <span
+                  class="text-gray-500 dark:text-gray-400 truncate hidden sm:inline"
+                >
                   (@{{ assignment.student_full.username }})
                 </span>
               </div>
 
               <div
-                class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600 dark:text-gray-400"
+                class="grid grid-cols-1 sm:grid-cols-2 gap-1 sm:gap-3 text-xs sm:text-sm text-gray-600 dark:text-gray-400"
               >
-                <div class="flex items-center gap-2">
-                  <CalendarIcon class="w-4 h-4" />
-                  <span>Start: {{ formatDate(assignment.begin_time) }}</span>
+                <div class="flex items-center gap-1.5">
+                  <CalendarIcon class="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                  <span class="truncate"
+                    >Start: {{ formatDate(assignment.begin_time) }}</span
+                  >
                 </div>
-                <div class="flex items-center gap-2">
-                  <CalendarIcon class="w-4 h-4" />
-                  <span>End: {{ formatDate(assignment.end_time) }}</span>
+                <div class="flex items-center gap-1.5">
+                  <CalendarIcon class="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                  <span class="truncate"
+                    >End: {{ formatDate(assignment.end_time) }}</span
+                  >
                 </div>
               </div>
             </div>
 
-            <div class="flex gap-2 ml-4">
+            <div
+              class="absolute top-3 right-3 flex gap-1 sm:static sm:gap-2 sm:ml-4 sm:justify-start"
+            >
               <Button
                 variant="outline"
                 size="sm"
                 @click="openEditModal(assignment)"
+                class="flex-1 sm:flex-none h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
               >
                 <PencilIcon class="w-4 h-4" />
+                <span class="ml-2 hidden sm:inline">Edit</span>
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 @click="handleDelete(assignment.id)"
+                class="flex-1 sm:flex-none h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3"
               >
                 <TrashIcon class="w-4 h-4 text-red-600" />
+                <span class="ml-2 hidden sm:inline">Delete</span>
               </Button>
             </div>
           </div>
@@ -427,17 +458,18 @@ onMounted(() => {
       <!-- Pagination -->
       <div
         v-if="totalPages > 1"
-        class="flex items-center justify-between px-6 py-4 border-t dark:border-gray-700"
+        class="flex flex-col sm:flex-row items-center justify-between px-2 sm:px-6 py-3 sm:py-4 border-t dark:border-gray-700 gap-3 sm:gap-0"
       >
-        <div class="text-sm text-gray-600 dark:text-gray-400">
+        <div class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
           Page {{ currentPage }} of {{ totalPages }}
         </div>
-        <div class="flex gap-2">
+        <div class="flex gap-2 w-full sm:w-auto">
           <Button
             variant="outline"
             size="sm"
             @click="prevPage"
             :disabled="currentPage === 1"
+            class="flex-1 sm:flex-none"
           >
             {{ t('common.previous', 'Previous') }}
           </Button>
@@ -446,6 +478,7 @@ onMounted(() => {
             size="sm"
             @click="nextPage"
             :disabled="currentPage === totalPages"
+            class="flex-1 sm:flex-none"
           >
             {{ t('common.next', 'Next') }}
           </Button>
@@ -455,7 +488,7 @@ onMounted(() => {
 
     <!-- Assignment Modal -->
     <Dialog :open="showAssignmentModal" @update:open="closeModal">
-      <DialogContent class="max-w-md">
+      <DialogContent class="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {{
@@ -464,7 +497,7 @@ onMounted(() => {
                 : t('teacher.assignments.create', 'Create Assignment')
             }}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription class="text-xs sm:text-sm">
             {{
               editingAssignment
                 ? t(
@@ -487,7 +520,7 @@ onMounted(() => {
             </label>
             <select
               v-model="formData.student"
-              class="w-full px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700"
+              class="w-full px-3 py-2 text-sm sm:text-base border rounded-md dark:bg-gray-800 dark:border-gray-700"
               :disabled="loadingStudents"
             >
               <option :value="0">
@@ -512,7 +545,7 @@ onMounted(() => {
             </label>
             <select
               v-model="formData.lesson"
-              class="w-full px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700"
+              class="w-full px-3 py-2 text-sm sm:text-base border rounded-md dark:bg-gray-800 dark:border-gray-700"
               :disabled="loadingLessons"
             >
               <option :value="0">
@@ -536,7 +569,7 @@ onMounted(() => {
             <input
               type="datetime-local"
               v-model="formData.begin_time"
-              class="w-full px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700"
+              class="w-full px-3 py-2 text-sm sm:text-base border rounded-md dark:bg-gray-800 dark:border-gray-700"
             />
           </div>
 
@@ -548,7 +581,7 @@ onMounted(() => {
             <input
               type="datetime-local"
               v-model="formData.end_time"
-              class="w-full px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700"
+              class="w-full px-3 py-2 text-sm sm:text-base border rounded-md dark:bg-gray-800 dark:border-gray-700"
             />
           </div>
 
@@ -562,20 +595,25 @@ onMounted(() => {
               v-model="formData.passing_score"
               min="0"
               max="100"
-              class="w-full px-3 py-2 border rounded-md dark:bg-gray-800 dark:border-gray-700"
+              class="w-full px-3 py-2 text-sm sm:text-base border rounded-md dark:bg-gray-800 dark:border-gray-700"
             />
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter class="flex-col sm:flex-row gap-2">
           <Button
             variant="outline"
             @click="closeModal"
             :disabled="isSubmitting"
+            class="w-full sm:w-auto"
           >
             {{ t('common.cancel', 'Cancel') }}
           </Button>
-          <Button @click="submitForm" :disabled="isSubmitting">
+          <Button
+            @click="submitForm"
+            :disabled="isSubmitting"
+            class="w-full sm:w-auto"
+          >
             {{
               isSubmitting
                 ? t('common.saving', 'Saving...')

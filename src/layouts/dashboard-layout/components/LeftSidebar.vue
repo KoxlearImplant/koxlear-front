@@ -118,9 +118,9 @@ const isRouteActive = (pattern: string): boolean => {
 </script>
 
 <template>
-  <!-- Fancy, child-friendly sidebar -->
+  <!-- Desktop Sidebar - Vertical -->
   <nav
-    class="w-72 h-full bg-gradient-to-b from-blue-500 to-purple-600 dark:from-blue-900 dark:via-purple-900 dark:to-yellow-900 shadow-2xl flex flex-col items-center"
+    class="hidden md:flex w-72 h-full bg-gradient-to-b from-blue-500 to-purple-600 dark:from-blue-900 dark:via-purple-900 dark:to-yellow-900 shadow-2xl flex-col items-center"
   >
     <!-- Logo - Fixed at top -->
     <div class="flex-shrink-0 p-4">
@@ -186,6 +186,68 @@ const isRouteActive = (pattern: string): boolean => {
     <!-- Language selector - Fixed at bottom -->
     <div class="flex-shrink-0 w-full p-4">
       <LangSelect class="z-50 w-full" />
+    </div>
+  </nav>
+
+  <!-- Mobile Bottom Navigation Bar - Horizontal -->
+  <nav
+    class="md:hidden w-full bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-900 dark:via-purple-900 dark:to-yellow-900 shadow-2xl"
+  >
+    <div
+      class="flex items-center justify-around px-2 py-3 safe-area-inset-bottom"
+    >
+      <template v-if="!authStore.isTeacher()">
+        <router-link
+          v-for="item in navItems"
+          :key="item.to"
+          :to="item.to"
+          class="flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-300 min-w-[60px]"
+          :class="{
+            'bg-white/20 shadow-inner': isRouteActive(item.activePattern),
+          }"
+        >
+          <component
+            :is="item.icon"
+            class="size-6 drop-shadow mb-1"
+            :class="[
+              item.iconColor,
+              isRouteActive(item.activePattern) ? 'scale-110' : '',
+            ]"
+          />
+          <span
+            class="text-[10px] text-white font-semibold text-center leading-tight"
+          >
+            {{ item.label }}
+          </span>
+        </router-link>
+      </template>
+
+      <!-- Teacher navigation items - only show for teacher users -->
+      <template v-if="authStore.isTeacher()">
+        <router-link
+          v-for="item in teacherNavItems"
+          :key="item.to"
+          :to="item.to"
+          class="flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-300 min-w-[60px]"
+          :class="{
+            'bg-white/20 shadow-inner': isRouteActive(item.activePattern),
+          }"
+        >
+          <component
+            :is="item.icon"
+            class="size-6 drop-shadow mb-1"
+            :class="[
+              item.iconColor,
+              isRouteActive(item.activePattern) ? 'scale-110' : '',
+            ]"
+          />
+          <span
+            class="text-[10px] text-white font-semibold text-center leading-tight"
+          >
+            {{ item.label }}
+          </span>
+        </router-link>
+      </template>
     </div>
   </nav>
 </template>
