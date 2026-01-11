@@ -195,7 +195,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container mx-auto p-6">
+  <div class="container mx-auto sm:p-6">
     <div class="mb-6">
       <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
         {{ t('assignments.title', 'My Assignments') }}

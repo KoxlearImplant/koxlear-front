@@ -340,7 +340,7 @@ const openLessonItems = (lesson: ILesson) => {
 
 <template>
   <div class="min-h-screen bg-gray-50">
-    <div class="max-w-6xl mx-auto px-6 py-12">
+    <div class="max-w-6xl mx-auto sm:px-6 py-6 sm:py-12">
       <!-- Header -->
       <div class="mb-12">
         <div class="flex items-center justify-between mb-8">

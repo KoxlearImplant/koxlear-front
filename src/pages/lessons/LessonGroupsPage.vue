@@ -31,7 +31,7 @@ function getGradientColor(id: number) {
 </script>
 
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div class="container mx-auto sm:px-4 py-4 sm:py-8">
     <h1 class="text-3xl font-bold mb-6 text-gray-800">
       {{ t('lessonGroups.title', 'Lesson Groups') }}
     </h1>

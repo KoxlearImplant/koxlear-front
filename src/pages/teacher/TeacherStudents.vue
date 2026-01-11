@@ -272,7 +272,7 @@ const handleCreateAssignment = async () => {
 </script>
 
 <template>
-  <div class="p-2 sm:p-6">
+  <div class="sm:p-6">
     <div
       class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 sm:mb-6"
     >

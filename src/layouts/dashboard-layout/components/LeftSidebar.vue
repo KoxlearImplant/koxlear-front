@@ -189,33 +189,46 @@ const isRouteActive = (pattern: string): boolean => {
     </div>
   </nav>
 
-  <!-- Mobile Bottom Navigation Bar - Horizontal -->
+  <!-- Mobile Bottom Navigation Bar - Floating Dock Style -->
   <nav
-    class="md:hidden w-full bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-900 dark:via-purple-900 dark:to-yellow-900 shadow-2xl"
+    class="md:hidden w-auto mx-4 rounded-2xl bg-gradient-to-r from-blue-500/95 to-purple-600/95 dark:from-blue-900/95 dark:via-purple-900/95 dark:to-yellow-900/95 backdrop-blur-lg border border-white/20 shadow-2xl overflow-hidden pointer-events-auto"
+    style="margin-bottom: calc(1rem + env(safe-area-inset-bottom))"
   >
-    <div
-      class="flex items-center justify-around px-2 py-3 safe-area-inset-bottom"
-    >
+    <div class="flex items-center justify-around p-2">
       <template v-if="!authStore.isTeacher()">
         <router-link
           v-for="item in navItems"
           :key="item.to"
           :to="item.to"
-          class="flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-300 min-w-[60px]"
-          :class="{
-            'bg-white/20 shadow-inner': isRouteActive(item.activePattern),
-          }"
+          class="group relative flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all duration-300 min-w-[60px]"
+          :class="
+            isRouteActive(item.activePattern)
+              ? 'bg-white/10 shadow-inner'
+              : 'hover:bg-white/5'
+          "
         >
+          <div
+            class="absolute top-0 w-8 h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent opacity-0 transition-opacity duration-300 rounded-full"
+            :class="{ 'opacity-100': isRouteActive(item.activePattern) }"
+          ></div>
+
           <component
             :is="item.icon"
-            class="size-6 drop-shadow mb-1"
+            class="size-6 mb-1 transition-transform duration-300"
             :class="[
               item.iconColor,
-              isRouteActive(item.activePattern) ? 'scale-110' : '',
+              isRouteActive(item.activePattern)
+                ? 'scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]'
+                : 'opacity-80 group-hover:opacity-100 group-hover:scale-105',
             ]"
           />
           <span
-            class="text-[10px] text-white font-semibold text-center leading-tight"
+            class="text-[10px] font-medium text-center leading-tight transition-colors duration-300"
+            :class="
+              isRouteActive(item.activePattern)
+                ? 'text-white'
+                : 'text-gray-400 group-hover:text-gray-200'
+            "
           >
             {{ item.label }}
           </span>
@@ -228,21 +241,35 @@ const isRouteActive = (pattern: string): boolean => {
           v-for="item in teacherNavItems"
           :key="item.to"
           :to="item.to"
-          class="flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-300 min-w-[60px]"
-          :class="{
-            'bg-white/20 shadow-inner': isRouteActive(item.activePattern),
-          }"
+          class="group relative flex flex-col items-center justify-center py-2 px-1 rounded-xl transition-all duration-300 min-w-[60px]"
+          :class="
+            isRouteActive(item.activePattern)
+              ? 'bg-white/10 shadow-inner'
+              : 'hover:bg-white/5'
+          "
         >
+          <div
+            class="absolute top-0 w-8 h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent opacity-0 transition-opacity duration-300 rounded-full"
+            :class="{ 'opacity-100': isRouteActive(item.activePattern) }"
+          ></div>
+
           <component
             :is="item.icon"
-            class="size-6 drop-shadow mb-1"
+            class="size-6 mb-1 transition-transform duration-300"
             :class="[
               item.iconColor,
-              isRouteActive(item.activePattern) ? 'scale-110' : '',
+              isRouteActive(item.activePattern)
+                ? 'scale-110 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]'
+                : 'opacity-80 group-hover:opacity-100 group-hover:scale-105',
             ]"
           />
           <span
-            class="text-[10px] text-white font-semibold text-center leading-tight"
+            class="text-[10px] font-medium text-center leading-tight transition-colors duration-300"
+            :class="
+              isRouteActive(item.activePattern)
+                ? 'text-white'
+                : 'text-gray-400 group-hover:text-gray-200'
+            "
           >
             {{ item.label }}
           </span>
@@ -279,18 +306,6 @@ const isRouteActive = (pattern: string): boolean => {
 
 /* Add a subtle scale animation for the active link icons */
 .router-link-active svg {
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
+  transition: transform 0.3s ease;
 }
 </style>

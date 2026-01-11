@@ -11,7 +11,9 @@ import Header from '@/layouts/dashboard-layout/components/TopHeader.vue'
     </div>
 
     <!-- Mobile Bottom Navigation -->
-    <div class="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+    <div
+      class="fixed bottom-0 left-0 right-0 z-50 md:hidden pointer-events-none"
+    >
       <LeftSidebar />
     </div>
 
@@ -25,7 +27,7 @@ import Header from '@/layouts/dashboard-layout/components/TopHeader.vue'
       </div>
 
       <!-- Scrollable Content Area -->
-      <div class="flex-1 p-4 md:p-6 overflow-y-auto mt-16 mb-20 md:mb-0">
+      <div class="flex-1 p-4 md:p-6 overflow-y-auto mt-16 mb-24 md:mb-0">
         <router-view />
       </div>
     </div>
