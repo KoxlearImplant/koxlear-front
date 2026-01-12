@@ -36,23 +36,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { BellIcon } from '@heroicons/vue/24/outline'
 import { useGetProfile } from '@/pages/profile/queries/useGetProfile'
+import { useUnreadCount } from '@/pages/notifications/queries/useUnreadCount'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
-const hasNotifications = ref(false) // Replace with real notification logic if needed
 const router = useRouter()
 
 const { data: profile } = useGetProfile()
+const { data: unreadCountData } = useUnreadCount()
+
+const unreadCount = computed(() => unreadCountData.value?.count ?? 0)
+const hasNotifications = computed(() => unreadCount.value > 0)
 
 const fullName = computed(() => {
   if (!profile.value) return ''
   return `${profile.value.first_name || ''} ${profile.value.last_name || ''}`.trim()
 })
 const avatarUrl = computed(() => profile.value?.image || '/default-avatar.png')
+
+function goToNotifications() {
+  router.push('/dashboard/notifications')
+}
 
 function goProfile() {
   router.push('/dashboard/profile')
