@@ -7,7 +7,7 @@ export interface StudentsFilter extends BaseFilter {
 
 export interface StudentRes {
   id: number
-  email?: string
+  phone_number?: string
   username: string
   first_name: string
   last_name: string
@@ -22,7 +22,7 @@ export interface CreateStudentReq {
   last_name: string
   gender?: string
   password?: string
-  email?: string
+  phone_number?: string
 }
 
 export const getStudents = async (filter: StudentsFilter) => {

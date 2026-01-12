@@ -21,6 +21,7 @@ import AdminTeachersPage from '@/pages/admin/AdminTeachersPage.vue'
 import AdminAssignmentsPage from '@/pages/admin/AdminAssignmentsPage.vue'
 import AssignmentsPage from '@/pages/assignments/AssignmentsPage.vue'
 import NotFound from '@/pages/NotFound.vue'
+import { NotificationsPage } from '@/pages/notifications'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -146,6 +147,12 @@ const routes: RouteRecordRaw[] = [
         path: 'assignments',
         name: 'Assignments',
         component: AssignmentsPage,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: 'notifications',
+        name: 'Notifications',
+        component: NotificationsPage,
         meta: { requiresAuth: true },
       },
       {

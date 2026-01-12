@@ -50,7 +50,7 @@ const createForm = ref<CreateStudentReq>({
   last_name: '',
   gender: '',
   password: '',
-  email: '',
+  phone_number: '',
 })
 
 const editForm = ref<Partial<CreateStudentReq>>({})
@@ -98,7 +98,7 @@ const resetCreateForm = () => {
     last_name: '',
     gender: '',
     password: '',
-    email: '',
+    phone_number: '',
   }
 }
 
@@ -113,7 +113,7 @@ const openEditModal = (student: StudentRes) => {
     first_name: student.first_name,
     last_name: student.last_name,
     gender: student.gender || '',
-    email: student.email || '',
+    phone_number: student.phone_number || '',
   }
   isEditModalOpen.value = true
 }
@@ -338,11 +338,12 @@ const handleCreateAssignment = async () => {
 
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
-                {{ t('teacher.students.email') }}
+                {{ t('teacher.students.phoneNumber') }}
               </label>
               <input
-                v-model="createForm.email"
-                type="email"
+                v-model="createForm.phone_number"
+                type="tel"
+                maxlength="13"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -445,7 +446,7 @@ const handleCreateAssignment = async () => {
               <th
                 class="px-2 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
               >
-                {{ t('teacher.students.email') }}
+                {{ t('teacher.students.phoneNumber') }}
               </th>
               <th
                 class="px-2 sm:px-4 md:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -499,13 +500,15 @@ const handleCreateAssignment = async () => {
               >
                 <div class="flex items-center sm:hidden">
                   <span class="text-gray-500 mr-2"
-                    >{{ t('teacher.students.email') }}:</span
+                    >{{ t('teacher.students.phoneNumber') }}:</span
                   >
-                  <span class="truncate">{{ student.email || '-' }}</span>
+                  <span class="truncate">{{
+                    student.phone_number || '-'
+                  }}</span>
                 </div>
                 <!-- Desktop view -->
                 <div class="hidden sm:block truncate max-w-[200px]">
-                  {{ student.email || '-' }}
+                  {{ student.phone_number || '-' }}
                 </div>
               </td>
               <td
@@ -609,11 +612,12 @@ const handleCreateAssignment = async () => {
 
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
-              {{ t('teacher.students.email') }}
+              {{ t('teacher.students.phoneNumber') }}
             </label>
             <input
-              v-model="editForm.email"
-              type="email"
+              v-model="editForm.phone_number"
+              type="tel"
+              maxlength="13"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>

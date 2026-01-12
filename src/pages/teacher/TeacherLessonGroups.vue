@@ -493,9 +493,6 @@ const navigateToLessons = (group: LessonGroupRes) => {
                       #{{ group.id }}
                     </span>
                   </div>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ t('teacher.lessonGroups.manageContent') }}
-                  </p>
                 </div>
 
                 <!-- Actions -->

@@ -97,6 +97,10 @@
     "registerSubtitle": "Start your learning journey",
     "email": "Email",
     "emailPlaceholder": "Enter your email",
+    "phoneNumber": "Phone Number",
+    "phoneNumberPlaceholder": "+998901234567",
+    "phoneNumberRequired": "Phone number is required",
+    "invalidPhoneNumber": "Invalid phone number format (e.g., +998901234567)",
     "password": "Password",
     "passwordPlaceholder": "Enter your password",
     "confirmPassword": "Confirm Password",
@@ -191,7 +195,8 @@
     "assignments": "Assignments",
     "myLessons": "My Lessons",
     "myStudents": "My Students",
-    "myAssignments": "My Assignments"
+    "myAssignments": "My Assignments",
+    "notifications": "Notifications"
   },
   "letters": {
     "title": "Letters",
@@ -379,6 +384,22 @@
     "empty": "No assignments found",
     "start": "Start",
     "completed": "Completed"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "subtitle": "Stay updated with your latest activities",
+    "noNotifications": "No notifications",
+    "noNotificationsDesc": "You're all caught up! New notifications will appear here.",
+    "unread": "Unread",
+    "read": "Read",
+    "markedAsRead": "Notification marked as read",
+    "markAsReadError": "Failed to mark notification as read",
+    "loadError": "Failed to load notifications",
+    "justNow": "Just now",
+    "minutesAgo": "{count} min ago",
+    "hoursAgo": "{count}h ago",
+    "daysAgo": "{count}d ago",
+    "showingResults": "Showing {from}-{to} of {total}"
   },
   "footer": {
     "aboutKoxlear": "About Koxlear",

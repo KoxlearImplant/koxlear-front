@@ -15,7 +15,7 @@ const router = useRouter()
 const auth = useAuthStore()
 
 // Form state
-const email = ref('')
+const phoneNumber = ref('')
 const password = ref('')
 const rememberMe = ref(false)
 const errorMessage = ref('')
@@ -30,12 +30,15 @@ const telegramLoginMutation = useTelegramLogin()
 const validateForm = () => {
   errors.value = {}
 
-  if (!email.value) {
-    errors.value.email = t('auth.emailRequired') || 'Email is required'
+  if (!phoneNumber.value) {
+    errors.value.phoneNumber =
+      t('auth.phoneNumberRequired') || 'Phone number is required'
   } else {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email.value)) {
-      errors.value.email = t('auth.invalidEmail') || 'Invalid email format'
+    const phoneRegex = /^\+998[0-9]{9}$/
+    if (!phoneRegex.test(phoneNumber.value)) {
+      errors.value.phoneNumber =
+        t('auth.invalidPhoneNumber') ||
+        'Invalid phone number format (e.g., +998901234567)'
     }
   }
 
@@ -55,7 +58,7 @@ const handleLogin = () => {
 
   loginMutation(
     {
-      email: email.value,
+      phone_number: phoneNumber.value,
       password: password.value,
     },
     {
@@ -140,24 +143,25 @@ const goToHome = () => {
               {{ errorMessage }}
             </div>
 
-            <!-- Email field -->
+            <!-- Phone number field -->
             <div class="mb-4">
               <label
                 class="block text-gray-700 text-sm font-medium mb-2"
-                for="email"
+                for="phoneNumber"
               >
-                {{ t('auth.email') }}
+                {{ t('auth.phoneNumber') }}
               </label>
               <input
-                id="email"
-                v-model="email"
-                type="email"
+                id="phoneNumber"
+                v-model="phoneNumber"
+                type="tel"
+                maxlength="13"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                :class="{ 'border-red-500': errors.email }"
-                :placeholder="t('auth.emailPlaceholder')"
+                :class="{ 'border-red-500': errors.phoneNumber }"
+                :placeholder="t('auth.phoneNumberPlaceholder')"
               />
-              <p v-if="errors.email" class="mt-1 text-xs text-red-500">
-                {{ errors.email }}
+              <p v-if="errors.phoneNumber" class="mt-1 text-xs text-red-500">
+                {{ errors.phoneNumber }}
               </p>
             </div>
 

@@ -52,7 +52,7 @@ export interface CheckEmailResponse {
 }
 
 export interface TokenObtainPairRequest {
-  email: string
+  phone_number: string
   password: string
 }
 

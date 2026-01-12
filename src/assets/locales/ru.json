@@ -97,6 +97,10 @@
     "registerSubtitle": "Начните свое обучение",
     "email": "Эл. почта",
     "emailPlaceholder": "Введите эл. почту",
+    "phoneNumber": "Номер телефона",
+    "phoneNumberPlaceholder": "+998901234567",
+    "phoneNumberRequired": "Введите номер телефона",
+    "invalidPhoneNumber": "Неверный формат номера телефона (например, +998901234567)",
     "password": "Пароль",
     "passwordPlaceholder": "Введите пароль",
     "confirmPassword": "Подтвердите пароль",
@@ -193,7 +197,8 @@
     "assignments": "Задания",
     "myLessons": "Мои уроки",
     "myStudents": "Мои студенты",
-    "myAssignments": "Мои задания"
+    "myAssignments": "Мои задания",
+    "notifications": "Уведомления"
   },
   "letters": {
     "title": "Буквы",
@@ -381,6 +386,22 @@
     "empty": "Заданий не найдено",
     "start": "Начать",
     "completed": "Завершено"
+  },
+  "notifications": {
+    "title": "Уведомления",
+    "subtitle": "Будьте в курсе последних событий",
+    "noNotifications": "Нет уведомлений",
+    "noNotificationsDesc": "Вы всё просмотрели! Новые уведомления появятся здесь.",
+    "unread": "Непрочитано",
+    "read": "Прочитано",
+    "markedAsRead": "Уведомление отмечено как прочитанное",
+    "markAsReadError": "Не удалось отметить уведомление как прочитанное",
+    "loadError": "Не удалось загрузить уведомления",
+    "justNow": "Только что",
+    "minutesAgo": "{count} мин назад",
+    "hoursAgo": "{count}ч назад",
+    "daysAgo": "{count}д назад",
+    "showingResults": "Показано {from}-{to} из {total}"
   },
   "footer": {
     "aboutKoxlear": "О Коксляр",

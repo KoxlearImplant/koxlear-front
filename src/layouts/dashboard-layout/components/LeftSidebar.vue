@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import {
-  UserCircleIcon,
+  BellIcon,
   ClipboardDocumentListIcon,
+  UserCircleIcon,
 } from '@heroicons/vue/24/solid'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { Component } from 'vue'
+import { computed } from 'vue'
 import LangSelect from '@/components/common/LangSelect.vue'
 import { useAuthStore } from '@/store/auth.store'
 import { GraduationCapIcon, UsersRoundIcon } from 'lucide-vue-next'
-import { computed } from 'vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -77,6 +78,14 @@ const navItems = computed<NavItem[]>(() => {
       iconColor: 'text-purple-200',
       borderColor: 'border-purple-300',
     },
+    {
+      to: '/dashboard/notifications',
+      icon: BellIcon,
+      label: t('nav.notifications'),
+      activePattern: '/dashboard/notifications',
+      iconColor: 'text-green-200',
+      borderColor: 'border-green-300',
+    },
   ]
 })
 
@@ -105,6 +114,14 @@ const teacherNavItems = computed<NavItem[]>(() => {
       icon: ClipboardDocumentListIcon,
       label: t('nav.myAssignments'),
       activePattern: '/dashboard/teacher/assignments',
+      iconColor: 'text-green-200',
+      borderColor: 'border-green-300',
+    },
+    {
+      to: '/dashboard/notifications',
+      icon: BellIcon,
+      label: t('nav.notifications'),
+      activePattern: '/dashboard/notifications',
       iconColor: 'text-green-200',
       borderColor: 'border-green-300',
     },

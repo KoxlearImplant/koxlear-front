@@ -102,6 +102,10 @@
     "registerSubtitle": "O'rganishni boshlang",
     "email": "Elektron pochta",
     "emailPlaceholder": "Elektron pochtangizni kiriting",
+    "phoneNumber": "Telefon raqami",
+    "phoneNumberPlaceholder": "+998901234567",
+    "phoneNumberRequired": "Telefon raqami kiritilishi shart",
+    "invalidPhoneNumber": "Noto'g'ri telefon raqami formati (masalan, +998901234567)",
     "password": "Parol",
     "passwordPlaceholder": "Parolni kiriting",
     "confirmPassword": "Parolni tasdiqlang",
@@ -201,7 +205,8 @@
     "assignments": "Topshiriqlar",
     "myLessons": "Mening darslarim",
     "myStudents": "Mening o'quvchilarim",
-    "myAssignments": "Mening topshiriqlarim"
+    "myAssignments": "Mening topshiriqlarim",
+    "notifications": "Bildirishnomalar"
   },
   "letters": {
     "title": "Harflar",
@@ -389,6 +394,22 @@
     "empty": "Topshiriqlar topilmadi",
     "start": "Boshlash",
     "completed": "Tugallangan"
+  },
+  "notifications": {
+    "title": "Bildirishnomalar",
+    "subtitle": "So'nggi faoliyatingiz haqida xabardor bo'ling",
+    "noNotifications": "Bildirishnomalar yo'q",
+    "noNotificationsDesc": "Hammasi ko'rib chiqildi! Yangi bildirishnomalar shu yerda paydo bo'ladi.",
+    "unread": "O'qilmagan",
+    "read": "O'qilgan",
+    "markedAsRead": "Bildirishnoma o'qilgan deb belgilandi",
+    "markAsReadError": "Bildirishnomani o'qilgan deb belgilab bo'lmadi",
+    "loadError": "Bildirishnomalarni yuklab bo'lmadi",
+    "justNow": "Hozirgina",
+    "minutesAgo": "{count} daq oldin",
+    "hoursAgo": "{count}s oldin",
+    "daysAgo": "{count}k oldin",
+    "showingResults": "{total} dan {from}-{to} ko'rsatilmoqda"
   },
   "footer": {
     "aboutKoxlear": "Koxlear haqida",

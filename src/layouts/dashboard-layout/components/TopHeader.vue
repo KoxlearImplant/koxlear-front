@@ -6,14 +6,16 @@
     <div class="flex items-center gap-2 md:gap-4">
       <button
         class="relative p-2 md:p-2.5 rounded-full hover:bg-sky-900/10 transition"
-        @click="notify"
+        @click="goToNotifications"
         :aria-label="t('header.notifications')"
       >
         <BellIcon class="w-6 h-6 md:w-8 md:h-8 text-sky-400" />
         <span
           v-if="hasNotifications"
-          class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full"
-        ></span>
+          class="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-xs font-bold rounded-full px-1"
+        >
+          {{ unreadCount > 99 ? '99+' : unreadCount }}
+        </span>
       </button>
       <button
         @click="goProfile"
@@ -51,11 +53,6 @@ const fullName = computed(() => {
   return `${profile.value.first_name || ''} ${profile.value.last_name || ''}`.trim()
 })
 const avatarUrl = computed(() => profile.value?.image || '/default-avatar.png')
-
-function notify() {
-  // Placeholder for notification logic
-  alert(t('header.noNotifications'))
-}
 
 function goProfile() {
   router.push('/dashboard/profile')
